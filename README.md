@@ -5,11 +5,14 @@ a multitask c++ framework
 
 build
 =====
-get the source:
+##get the source:
 ---------------
+```
 git clone git@github.com:AresTao/xframe.git
-
-compile:
+```
+##compile:
 --------
-$cd xframe
-$make clean all install
+```
+cd xframe
+make clean all install
+```
