@@ -31,20 +31,20 @@ class TTimerRsc
 		void list(CStr& result);
 
 		inline void clear();
-        TTimeMarkExt& operator[](const TTimeMark timerId);
+		TTimeMarkExt& operator[](const TTimeMark timerId);
 
 };
 
 
 struct TDBMarkExt
 {
-   INT        dbId;
-   INT        dbType;
-   CStr       dbUser;
-   CStr       dbPass;
-   CStr       dbName;
-   CStr       dbHost;
-   INT        dbPort;
+	INT        dbId;
+	INT        dbType;
+	CStr       dbUser;
+	CStr       dbPass;
+	CStr       dbName;
+	CStr       dbHost;
+	INT        dbPort;
 };
 
 _CLASSDEF(TDBEnv);
@@ -99,7 +99,7 @@ class TEnv
 		TDBEnv 			mDBEnv;
 		int				mLogType;			//Log类型
 		int				mLogLevel;			//Log等级
-        CStr            mThreadName;        //线程名
+		CStr            mThreadName;        //线程名
 
 		BOOL  loadCommonEnv(TiXmlElement* root);
 
@@ -127,24 +127,24 @@ class TEnv
 _CLASSDEF(TTaskEnv);
 class TTaskEnv : public TEnv
 {
-private:
-	INT mTaskID;
-	TiXmlElement*	task;
-	TiXmlElement*	log;
-	TiXmlElement*	dbrsc;
+	private:
+		INT mTaskID;
+		TiXmlElement*	task;
+		TiXmlElement*	log;
+		TiXmlElement*	dbrsc;
 
-public:
-	TiXmlElement*	extend;
-	TTaskEnv(UINT taskID) { mTaskID=taskID; task = log = dbrsc = NULL; }
-	~TTaskEnv() {  }
+	public:
+		TiXmlElement*	extend;
+		TTaskEnv(UINT taskID) { mTaskID=taskID; task = log = dbrsc = NULL; }
+		~TTaskEnv() {  }
 
-	virtual BOOL onLoad();
-	virtual void onList(CStr& result);
-	virtual int getLogType();
-	virtual int getLogLevel();
+		virtual BOOL onLoad();
+		virtual void onList(CStr& result);
+		virtual int getLogType();
+		virtual int getLogLevel();
 
-	BOOL getTaskInfo( INT&	taskType, CStr&	taskName);
-	BOOL getDBRsc(TDBRsc& db);
+		BOOL getTaskInfo( INT&	taskType, CStr&	taskName);
+		BOOL getDBRsc(TDBRsc& db);
 
 };
 
@@ -193,9 +193,9 @@ class TKernalEnv : public TEnv
 
 _CLASSDEF(GeneralThreadEnv);
 struct GeneralThreadEnv{
-    const char * threadName;
-    int logType;
-    int logLevel;
+	const char * threadName;
+	int logType;
+	int logLevel;
 };
 
 //这个参数在系统启动的时候初始化，用于加载系统的配置文件路径，在程序其他任何地方都不能修改，以避免线程冲突

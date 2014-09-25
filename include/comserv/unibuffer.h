@@ -1,72 +1,63 @@
-//============================================================================
-// Name        : unibuffer.h
-// Author      : Yubo Chow, lxm.
-// Version     :
-// Copyright   : 
-// Description : a general buffer.
-//============================================================================
-
-
 #ifndef __UNIBUFFER_H_
 #define __UNIBUFFER_H_
 
 template <class type> class TBuffer
 {
-public:
-	TBuffer();
-	TBuffer(int bufferSize);
-	typedef int(type::*pfFunc)(void *dst, const void *src, unsigned int length);
+	public:
+		TBuffer();
+		TBuffer(int bufferSize);
+		typedef int(type::*pfFunc)(void *dst, const void *src, unsigned int length);
 
-	//TBuffer(int bufferSize, int type::popFunction(void *dst, const void *src, unsigned int length), int type::pushFunction(void *dst, const void *src, unsigned int length));
-	TBuffer(int bufferSize, type *master, pfFunc popFunction, pfFunc pushFunction);
-	~TBuffer();
+		//TBuffer(int bufferSize, int type::popFunction(void *dst, const void *src, unsigned int length), int type::pushFunction(void *dst, const void *src, unsigned int length));
+		TBuffer(int bufferSize, type *master, pfFunc popFunction, pfFunc pushFunction);
+		~TBuffer();
 
-	int writeIntoBuffer(const char *src, int length);
-	int readFromBuffer(char *dst, int length);
-	void reset();
-	void rearrange();
-	int size()
-	{	return m_size;}
-	int freeLength()
-	{	return m_freeLength;}
-	int filledLength()
-	{	return m_filledLength;}
+		int writeIntoBuffer(const char *src, int length);
+		int readFromBuffer(char *dst, int length);
+		void reset();
+		void rearrange();
+		int size()
+		{	return m_size;}
+		int freeLength()
+		{	return m_freeLength;}
+		int filledLength()
+		{	return m_filledLength;}
 
-private:
-	type *m_master;
-	char *msgBufEnd;
-	char *msgBuf;
-	char *pBufHead;
-	char *pBufTail;
+	private:
+		type *m_master;
+		char *msgBufEnd;
+		char *msgBuf;
+		char *pBufHead;
+		char *pBufTail;
 
-	int m_size;
-	int m_filledLength;
-	int m_freeLength;
+		int m_size;
+		int m_filledLength;
+		int m_freeLength;
 
-	//int(type::*popFromBuff)(void *dst, const void *src, unsigned int length);
-	//int(type::*pushIntoBuff)(void *dst, const void *src, unsigned int length);
-	pfFunc popFromBuff;
-	pfFunc pushIntoBuff;
+		//int(type::*popFromBuff)(void *dst, const void *src, unsigned int length);
+		//int(type::*pushIntoBuff)(void *dst, const void *src, unsigned int length);
+		pfFunc popFromBuff;
+		pfFunc pushIntoBuff;
 
-	int isBasicMaster;
+		int isBasicMaster;
 };
 
 class TBufferMaster
 {
-public:
-	int _pop(void *dst, const void *src, unsigned int length)
-	{
-		int ret = length;
-		memcpy(dst, src, length);
-		return ret;
-	}
+	public:
+		int _pop(void *dst, const void *src, unsigned int length)
+		{
+			int ret = length;
+			memcpy(dst, src, length);
+			return ret;
+		}
 
-	int _push(void *dst, const void *src, unsigned int length)
-	{
-		int ret = length;
-		memcpy(dst, src, length);
-		return ret;
-	}
+		int _push(void *dst, const void *src, unsigned int length)
+		{
+			int ret = length;
+			memcpy(dst, src, length);
+			return ret;
+		}
 
 };
 

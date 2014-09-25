@@ -1,44 +1,3 @@
-/*********************************************************************
- * Copyright (c)2002, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
-
- * FileName：				hashtable.h
- * System：           		SoftSwitch
- * SubSystem：	        	Common
- * Author：					Ye Li
- * Description：
-		哈西表
- *
- * Last Modified:
-		2002-5-12
-			完成初始版本	By Ye Li
-		2002-5-16
-			完善对CHAR*作为键类型的支持	By Ye Li
-		2002-5-27
-			修正从hash值映射哈西表索引的算法。
-			（感谢林松涛的意见） By Ye Li
-		2002-11-25
-			增加了遍历功能，用两个函数实现：reset()、getNext()。
-			使用方法：
-				1.调用reset()开始；
-				2.反复调用getNext()，逐个获取所有的值；
-				3.直到getNext()返回FALSE，表示没有后续的值了。
-
-			注意：
-				1.在遍历期间不能往表中添加项，否则遍历过程自动中断，需
-				重新开始。
-				2.遍历的顺序按照内部实现顺序，与用户操作（如添加顺序）
-				无关。
-				3.遍历操作不改变哈西表中的任何项。  
-        2005-11-11
-			按照新的命名规则，重命名所有方法（首字母小写）
-			
-
-	2006-3-23 李静林 修改了文件头的宏定义，因为原来的宏定义 _HASHTABLE_H 与
-			resiprocate的宏意义重叠，导致编译错误 
-
- *********************************************************************/
-
 #ifndef _UNIHASHTABLE_H_
 #define _UNIHASHTABLE_H_
 
@@ -58,7 +17,7 @@
 
 #define HASHTABLE_MIN_LENGTH		8		// 哈西表最小长度
 #define	HASHTABLE_MAX_LENGTH		131072	// 哈西表最大长度，
-											// 2的17次方，已经大于10万
+// 2的17次方，已经大于10万
 
 #define HASHTABLE_MIN_LOADFACTOR	0.4f	// 装填因子的最小值
 #define HASHTABLE_MAX_LOADFACTOR	1.5f	// 装填因子的最大值
@@ -76,152 +35,152 @@
 template < class TKey, class TValue >
 class CHashTable	// 以TKey为键类型，TValue为值类型的哈西表
 {
-private:
-	class _Entry	// 定义哈西表中的节点类型
-	{
-	public:
-		HASH_CODE	m_hash;			// 此节点的哈西值
-		TKey		m_key;			// 此节点的键值
-		TValue		m_value;		// 此节点的内容
-		_Entry*		m_next;			// 指向下一个节点
-
-		// the following two pointers are for record the put sequence
-		_Entry*		m_s_prev;
-		_Entry*		m_s_next;
-
-		// 定义设置节点键值的函数类型
-		typedef void ( *PF_SETKEY )( TKey& dest, TKey src );
-
-		// 定义清除节点键值的函数类型
-		typedef void ( *PF_REMOVEKEY )( TKey& key );
-
-		// 静态的函数指针，指向设置节点键值的函数
-		static PF_SETKEY	m_spfSetKey;
-
-		// 静态的函数指针，指向清除节点键值的函数
-		static PF_REMOVEKEY	m_spfRemoveKey;
-
-	public:
-		// 节点的构造函数，其中会调用键值设置函数来设置这个节点的键
-		_Entry( HASH_CODE hash, TKey& key, TValue& value, _Entry* next ) :
-		  m_hash( hash ), m_value( value ), m_next( next )
+	private:
+		class _Entry	// 定义哈西表中的节点类型
 		{
-			( *m_spfSetKey )( m_key, key );
-		}
+			public:
+				HASH_CODE	m_hash;			// 此节点的哈西值
+				TKey		m_key;			// 此节点的键值
+				TValue		m_value;		// 此节点的内容
+				_Entry*		m_next;			// 指向下一个节点
 
-		// 节点的析构函数，其中调用键值清除函数来清除此节点的键
-		~_Entry( void )
-		{
-			( *m_spfRemoveKey )( m_key );
-		}
+				// the following two pointers are for record the put sequence
+				_Entry*		m_s_prev;
+				_Entry*		m_s_next;
 
-	};	// 节点类型定义结束
-	typedef _Entry* _PEntry;
+				// 定义设置节点键值的函数类型
+				typedef void ( *PF_SETKEY )( TKey& dest, TKey src );
 
-private:
-	_PEntry*	m_table;			// 定义哈西表
-	UINT		m_entryCount;		// 记录目前表中的节点总数
-	UINT		m_tableLength;		// 目前的哈西表长度
-	UINT		m_modCount;			// 哈西表被更新（修改）的次数
-	DOUBLE		m_loadFactor;		// 哈西表装填因子
-	UINT		m_threshold;		// 哈西表再哈西算法的触发门限值
+				// 定义清除节点键值的函数类型
+				typedef void ( *PF_REMOVEKEY )( TKey& key );
 
-	_PEntry		m_pcurEntry;		// 用于记录遍历时的当前节点
-	UINT		m_uicurIndex;		// 遍历时，记载当前节点所在的表的索引值
+				// 静态的函数指针，指向设置节点键值的函数
+				static PF_SETKEY	m_spfSetKey;
 
-	// 定义用于比较两个键的函数的类型
-	typedef BOOL ( *PF_CMP )( TKey& keyA, TKey& keyB );
+				// 静态的函数指针，指向清除节点键值的函数
+				static PF_REMOVEKEY	m_spfRemoveKey;
 
-	// 定义用于计算哈西值的函数的类型
-	typedef HASH_CODE ( *PF_HASH )( TKey& key );
+			public:
+				// 节点的构造函数，其中会调用键值设置函数来设置这个节点的键
+				_Entry( HASH_CODE hash, TKey& key, TValue& value, _Entry* next ) :
+					m_hash( hash ), m_value( value ), m_next( next )
+			{
+				( *m_spfSetKey )( m_key, key );
+			}
 
-	PF_CMP		m_pfCompareKey;		// 函数指针，指向键值比较函数
-	PF_HASH		m_pfGetHash;		// 函数指针，指向哈西值计算函数
+				// 节点的析构函数，其中调用键值清除函数来清除此节点的键
+				~_Entry( void )
+				{
+					( *m_spfRemoveKey )( m_key );
+				}
 
-	// 为了保证二进制兼容（即升版uniframe的时候无需重新编译老的.so）
-	// 所以没有定义三个成员，而是使用m_table追加在后面的三个多余位置
-	_PEntry seqHead;
-	_PEntry seqTail;
-	_PEntry seqCur;
+		};	// 节点类型定义结束
+		typedef _Entry* _PEntry;
 
-public:
-	/*	分别用于不同目的的五个构造函数，其中：
+	private:
+		_PEntry*	m_table;			// 定义哈西表
+		UINT		m_entryCount;		// 记录目前表中的节点总数
+		UINT		m_tableLength;		// 目前的哈西表长度
+		UINT		m_modCount;			// 哈西表被更新（修改）的次数
+		DOUBLE		m_loadFactor;		// 哈西表装填因子
+		UINT		m_threshold;		// 哈西表再哈西算法的触发门限值
 
-		length			用于指定哈西表的初始长度，这个参数受限于
-						已定义的哈西表最小最大长度值。并且在使用中，
-						由于再哈西算法，哈西表的长度可能会增长。
+		_PEntry		m_pcurEntry;		// 用于记录遍历时的当前节点
+		UINT		m_uicurIndex;		// 遍历时，记载当前节点所在的表的索引值
 
-		loadFactor		指定装填因子，这个参数受限于已定义的
-						哈西表最小最大装填因子。
+		// 定义用于比较两个键的函数的类型
+		typedef BOOL ( *PF_CMP )( TKey& keyA, TKey& keyB );
 
-		pfCompareKey	指定键值比较函数。
+		// 定义用于计算哈西值的函数的类型
+		typedef HASH_CODE ( *PF_HASH )( TKey& key );
 
-		pfGetHash		指定哈西值计算函数。
+		PF_CMP		m_pfCompareKey;		// 函数指针，指向键值比较函数
+		PF_HASH		m_pfGetHash;		// 函数指针，指向哈西值计算函数
 
-		对于没有指定的参数，将会使用已定义的缺省值。*/
-	CHashTable();
-	CHashTable( UINT length );
-	CHashTable( UINT length, DOUBLE loadFactor );
-	CHashTable( PF_HASH pfGetHash );
-	CHashTable( PF_CMP pfCompareKey, PF_HASH pfGetHash );
-	CHashTable( UINT length, DOUBLE loadFactor,
+		// 为了保证二进制兼容（即升版uniframe的时候无需重新编译老的.so）
+		// 所以没有定义三个成员，而是使用m_table追加在后面的三个多余位置
+		_PEntry seqHead;
+		_PEntry seqTail;
+		_PEntry seqCur;
+
+	public:
+		/*	分别用于不同目的的五个构造函数，其中：
+
+			length			用于指定哈西表的初始长度，这个参数受限于
+			已定义的哈西表最小最大长度值。并且在使用中，
+			由于再哈西算法，哈西表的长度可能会增长。
+
+			loadFactor		指定装填因子，这个参数受限于已定义的
+			哈西表最小最大装填因子。
+
+			pfCompareKey	指定键值比较函数。
+
+			pfGetHash		指定哈西值计算函数。
+
+			对于没有指定的参数，将会使用已定义的缺省值。*/
+		CHashTable();
+		CHashTable( UINT length );
+		CHashTable( UINT length, DOUBLE loadFactor );
+		CHashTable( PF_HASH pfGetHash );
+		CHashTable( PF_CMP pfCompareKey, PF_HASH pfGetHash );
+		CHashTable( UINT length, DOUBLE loadFactor,
 				PF_CMP pfCompareKey, PF_HASH pfGetHash );
 
-	// 哈西表的析构函数，主要是释放内存空间
-	~CHashTable();
+		// 哈西表的析构函数，主要是释放内存空间
+		~CHashTable();
 
-public:
-	// 清空哈西表
-	void	clear( void );
+	public:
+		// 清空哈西表
+		void	clear( void );
 
-	// 检索哈西表中是否已包含这个键
-	BOOL	containsKey( TKey key );
+		// 检索哈西表中是否已包含这个键
+		BOOL	containsKey( TKey key );
 
-	// 取出从哈西表中的内容（不会清除这个表项）
-	BOOL	get( TKey key, TValue& value );
-	BOOL	get_r( TKey& key, TValue& value );
+		// 取出从哈西表中的内容（不会清除这个表项）
+		BOOL	get( TKey key, TValue& value );
+		BOOL	get_r( TKey& key, TValue& value );
 
-	// 加入一项内容，可能只是更新原来的内容
-	TValue	put( TKey key, TValue value );
-	TValue	put_r( TKey& key, TValue& value );
-	void	put_v( TKey& key, TValue& value );
+		// 加入一项内容，可能只是更新原来的内容
+		TValue	put( TKey key, TValue value );
+		TValue	put_r( TKey& key, TValue& value );
+		void	put_v( TKey& key, TValue& value );
 
-	// 从哈西表中清除一项内容
-	BOOL	remove( TKey key );
+		// 从哈西表中清除一项内容
+		BOOL	remove( TKey key );
 
-	// 获取目前哈西表中的表项数目
-	UINT	size( void );
+		// 获取目前哈西表中的表项数目
+		UINT	size( void );
 
-	// 判断哈西表是否为空
-	BOOL	isEmpty( void );
+		// 判断哈西表是否为空
+		BOOL	isEmpty( void );
 
-	// 重置遍历指针，一次遍历前必须进行的动作
-	BOOL	reset( void );
-	void	resetSeq( void ); // for sequencial
+		// 重置遍历指针，一次遍历前必须进行的动作
+		BOOL	reset( void );
+		void	resetSeq( void ); // for sequencial
 
-	// 获取下一个项。反复调用这个方法来实现遍历。
-	BOOL	getNext( TValue & value );
+		// 获取下一个项。反复调用这个方法来实现遍历。
+		BOOL	getNext( TValue & value );
 		// 获取下一个项。不但反馈取值，也反馈Key值。//Added by LJL 2008.08.5
-	BOOL	getNext( TKey &key, TValue & value );
-	BOOL	getNextSeq( TKey &key, TValue & value ); // for sequencial
+		BOOL	getNext( TKey &key, TValue & value );
+		BOOL	getNextSeq( TKey &key, TValue & value ); // for sequencial
 
-private:
-	// 由构造函数调用的初始化函数，用于统一处理各种构造函数
-	void	initTable( UINT length, DOUBLE loadFactor,
-						PF_CMP pfCompareKey, PF_HASH pfGetHash );
+	private:
+		// 由构造函数调用的初始化函数，用于统一处理各种构造函数
+		void	initTable( UINT length, DOUBLE loadFactor,
+				PF_CMP pfCompareKey, PF_HASH pfGetHash );
 
-	// 再哈西函数
-	void	rehash( void );
+		// 再哈西函数
+		void	rehash( void );
 
-	// 通过哈西值映射哈西表索引号
-	#define GET_HASH_INDEX(hash) ((hash) % m_tableLength)
+		// 通过哈西值映射哈西表索引号
+#define GET_HASH_INDEX(hash) ((hash) % m_tableLength)
 
-	// 搜索下一个遍历节点
-	BOOL	searchNextEntry( void );
+		// 搜索下一个遍历节点
+		BOOL	searchNextEntry( void );
 
-	void addSequence(_Entry*);
-	void delSequence(_Entry*);
-	void printSequence();
+		void addSequence(_Entry*);
+		void delSequence(_Entry*);
+		void printSequence();
 };	// 哈西表定义结束
 
 ///////////////////////////////////////////////////////////////////////
@@ -242,7 +201,7 @@ private:
 //
 // Return values: None
 ///////////////////////////////////////////////////////////////////////
-template < class TKey >
+	template < class TKey >
 void _SetKey( TKey& dest, TKey src )
 {
 	dest = src;
@@ -262,14 +221,14 @@ void _SetKey( TKey& dest, TKey src )
 ///////////////////////////////////////////////////////////////////////
 
 /*template <>
-void _SetKey( CHAR*& dest, CHAR* src )
-{
-	int len = strlen( src );
-	if ( dest!= NULL ) delete[] dest;
-	dest = new CHAR[len + 1];
-	strcpy( dest, src );
-}
-*/
+  void _SetKey( CHAR*& dest, CHAR* src )
+  {
+  int len = strlen( src );
+  if ( dest!= NULL ) delete[] dest;
+  dest = new CHAR[len + 1];
+  strcpy( dest, src );
+  }
+  */
 void _SetKey( CHAR*& dest, CHAR* src );
 
 ///////////////////////////////////////////////////////////////////////
@@ -283,7 +242,7 @@ void _SetKey( CHAR*& dest, CHAR* src );
 //
 // Return values: None
 ///////////////////////////////////////////////////////////////////////
-template < class TKey >
+	template < class TKey >
 void _RemoveKey( TKey& key )
 {
 	return;
@@ -314,7 +273,7 @@ void _RemoveKey( CHAR*& key );
 // Return values:
 //				  BOOL	键A与键B是否相等
 ///////////////////////////////////////////////////////////////////////
-template < class TKey >
+	template < class TKey >
 BOOL _CompareKey( TKey& keyA, TKey& keyB )
 {
 	return ( keyA == keyB );
@@ -346,7 +305,7 @@ BOOL _CompareKey( CHAR*& keyA, CHAR*& keyB );
 // Return values:
 //				  HASH_CODE		键所对应的哈西值
 ///////////////////////////////////////////////////////////////////////
-template < class TKey >
+	template < class TKey >
 HASH_CODE _GetHash( TKey& key )
 {
 	// 直接使用类型转换。自定义类型的键需要重载此类型的转换操作符。
@@ -375,57 +334,57 @@ HASH_CODE _GetHash( CHAR*& key );
 ///////////////////////////////////////////////////////////////////////
 
 // 哈西表的构造函数，其中调用了私有方法initTable()来初始化哈西表
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline CHashTable< TKey, TValue >::CHashTable()
 {
 	initTable( DEFAULT_HASHTABLE_LENGTH, DEFAULT_HASHTABLE_LOADFACTOR,
-				_CompareKey, _GetHash );
+			_CompareKey, _GetHash );
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline CHashTable< TKey, TValue >::CHashTable( UINT length )
 {
 	initTable( length, DEFAULT_HASHTABLE_LOADFACTOR,
-				_CompareKey, _GetHash );
+			_CompareKey, _GetHash );
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline CHashTable<TKey, TValue>::CHashTable(PF_HASH pfGetHash )
 {
 	initTable( DEFAULT_HASHTABLE_LENGTH, DEFAULT_HASHTABLE_LOADFACTOR, _CompareKey, pfGetHash );
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline CHashTable< TKey, TValue >::CHashTable( UINT length,
-												DOUBLE loadFactor )
+		DOUBLE loadFactor )
 {
 	initTable( length, loadFactor, _CompareKey, _GetHash );
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline CHashTable< TKey, TValue >::CHashTable( PF_CMP pfCompareKey,
-												PF_HASH pfGetHash )
+		PF_HASH pfGetHash )
 {
 	initTable( DEFAULT_HASHTABLE_LENGTH,
-				DEFAULT_HASHTABLE_LOADFACTOR,
-				pfCompareKey, pfGetHash );
+			DEFAULT_HASHTABLE_LOADFACTOR,
+			pfCompareKey, pfGetHash );
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline CHashTable< TKey, TValue >::CHashTable( UINT length,
-												DOUBLE loadFactor,
-												PF_CMP pfCompareKey,
-												PF_HASH pfGetHash )
+		DOUBLE loadFactor,
+		PF_CMP pfCompareKey,
+		PF_HASH pfGetHash )
 {
 	initTable( length, loadFactor, pfCompareKey, pfGetHash );
 }
 
 // 用于初始化哈西表的私有方法
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::initTable( UINT length,
-											DOUBLE loadFactor,
-											PF_CMP pfCompareKey,
-											PF_HASH pfGetHash )
+		DOUBLE loadFactor,
+		PF_CMP pfCompareKey,
+		PF_HASH pfGetHash )
 {
 	// 根据预定义的最大最小值，对表长进行限制
 	if ( length < HASHTABLE_MIN_LENGTH )
@@ -470,7 +429,7 @@ void CHashTable< TKey, TValue >::initTable( UINT length,
 	m_uicurIndex = 0;
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 CHashTable< TKey, TValue >::~CHashTable()
 {
 	clear();			// 清空哈西表
@@ -488,7 +447,7 @@ CHashTable< TKey, TValue >::~CHashTable()
 //
 // Return values: None
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::clear( void )
 {
 	// 扫描整个哈西表，释放每一个节点
@@ -521,7 +480,7 @@ void CHashTable< TKey, TValue >::clear( void )
 // Return values:
 //				  BOOL	是否包含这个键
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::containsKey( TKey key )
 {
 	HASH_CODE hash = ( *m_pfGetHash )( key );	// 计算哈西值
@@ -553,7 +512,7 @@ BOOL CHashTable< TKey, TValue >::containsKey( TKey key )
 // Return values:
 //				  BOOL	是否成功检索到相应的项
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::get_r( TKey& key, TValue& value )
 {
 	_PEntry p = m_table[GET_HASH_INDEX((*m_pfGetHash)(key))];
@@ -571,7 +530,7 @@ BOOL CHashTable< TKey, TValue >::get_r( TKey& key, TValue& value )
 	}
 	return FALSE;	// 没找到相应的项，返回FALSE
 }
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::get( TKey key, TValue& value )
 {
 	return get_r(key, value);
@@ -591,7 +550,7 @@ BOOL CHashTable< TKey, TValue >::get( TKey key, TValue& value )
 //				  TValue	如果这个键在哈西表中已有对应的内容，则返回
 //							这个内容，否则返回新加入的内容
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 TValue CHashTable< TKey, TValue >::put_r( TKey& key, TValue& value )
 {
 	HASH_CODE hash = ( *m_pfGetHash )( key );	// 计算哈西值
@@ -634,13 +593,13 @@ TValue CHashTable< TKey, TValue >::put_r( TKey& key, TValue& value )
 
 	return value;	// 返回新加入的内容
 }
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 TValue CHashTable< TKey, TValue >::put( TKey key, TValue value )
 {
 	return put_r(key, value);
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::put_v( TKey& key, TValue& value )
 {
 	HASH_CODE hash = ( *m_pfGetHash )( key );// 计算哈西值
@@ -692,7 +651,7 @@ void CHashTable< TKey, TValue >::put_v( TKey& key, TValue& value )
 // Return values:
 //				  BOOL	是否成功移除
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::remove( TKey key )
 {
 	HASH_CODE hash = ( *m_pfGetHash )( key );	// 计算哈西值
@@ -758,7 +717,7 @@ BOOL CHashTable< TKey, TValue >::remove( TKey key )
 // Return values:
 //				  UINT	当前项的总数
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline UINT CHashTable< TKey, TValue >::size( void )
 {
 	return m_entryCount;
@@ -774,7 +733,7 @@ inline UINT CHashTable< TKey, TValue >::size( void )
 // Return values:
 //				  BOOL	哈西表是否为空
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 inline BOOL CHashTable< TKey, TValue >::isEmpty( void )
 {
 	if ( m_entryCount == 0 )
@@ -799,13 +758,13 @@ inline BOOL CHashTable< TKey, TValue >::isEmpty( void )
 //				  BOOL	如果哈西表为空则返回FALSE，否则返回TRUE。
 ///////////////////////////////////////////////////////////////////////
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::resetSeq( void )
 {
 	seqCur = seqHead;
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::reset( void )
 {
 	for ( UINT i = 0; i < m_tableLength; i ++ )
@@ -833,7 +792,7 @@ BOOL CHashTable< TKey, TValue >::reset( void )
 //				  BOOL	返回FALSE表示没有取到项，也就是说没有后续项了。
 ///////////////////////////////////////////////////////////////////////
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::getNext( TValue & value )
 {
 	if ( !m_pcurEntry )
@@ -850,7 +809,7 @@ BOOL CHashTable< TKey, TValue >::getNext( TValue & value )
 }
 
 //Added by LJL 2008.08.5
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::getNext( TKey &key, TValue &value )
 {
 	if ( !m_pcurEntry )
@@ -866,7 +825,7 @@ BOOL CHashTable< TKey, TValue >::getNext( TKey &key, TValue &value )
 	return TRUE;
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::getNextSeq( TKey &key, TValue &value )
 {
 	if(seqCur == NULL)
@@ -877,7 +836,7 @@ BOOL CHashTable< TKey, TValue >::getNextSeq( TKey &key, TValue &value )
 	return  TRUE;
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 BOOL CHashTable< TKey, TValue >::searchNextEntry( void )
 {
 	if ( m_pcurEntry->m_next )
@@ -904,7 +863,7 @@ BOOL CHashTable< TKey, TValue >::searchNextEntry( void )
 	}
 }
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::addSequence(_Entry* entry)
 {
 	if(seqHead == NULL || seqTail == NULL)
@@ -919,7 +878,7 @@ void CHashTable< TKey, TValue >::addSequence(_Entry* entry)
 	seqTail->m_s_next = entry;
 	seqTail = entry;
 }
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::delSequence(_Entry* entry)
 {
 	if(entry->m_s_next == NULL && entry->m_s_prev == NULL) // only one
@@ -942,7 +901,7 @@ void CHashTable< TKey, TValue >::delSequence(_Entry* entry)
 	entry->m_s_next->m_s_prev = entry->m_s_prev;
 	entry->m_s_prev->m_s_next = entry->m_s_next;
 }
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::printSequence()
 {
 	int i = 0;
@@ -967,7 +926,7 @@ void CHashTable< TKey, TValue >::printSequence()
 //
 // Return values: None
 ///////////////////////////////////////////////////////////////////////
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void CHashTable< TKey, TValue >::rehash( void )
 {
 	// 哈西表长的增长达到上限，不再增大
@@ -1013,14 +972,14 @@ void CHashTable< TKey, TValue >::rehash( void )
 // CHashTable< TKey, TValue >::_Entry 类的静态属性（函数指针）初始化
 ///////////////////////////////////////////////////////////////////////
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void ( *CHashTable< TKey, TValue >::_Entry::m_spfSetKey )( TKey&, TKey )
 	= _SetKey;
 
-template < class TKey, class TValue >
+	template < class TKey, class TValue >
 void ( *CHashTable< TKey, TValue >::_Entry::m_spfRemoveKey )( TKey& )
 	= _RemoveKey;
 
-///////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
 
 #endif	// _CHASHTABLE_H

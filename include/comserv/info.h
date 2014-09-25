@@ -18,47 +18,47 @@
 
 enum sLogType
 {
-   Default = 0,
-   Cout = 1,
-   Both = 2,
-   File = 3
+	Default = 0,
+	Cout = 1,
+	Both = 2,
+	File = 3
 };
 
 enum sLogLevel
 {
-   None = 0,
+	None = 0,
 #ifdef WIN32
-   Err = 3,
-   Info = 6,
-   Debug = 7
+	Err = 3,
+	Info = 6,
+	Debug = 7
 #else
-   Err,
-   Info = LOG_INFO,
-   Debug = LOG_DEBUG
+		Err,
+	Info = LOG_INFO,
+	Debug = LOG_DEBUG
 #endif
 };
 
 typedef enum sLogType 	LogType;
 typedef enum sLogLevel	LogLevel;
 
-	//初始化日志，并设置输出方式
-	//	输出方式：	type
-	//				CInfo::LogType::Cout   屏幕
-	//				CInfo::LogType::File   文件
-	//	日志级别：	level
-	//				CInfo::LogLevel::Err   错误日志
-	//				CInfo::LogLevel::Info  日常运行信息日志
-	//				CInfo::LogLevel::Debug 调试信息日志
-	//	日志文件大小：	单位M，默认500M
-	//	日志文件前缀：	logFileName（日志文件前缀，默认UNI.INFO，日志名字形式：UNI.INFO.20110210.AppName.log）
-	//					如果文件超过预期的大小，则将旧的文件名字修改为 UNI.INFO.20110210.AppName.log.时间
+//初始化日志，并设置输出方式
+//	输出方式：	type
+//				CInfo::LogType::Cout   屏幕
+//				CInfo::LogType::File   文件
+//	日志级别：	level
+//				CInfo::LogLevel::Err   错误日志
+//				CInfo::LogLevel::Info  日常运行信息日志
+//				CInfo::LogLevel::Debug 调试信息日志
+//	日志文件大小：	单位M，默认500M
+//	日志文件前缀：	logFileName（日志文件前缀，默认UNI.INFO，日志名字形式：UNI.INFO.20110210.AppName.log）
+//					如果文件超过预期的大小，则将旧的文件名字修改为 UNI.INFO.20110210.AppName.log.时间
 void InitLogInfo(LogType type, LogLevel level, int logFileLength=0, const char* logFileName = 0);
 
-	//设置日志输出级别
-	//	日志级别：	level
-	//				CInfo::LogLevel::Err   错误日志
-	//				CInfo::LogLevel::Info  日常运行信息日志
-	//				CInfo::LogLevel::Debug 调试信息日志
+//设置日志输出级别
+//	日志级别：	level
+//				CInfo::LogLevel::Err   错误日志
+//				CInfo::LogLevel::Info  日常运行信息日志
+//				CInfo::LogLevel::Debug 调试信息日志
 void setLevel(LogLevel level);
 void setType(LogType type);
 void setFileName(char* logFileName);
@@ -88,33 +88,33 @@ void toCout(const char *s);
 
 #define LogPRINT(args_)\
 {\
-   std::ostrstream uniLogStr;\
-   GeneralThreadEnv* pEnv=(GeneralThreadEnv*)threadEnvGet();\
-   if(pEnv==NULL)\
-   {\
-     uniLogStr args_ << std::ends << std::endl;\
-     if(g_logType>=Both) toPrint(uniLogStr.str(), NULL);\
-     if(g_logType<=Both) toCout(uniLogStr.str());\
-   }\
-   else\
-   {\
-     uniLogStr << "[" << pEnv->threadName << "]" args_ << std::ends << std::endl;\
-     if(pEnv->logType>=Both)\
-     {\
-        toPrint(uniLogStr.str(), pEnv->threadName);\
-     }\
-     if(pEnv->logType<=Both) toCout(uniLogStr.str());\
-   }\
-   uniLogStr.freeze(0);\
+	std::ostrstream uniLogStr;\
+	GeneralThreadEnv* pEnv=(GeneralThreadEnv*)threadEnvGet();\
+	if(pEnv==NULL)\
+	{\
+		uniLogStr args_ << std::ends << std::endl;\
+		if(g_logType>=Both) toPrint(uniLogStr.str(), NULL);\
+		if(g_logType<=Both) toCout(uniLogStr.str());\
+	}\
+	else\
+	{\
+		uniLogStr << "[" << pEnv->threadName << "]" args_ << std::ends << std::endl;\
+		if(pEnv->logType>=Both)\
+		{\
+			toPrint(uniLogStr.str(), pEnv->threadName);\
+		}\
+		if(pEnv->logType<=Both) toCout(uniLogStr.str());\
+	}\
+	uniLogStr.freeze(0);\
 }
 
 #define LogPRINT_S(args_)\
 {\
-  std::ostrstream uniLogStr;\
-   uniLogStr args_ << std::ends << std::endl;\
-     if(g_logType>=Both) toPrint(uniLogStr.str(), NULL);\
-     if(g_logType<=Both) toCout(uniLogStr.str());\
-   uniLogStr.freeze(0);\
+	std::ostrstream uniLogStr;\
+	uniLogStr args_ << std::ends << std::endl;\
+	if(g_logType>=Both) toPrint(uniLogStr.str(), NULL);\
+	if(g_logType<=Both) toCout(uniLogStr.str());\
+	uniLogStr.freeze(0);\
 }
 
 //	日志输出方法
@@ -125,27 +125,27 @@ void toCout(const char *s);
 //		LogDEBUG( << "error info" << mTemp1 << "error info2" << mTemp2 <<std::endl);
 
 #define LogDEBUG(args_)\
-    {\
-        GeneralThreadEnv* pEnv=(GeneralThreadEnv*)threadEnvGet();\
+{\
+	GeneralThreadEnv* pEnv=(GeneralThreadEnv*)threadEnvGet();\
 	if(pEnv!=NULL) { if(pEnv->logLevel>=Debug) LogPRINT(<< "DEBUG:" args_) }\
 	else if(g_logLevel>=Debug) { LogPRINT(<< "DEBUG:" args_) }\
-    }
+}
 
 #define LogINFO(args_)\
-    {\
-    GeneralThreadEnv* pEnv=(GeneralThreadEnv*)threadEnvGet();\
+{\
+	GeneralThreadEnv* pEnv=(GeneralThreadEnv*)threadEnvGet();\
 	if(pEnv!=NULL) {if(pEnv->logLevel>=Info) LogPRINT(<< "INFO:" args_) }\
 	else if(g_logLevel>=Info) { LogPRINT(<< "INFO:" args_) }\
-    }
+}
 
 #define LogWARNING(args_)  LogPRINT(<< "WARNING:" args_)
 #define LogERROR(args_)    LogPRINT(<< "ERROR:"  args_)
 #define LogCRITICAL(args_) LogPRINT(<< "CRITICAL:"  args_)
 
 #define LogDEBUG_S(args_)\
-    if(g_logLevel>=Debug) { LogPRINT_S(<< "DEBUG:" args_) }
+	if(g_logLevel>=Debug) { LogPRINT_S(<< "DEBUG:" args_) }
 #define LogINFO_S(args_)\
-        if(g_logLevel>=Info) { LogPRINT_S(<< "INFO:" args_) }
+	if(g_logLevel>=Info) { LogPRINT_S(<< "INFO:" args_) }
 #define LogWARNING_S(args_)  LogPRINT_S(<< "WARNING:" args_)
 #define LogERROR_S(args_)    LogPRINT_S(<< "ERROR:"  args_)
 #define LogCRITICAL_S(args_) LogPRINT_S(<< "CRITICAL:"  args_)
@@ -154,26 +154,26 @@ void toCout(const char *s);
 
 #define UniINFO(args_...)\
 {\
-    std::ostrstream uniLogStr;\
-    uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends;\
-    _UniINFO(uniLogStr.str(), args_);\
-    uniLogStr.freeze(0);\
+	std::ostrstream uniLogStr;\
+	uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends;\
+	_UniINFO(uniLogStr.str(), args_);\
+	uniLogStr.freeze(0);\
 }
 
 #define UniDEBUG(args_...)\
 {\
-    std::ostrstream uniLogStr;\
-    uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends;\
-    _UniDEBUG(uniLogStr.str(), args_);\
-    uniLogStr.freeze(0);\
+	std::ostrstream uniLogStr;\
+	uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends;\
+	_UniDEBUG(uniLogStr.str(), args_);\
+	uniLogStr.freeze(0);\
 }
 
 #define UniERROR(args_...)\
 {\
-    std::ostrstream uniLogStr;\
-    uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends;\
-    _UniERROR(uniLogStr.str(), args_);\
-   uniLogStr.freeze(0);\
+	std::ostrstream uniLogStr;\
+	uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends;\
+	_UniERROR(uniLogStr.str(), args_);\
+	uniLogStr.freeze(0);\
 }
 
 #define UniINFO_(args_)\
@@ -186,18 +186,18 @@ void toCout(const char *s);
 
 #define UniERROR_(args_)\
 {\
-        std::ostrstream uniLogStr;\
-        uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends args_;\
-        _UniINFO(uniLogStr.str(),"%s");\
-        uniLogStr.freeze(0);\
+	std::ostrstream uniLogStr;\
+	uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends args_;\
+	_UniINFO(uniLogStr.str(),"%s");\
+	uniLogStr.freeze(0);\
 }
 
 #define UniDEBUG_(args_)\
 {\
-        std::ostrstream uniLogStr;\
-        uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends args_;\
-        _UniDEBUG(uniLogStr.str(),"%s");\
-        uniLogStr.freeze(0);\
+	std::ostrstream uniLogStr;\
+	uniLogStr << "[" << __FILE__ << ":" << __LINE__ << "] " << std::ends args_;\
+	_UniDEBUG(uniLogStr.str(),"%s");\
+	uniLogStr.freeze(0);\
 }
 
 void _UniDEBUG(const char* pfx, const char* fmt, ...);

@@ -10,9 +10,9 @@
  * Author:       Li Jinglin
  * Date：        2010.4.4
  * Description:
-		应用线程
+ 应用线程
 
-****************************************************************/
+ ****************************************************************/
 
 #if !defined(_TASKTHREAD_H_)
 #define _TASKTHREAD_H_
@@ -23,15 +23,15 @@
 
 class TTaskThread: public TGeneralThread
 {
-public:
-	TTaskThread(TAbstractTask& task, const char* tname, int tLogType = File, int tLogLevel = Info, UINT inst = 0);
-	~TTaskThread();
-	
-	virtual void onstart();
-    	void process();
+	public:
+		TTaskThread(TAbstractTask& task, const char* tname, int tLogType = File, int tLogLevel = Info, UINT inst = 0);
+		~TTaskThread();
 
-protected:
-	TAbstractTask&  mTask;
+		virtual void onstart();
+		void process();
+
+	protected:
+		TAbstractTask&  mTask;
 
 };
 
