@@ -9,6 +9,10 @@ build
 ```
 git clone git@github.com:AresTao/xframe.git
 ```
+##system
+>linux
+>>ubuntu10/11 centos6.x
+
 ##Dependencies
 ```
 yum install openssl-devel mysql mysql-devel
