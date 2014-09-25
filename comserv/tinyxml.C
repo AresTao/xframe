@@ -1,26 +1,26 @@
 /*
- www.sourceforge.net/projects/tinyxml
- Original code (2.0 and earlier )copyright (c) 2000-2006 Lee Thomason (www.grinninglizard.com)
+   www.sourceforge.net/projects/tinyxml
+   Original code (2.0 and earlier )copyright (c) 2000-2006 Lee Thomason (www.grinninglizard.com)
 
- This software is provided 'as-is', without any express or implied
- warranty. In no event will the authors be held liable for any
- damages arising from the use of this software.
+   This software is provided 'as-is', without any express or implied
+   warranty. In no event will the authors be held liable for any
+   damages arising from the use of this software.
 
- Permission is granted to anyone to use this software for any
- purpose, including commercial applications, and to alter it and
- redistribute it freely, subject to the following restrictions:
+   Permission is granted to anyone to use this software for any
+   purpose, including commercial applications, and to alter it and
+   redistribute it freely, subject to the following restrictions:
 
- 1. The origin of this software must not be misrepresented; you must
- not claim that you wrote the original software. If you use this
- software in a product, an acknowledgment in the product documentation
- would be appreciated but is not required.
+   1. The origin of this software must not be misrepresented; you must
+   not claim that you wrote the original software. If you use this
+   software in a product, an acknowledgment in the product documentation
+   would be appreciated but is not required.
 
- 2. Altered source versions must be plainly marked as such, and
- must not be misrepresented as being the original software.
+   2. Altered source versions must be plainly marked as such, and
+   must not be misrepresented as being the original software.
 
- 3. This notice may not be removed or altered from any source
- distribution.
- */
+   3. This notice may not be removed or altered from any source
+   distribution.
+   */
 
 #include <ctype.h>
 
@@ -40,7 +40,7 @@ FILE* TiXmlFOpen(const char* filename, const char* mode)
 	FILE* fp = 0;
 	errno_t err = fopen_s( &fp, filename, mode );
 	if ( !err && fp )
-	return fp;
+		return fp;
 	return 0;
 #else
 	return fopen(filename, mode);
@@ -505,7 +505,7 @@ TiXmlElement::TiXmlElement(const char * _value) :
 }
 
 #ifdef TIXML_USE_STL
-TiXmlElement::TiXmlElement( const std::string& _value )
+	TiXmlElement::TiXmlElement( const std::string& _value )
 : TiXmlNode( TiXmlNode::ELEMENT )
 {
 	firstChild = lastChild = 0;
@@ -555,7 +555,7 @@ const std::string* TiXmlElement::Attribute( const std::string& name ) const
 {
 	const TiXmlAttribute* node = attributeSet.Find( name );
 	if ( node )
-	return &node->ValueStr();
+		return &node->ValueStr();
 	return 0;
 }
 #endif
@@ -645,7 +645,7 @@ int TiXmlElement::QueryIntAttribute( const std::string& name, int* ival ) const
 {
 	const TiXmlAttribute* node = attributeSet.Find( name );
 	if ( !node )
-	return TIXML_NO_ATTRIBUTE;
+		return TIXML_NO_ATTRIBUTE;
 	return node->QueryIntValue( ival );
 }
 #endif
@@ -663,7 +663,7 @@ int TiXmlElement::QueryDoubleAttribute( const std::string& name, double* dval ) 
 {
 	const TiXmlAttribute* node = attributeSet.Find( name );
 	if ( !node )
-	return TIXML_NO_ATTRIBUTE;
+		return TIXML_NO_ATTRIBUTE;
 	return node->QueryDoubleValue( dval );
 }
 #endif
@@ -1008,11 +1008,11 @@ bool TiXmlDocument::LoadFile(FILE* file, TiXmlEncoding encoding)
 	// convention, and not work generally.
 
 	/*
-	 while( fgets( buf, sizeof(buf), file ) )
-	 {
-	 data += buf;
-	 }
-	 */
+	   while( fgets( buf, sizeof(buf), file ) )
+	   {
+	   data += buf;
+	   }
+	   */
 
 	char* buf = new char[length + 1];
 	buf[0] = 0;
@@ -1177,15 +1177,15 @@ const TiXmlAttribute* TiXmlAttribute::Next() const
 }
 
 /*
- TiXmlAttribute* TiXmlAttribute::Next()
- {
- // We are using knowledge of the sentinel. The sentinel
- // have a value or name.
- if ( next->value.empty() && next->name.empty() )
- return 0;
- return next;
- }
- */
+   TiXmlAttribute* TiXmlAttribute::Next()
+   {
+// We are using knowledge of the sentinel. The sentinel
+// have a value or name.
+if ( next->value.empty() && next->name.empty() )
+return 0;
+return next;
+}
+*/
 
 const TiXmlAttribute* TiXmlAttribute::Previous() const
 {
@@ -1197,15 +1197,15 @@ const TiXmlAttribute* TiXmlAttribute::Previous() const
 }
 
 /*
- TiXmlAttribute* TiXmlAttribute::Previous()
- {
- // We are using knowledge of the sentinel. The sentinel
- // have a value or name.
- if ( prev->value.empty() && prev->name.empty() )
- return 0;
- return prev;
- }
- */
+   TiXmlAttribute* TiXmlAttribute::Previous()
+   {
+// We are using knowledge of the sentinel. The sentinel
+// have a value or name.
+if ( prev->value.empty() && prev->name.empty() )
+return 0;
+return prev;
+}
+*/
 
 void TiXmlAttribute::Print(FILE* cfile, int /*depth*/, TIXML_STRING* str) const
 {
@@ -1560,22 +1560,22 @@ const TiXmlAttribute* TiXmlAttributeSet::Find( const std::string& name ) const
 	for( const TiXmlAttribute* node = sentinel.next; node != &sentinel; node = node->next )
 	{
 		if ( node->name == name )
-		return node;
+			return node;
 	}
 	return 0;
 }
 
 /*
- TiXmlAttribute*	TiXmlAttributeSet::Find( const std::string& name )
- {
- for( TiXmlAttribute* node = sentinel.next; node != &sentinel; node = node->next )
- {
- if ( node->name == name )
- return node;
- }
- return 0;
- }
- */
+   TiXmlAttribute*	TiXmlAttributeSet::Find( const std::string& name )
+   {
+   for( TiXmlAttribute* node = sentinel.next; node != &sentinel; node = node->next )
+   {
+   if ( node->name == name )
+   return node;
+   }
+   return 0;
+   }
+   */
 #endif
 
 const TiXmlAttribute* TiXmlAttributeSet::Find(const char* name) const
@@ -1601,16 +1601,16 @@ void TiXmlAttributeSet::Disable()
 }
 
 /*
- TiXmlAttribute*	TiXmlAttributeSet::Find( const char* name )
- {
- for( TiXmlAttribute* node = sentinel.next; node != &sentinel; node = node->next )
- {
- if ( strcmp( node->name.c_str(), name ) == 0 )
- return node;
- }
- return 0;
- }
- */
+   TiXmlAttribute*	TiXmlAttributeSet::Find( const char* name )
+   {
+   for( TiXmlAttribute* node = sentinel.next; node != &sentinel; node = node->next )
+   {
+   if ( strcmp( node->name.c_str(), name ) == 0 )
+   return node;
+   }
+   return 0;
+   }
+   */
 
 #ifdef TIXML_USE_STL
 std::istream& operator>> (std::istream & in, TiXmlNode & base)

@@ -1,4 +1,3 @@
-LIBVER=-x32
 UNAME_I=${shell uname -i}
 ifeq ($(UNAME_I), x86_64)
 X86_64DEF=-fPIC -DX86_64
@@ -58,6 +57,7 @@ INC_UNIFRAME=\
 	-Iinclude/task\
 	-Iinclude/msg\
 	-Iinclude/_compat\
+	-I/usr/include/mysql\
 	${INC_DB}\
 	${INC_OPENSSL}
 

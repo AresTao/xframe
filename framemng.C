@@ -11,26 +11,26 @@ TFRAMEManager::TFRAMEManager()
 {
 
 	mFifo=NULL;
-	//创建内部控制消息收发队列
+	//麓麓陆篓脛脷虏驴驴脴脰脝脧没脧垄脢脮路垄露脫脕脨
 	mFifo = new Fifo<TMsg>();
 
-    //创建framectrl
-    framectrl=NULL;
+	//麓麓陆篓framectrl
+	framectrl=NULL;
 	kernalThread=NULL;
-    framectrl= new TFRAMEControl(*mFifo);
-    kernalThread =new TKernalThread(*framectrl);
+	framectrl= new TFRAMEControl(*mFifo);
+	kernalThread =new TKernalThread(*framectrl);
 
-    mTTQ = new TaskTimerQueue(*mFifo);
+	mTTQ = new TaskTimerQueue(*mFifo);
 
 	mTaskList.clear();
 	mTaskObj.clear();
 	mInstList.clear();
 
-    mSCIP="127.0.0.1";
+	mSCIP="127.0.0.1";
 	mSCPort=9000;
 	mSCHB=10000;
 
-	//kernal 是0，其他的task 都从1 开始
+	//kernal 脢脟0拢卢脝盲脣没碌脛task 露录麓脫1 驴陋脢录
 	mMaxInst=0;
 
 	mTransID=0;
@@ -53,7 +53,7 @@ TFRAMEManager::~TFRAMEManager()
 		if(task->task) delete task->task;
 	}
 
-    socket.closeSocket();
+	socket.closeSocket();
 }
 
 
@@ -70,9 +70,9 @@ void TFRAMEManager::Init(UINT appID, char* appName)
 	mLogType=env.getLogType();
 	mLogLevel=env.getLogLevel();
 	mAppID=env.getHostID();
-	if(appID>0) mAppID=appID;	//以应用传输进来的ID 为准
+	if(appID>0) mAppID=appID;	//脪脭脫娄脫脙麓芦脢盲陆酶脌麓碌脛ID 脦陋脳录
 	mAppName=env.getAppName();
-	if(appName) mAppName=appName;	//以应用传输进来的名字 为准
+	if(appName) mAppName=appName;	//脪脭脫娄脫脙麓芦脢盲陆酶脌麓碌脛脙没脳脰 脦陋脳录
 
 	env.getSCInfo(mSCIP, mSCPort, mSCHB);
 	env.getProcList(mProcList);
@@ -93,21 +93,21 @@ void TFRAMEManager::Init(UINT appID, char* appName)
 	BOOL ret=mProcList.front(proc);
 	while(ret)
 	{
-		if(mTaskObj.get(proc.taskID, obj))	//按照启动队列中的顺序提取任务对象
+		if(mTaskObj.get(proc.taskID, obj))	//掳麓脮脮脝么露炉露脫脕脨脰脨碌脛脣鲁脨貌脤谩脠隆脠脦脦帽露脭脧贸
 		{
 			if(obj!=NULL)
 			{
 				tlist=new CList<TTask*>();
 				if(tlist)
 				{
-					for(int i=0;i<proc.threadNum;i++)	//按照启动队列中设置的线程数量初始化线程
+					for(int i=0;i<proc.threadNum;i++)	//掳麓脮脮脝么露炉露脫脕脨脰脨脡猫脰脙碌脛脧脽鲁脤脢媒脕驴鲁玫脢录禄炉脧脽鲁脤
 					{
-						task=obj->clone();	//通过clone 获得复制的task 指针
+						task=obj->clone();	//脥篓鹿媒clone 禄帽碌脙赂麓脰脝碌脛task 脰赂脮毛
 						if(task!=NULL)
 						{
-							mMaxInst++;		//当前的inst + 1
-							task->init(mMaxInst, mAppID, proc.taskID, framectrl);	//初始化task
-							framectrl->getTaskSelector()->registerTask(proc.taskID, mMaxInst, task);	//注册到taskselector
+							mMaxInst++;		//碌卤脟掳碌脛inst + 1
+							task->init(mMaxInst, mAppID, proc.taskID, framectrl);	//鲁玫脢录禄炉task
+							framectrl->getTaskSelector()->registerTask(proc.taskID, mMaxInst, task);	//脳垄虏谩碌陆taskselector
 
 							tt=NULL;
 							tt=new TTaskThread(*task, proc.taskName.c_str(),task->logType, task->logLevel, mMaxInst);
@@ -120,44 +120,44 @@ void TFRAMEManager::Init(UINT appID, char* appName)
 								t->task=task;
 								t->thread=tt;
 
-								mInstList.push_back(t);		//将task 任务和相应的线程对象按顺序保存到实例列表
-								tlist->push_back(t);		//将task 任务和相应的线程对象保存到管理列表
+								mInstList.push_back(t);		//陆芦task 脠脦脦帽潞脥脧脿脫娄碌脛脧脽鲁脤露脭脧贸掳麓脣鲁脨貌卤拢麓忙碌陆脢碌脌媒脕脨卤铆
+								tlist->push_back(t);		//陆芦task 脠脦脦帽潞脥脧脿脫娄碌脛脧脽鲁脤露脭脧贸卤拢麓忙碌陆鹿脺脌铆脕脨卤铆
 
 								UniINFO("FrameMng: Init taskid=%d, instid=%d, taskname=%s !", t->taskID, t->instID, t->taskName.c_str());
 							}
 						}
 					}
-					mTaskList.put(proc.taskID, tlist);	//将task 任务和相应的线程对象保存到任务管理列表
+					mTaskList.put(proc.taskID, tlist);	//陆芦task 脠脦脦帽潞脥脧脿脫娄碌脛脧脽鲁脤露脭脧贸卤拢麓忙碌陆脠脦脦帽鹿脺脌铆脕脨卤铆
 				}
 				else
 				{
-						UniERROR("FrameMng: Init task list error!");
+					UniERROR("FrameMng: Init task list error!");
 				}
 			}
 		}
-		ret=mProcList.next(proc);	//提取下一个
+		ret=mProcList.next(proc);	//脤谩脠隆脧脗脪禄赂枚
 	}
 
-    //init socket
-    BOOL success = socket.openServer(NULL, mSCPort);	//使用scPORT监听所有地址上的端口
-    if(!success)
-    {
-        UniERROR("FrameMng: Bind command server error! port=%d", mSCPort);
-    }
-    else
-    {
-    	UniINFO("FrameMng: Bind command server! port=%d", mSCPort);
-    }
+	//init socket
+	BOOL success = socket.openServer(NULL, mSCPort);	//脢鹿脫脙scPORT录脿脤媒脣霉脫脨碌脴脰路脡脧碌脛露脣驴脷
+	if(!success)
+	{
+		UniERROR("FrameMng: Bind command server error! port=%d", mSCPort);
+	}
+	else
+	{
+		UniINFO("FrameMng: Bind command server! port=%d", mSCPort);
+	}
 
 }
 
 TFRAMEManager * TFRAMEManager::instance()
 {
-    if(!_instance)
-    {
-        _instance = new TFRAMEManager();
-    }
-    return _instance;
+	if(!_instance)
+	{
+		_instance = new TFRAMEManager();
+	}
+	return _instance;
 }
 
 void TFRAMEManager::Run()
@@ -166,7 +166,7 @@ void TFRAMEManager::Run()
 
 	UniINFO("FrameMng: Starting ......");
 
-	//先启动kernal
+	//脧脠脝么露炉kernal
 	mTransID++;
 	msg=new TEventMsg();
 	msg->eventID=KERNAL_APP_INIT;
@@ -179,7 +179,7 @@ void TFRAMEManager::Run()
 	kernalThread->run();
 
 
-	//按顺序启动各个任务
+	//掳麓脣鲁脨貌脝么露炉赂梅赂枚脠脦脦帽
 	TTask* task=NULL;
 	mInstList.reset();
 	mInstList.current(task);
@@ -199,27 +199,27 @@ void TFRAMEManager::Run()
 		msg=NULL;
 		task=NULL;
 		if(!mInstList.next(task))
-            break;
+			break;
 	}
 
 	char mSockBuffer[maxLen];
 
-    CCode code;
-    code.content = NULL;
+	CCode code;
+	code.content = NULL;
 	while(!shutdown)
 	{
 
 		UINT64 nextstep = mTTQ->process();
-		if(nextstep>1000) nextstep=1000;	//定时器返回的下一个定时器时间时间间隔，最长不超过1秒
+		if(nextstep>1000) nextstep=1000;	//露篓脢卤脝梅路碌禄脴碌脛脧脗脪禄赂枚露篓脢卤脝梅脢卤录盲脢卤录盲录盲赂么拢卢脳卯鲁陇虏禄鲁卢鹿媒1脙毛
 
-		std::auto_ptr<TMsg> msg=std::auto_ptr<TMsg>(mFifo->getNext(nextstep));	//在消息队列最长等待时间是定时器下一个超时时间间隔
+		std::auto_ptr<TMsg> msg=std::auto_ptr<TMsg>(mFifo->getNext(nextstep));	//脭脷脧没脧垄露脫脕脨脳卯鲁陇碌脠麓媒脢卤录盲脢脟露篓脢卤脝梅脧脗脪禄赂枚鲁卢脢卤脢卤录盲录盲赂么
 		if(msg.get())
 		{
 			TEventMsg* pEventMsg = NULL;
 			pEventMsg=dynamic_cast<TEventMsg*>(msg.get());
 			if(pEventMsg)
 			{
-                CCode scode;
+				CCode scode;
 				switch(pEventMsg->eventID)
 				{
 					case KERNAL_APP_INIT:
@@ -236,85 +236,85 @@ void TFRAMEManager::Run()
 
 						break;
 					case KERNAL_APP_RELOAD:
-                        char fstr[1024];
-                        if(pEventMsg->status == 1)
-                        {
-                            sprintf(fstr, "taskid: %d, instid: %d env reload ok", pEventMsg->sender.taskID, pEventMsg->sender.instID);
-                            scode.content = fstr;
-                        }
-                        else
-                        {
-                            sprintf(fstr, "taskid: %d, instid: %d env reload failed", pEventMsg->sender.taskID, pEventMsg->sender.instID);
-                            scode.content = fstr;
-                        }
-                        scode.length = strlen(scode.content);
-                        socket.sendCode(scode);
-                        UniINFO(scode.content);
+						char fstr[1024];
+						if(pEventMsg->status == 1)
+						{
+							sprintf(fstr, "taskid: %d, instid: %d env reload ok", pEventMsg->sender.taskID, pEventMsg->sender.instID);
+							scode.content = fstr;
+						}
+						else
+						{
+							sprintf(fstr, "taskid: %d, instid: %d env reload failed", pEventMsg->sender.taskID, pEventMsg->sender.instID);
+							scode.content = fstr;
+						}
+						scode.length = strlen(scode.content);
+						socket.sendCode(scode);
+						UniINFO(scode.content);
 						break;
 					case KERNAL_APP_SHUTDOWN:
 						break;
 					case KERNAL_APP_STATUES:
-                        scode.content = (char *)pEventMsg->eventInfo.c_str();
-                        scode.length = strlen(scode.content);
-                        socket.sendCode(scode);
-                        UniINFO("watch status of taskid:%d, instid:%d", pEventMsg->sender.taskID, pEventMsg->sender.instID);
-                        UniINFO(scode.content);
-                        break;
+						scode.content = (char *)pEventMsg->eventInfo.c_str();
+						scode.length = strlen(scode.content);
+						socket.sendCode(scode);
+						UniINFO("watch status of taskid:%d, instid:%d", pEventMsg->sender.taskID, pEventMsg->sender.instID);
+						UniINFO(scode.content);
+						break;
 					default:
 						break;
 				}
 			}
 
-        }
+		}
 
-        //check if recieved new command
-        memset(mSockBuffer, 0, sizeof(mSockBuffer));
-        code.content = mSockBuffer;
-        code.length = 0;
-        int recvstatus = socket.recvCode(code);
-        if(recvstatus == 1 &&code.length >0)
-        {
-            Command * cmd = (Command *) code.content;
-            //debug out
-            //cout<< "taskid: "<< cmd->taskId<<endl;
-            //cout<< "instid: "<< cmd->instId<<endl;
-            //cout<< "command: "<< cmd->cmd<<endl;
+		//check if recieved new command
+		memset(mSockBuffer, 0, sizeof(mSockBuffer));
+		code.content = mSockBuffer;
+		code.length = 0;
+		int recvstatus = socket.recvCode(code);
+		if(recvstatus == 1 &&code.length >0)
+		{
+			Command * cmd = (Command *) code.content;
+			//debug out
+			//cout<< "taskid: "<< cmd->taskId<<endl;
+			//cout<< "instid: "<< cmd->instId<<endl;
+			//cout<< "command: "<< cmd->cmd<<endl;
 
-            TEventMsg* cmdmsg=NULL;
-            task=NULL;
-            mInstList.reset();
-            mInstList.current(task);
-            while(task)
-            {
-                    //find the task
-                    if(cmd->taskId == -1 || (task->taskID == cmd->taskId && cmd->instId == -1) || (task->taskID == cmd->taskId && task->instID == cmd->instId))
-                    {
-                        mTransID++;
-                        cmdmsg=new TEventMsg();
-                        switch(cmd->type)
-                        {
-                        	case 0:
-                        		cmdmsg->eventID= KERNAL_APP_RELOAD;
-                        		break;
-                        	case 1:
-                        	default:
-                        		cmdmsg->eventID= KERNAL_APP_STATUES;
-                        		break;
-                        }
-                        cmdmsg->transID=mTransID;
-                        cmdmsg->status=0;
-                        cmdmsg->eventInfo += cmd->cmd;
-                        cmdmsg->sender.taskType=0;
-						cmdmsg->sender.taskID=0;
-						cmdmsg->sender.instID=0;
-                        task->task->add(cmdmsg);
-                        cmdmsg=NULL;
-                    }
+			TEventMsg* cmdmsg=NULL;
+			task=NULL;
+			mInstList.reset();
+			mInstList.current(task);
+			while(task)
+			{
+				//find the task
+				if(cmd->taskId == -1 || (task->taskID == cmd->taskId && cmd->instId == -1) || (task->taskID == cmd->taskId && task->instID == cmd->instId))
+				{
+					mTransID++;
+					cmdmsg=new TEventMsg();
+					switch(cmd->type)
+					{
+						case 0:
+							cmdmsg->eventID= KERNAL_APP_RELOAD;
+							break;
+						case 1:
+						default:
+							cmdmsg->eventID= KERNAL_APP_STATUES;
+							break;
+					}
+					cmdmsg->transID=mTransID;
+					cmdmsg->status=0;
+					cmdmsg->eventInfo += cmd->cmd;
+					cmdmsg->sender.taskType=0;
+					cmdmsg->sender.taskID=0;
+					cmdmsg->sender.instID=0;
+					task->task->add(cmdmsg);
+					cmdmsg=NULL;
+				}
 
-                    task=NULL;
-                    mInstList.next(task);
-            }
-        }
+				task=NULL;
+				mInstList.next(task);
+			}
+		}
 	}
 }
 

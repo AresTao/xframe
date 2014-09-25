@@ -105,26 +105,13 @@ class CDBMysql:public CDB
          */
         void commit();        
        
-        /*
-         *回滚一个事务处理。
-         */
         void rollback();  	
 
  
-		/*
-		 * 检查到服务器的连接是否正在工作。如果它关闭了，自动尝试一个再连接。
-         * 如果空闲很长时间不使用数据库，数据库服务器可能将连接关闭。
-		 * 所以在长时间运行时，需要检查服务器是否关闭了连接并且如有必要重新连接。 
-		 * 在UniFrame中，此函数由Kernel自动调用，上层应用无须调用此函数。
-		 
-		 * return: TRUE: 连接正常或者重连成功； FALSE: 连接关闭且重连失败
-		 */
 		virtual BOOL ping();
-
-   const char* type() { return "MYSQL"; }
+            const char* type() { return "MYSQL"; }
 private:
-	    INT reconnect(); //重连数据库
-
+	    INT reconnect(); 
    	    MYSQL m_struMYSQL;		
 		struct DBInfo
 		{
@@ -133,20 +120,12 @@ private:
 			INT	 DBPort;
 		};
 		typedef struct DBInfo DBInfo;
-		//主机地址和端口从配置文件中读取。
-		//与ORACLE的区别在于，在ORACLE中，这些信息在ORACLE配置文件tnsnames中进行配置
-		//应用程序可以忽略。
-		//改动思路是，在CDB初始化时，将数据库地址和端口信息读到内存缓冲区中（m_struDBInfo）。
-		//连接时，根据数据库名称，从内存缓冲区中获取其对应的地址和端口
 		DBInfo  m_struDBInfo;		
 		
-		//配置文件中数据库的数目。
 		INT m_iDBCnt;
 		
-		MYSQL_RES * m_pMysqlRes; 
-		
-		BOOL  alreadyInit; //连接过一次后，此值置为TRUE.以便能调用reconnect
-        
+		MYSQL_RES * m_pMysqlRes;
+                BOOL  alreadyInit;        
 	 
 };
 

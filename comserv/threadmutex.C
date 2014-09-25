@@ -1,11 +1,3 @@
-/*
-namespace std
-{
-typedef wchar_t wint_t;
-typedef unsigned int size_t;
-}
-
-*/
 #include <cassert>
 #include <cerrno>
 #include "threadmutex.h"
@@ -20,8 +12,8 @@ typedef unsigned int size_t;
 Mutex::Mutex()
 {
 #ifndef WIN32
-    int  rc = pthread_mutex_init(&mId,0);
-    assert( rc == 0 );
+	int  rc = pthread_mutex_init(&mId,0);
+	assert( rc == 0 );
 #else
 	// Note:  Windows Critical sections are recursive in nature and perhaps
 	//        this implementation calls for a non-recursive implementation
@@ -35,36 +27,36 @@ Mutex::Mutex()
 Mutex::~Mutex ()
 {
 #ifndef WIN32
-    int  rc = pthread_mutex_destroy(&mId);
-    assert( rc != EBUSY );  // currently locked 
-    assert( rc == 0 );
+	int  rc = pthread_mutex_destroy(&mId);
+	assert( rc != EBUSY );  // currently locked 
+	assert( rc == 0 );
 #else
 	DeleteCriticalSection(&mId);
 #endif
 }
 
 
-void
+	void
 Mutex::lock()
 {
 #ifndef WIN32
-    int  rc = pthread_mutex_lock(&mId);
-    assert( rc != EINVAL );
-    assert( rc != EDEADLK );
-    assert( rc == 0 );
+	int  rc = pthread_mutex_lock(&mId);
+	assert( rc != EINVAL );
+	assert( rc != EDEADLK );
+	assert( rc == 0 );
 #else
 	EnterCriticalSection(&mId);
 #endif
 }
 
-void
+	void
 Mutex::unlock()
 {
 #ifndef WIN32
-    int  rc = pthread_mutex_unlock(&mId);
-    assert( rc != EINVAL );
-    assert( rc != EPERM );
-    assert( rc == 0 );
+	int  rc = pthread_mutex_unlock(&mId);
+	assert( rc != EINVAL );
+	assert( rc != EPERM );
+	assert( rc == 0 );
 #else
 	LeaveCriticalSection(&mId);
 #endif
@@ -74,7 +66,7 @@ Mutex::unlock()
 pthread_mutex_t*
 Mutex::getId() const
 {
-    return ( &mId );
+	return ( &mId );
 }
 #endif
 

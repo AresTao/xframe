@@ -1,4 +1,3 @@
-
 #include "env.h"
 #include "info.h"
 #include "db.h"
@@ -6,21 +5,21 @@
 
 int LogLevelFactory(const char * Level)
 {
-    if(strcmp(Level,"Debug")==0)
-        return Debug;
-    else if(strcmp(Level,"Info")==0)
-        return Info;
-    else if(strcmp(Level,"Error")==0)
-        return Err;
+	if(strcmp(Level,"Debug")==0)
+		return Debug;
+	else if(strcmp(Level,"Info")==0)
+		return Info;
+	else if(strcmp(Level,"Error")==0)
+		return Err;
 }
 int LogTypeFactory(const char * type)
 {
-    if(strcmp(type,"Cout")==0)
-        return Cout;
-    else if(strcmp(type,"File")==0)
-        return File;
-    else if(strcmp(type,"Both")==0)
-        return Both;
+	if(strcmp(type,"Cout")==0)
+		return Cout;
+	else if(strcmp(type,"File")==0)
+		return File;
+	else if(strcmp(type,"Both")==0)
+		return Both;
 }
 
 int TaskTypeFactory(const char * type)
@@ -219,18 +218,18 @@ BOOL  TDBRsc::conn(const INT dbidx)
 			mpDB[dbidx]->disConnDB();
 			delete mpDB[dbidx];
 			mpDB[dbidx]=NULL;
-        }
-        mpDB[dbidx]=initDB((CDB::DBType)mDBList[dbidx].dbType, mDBList[dbidx].dbUser.c_str(), mDBList[dbidx].dbPass.c_str(), mDBList[dbidx].dbName.c_str(),mDBList[dbidx].dbHost.c_str(), mDBList[dbidx].dbPort);
-        if(mpDB[dbidx]!=NULL)
-        {
-            UniINFO("TDBRsc: New db rsc ok, dbID=%d", mDBList[dbidx].dbId);
-            return TRUE;
-        }
-        else
-        {
-            UniINFO("TDBRsc: New db rsc error, dbID=%d", mDBList[dbidx].dbId);
-        }
-        return TRUE;
+		}
+		mpDB[dbidx]=initDB((CDB::DBType)mDBList[dbidx].dbType, mDBList[dbidx].dbUser.c_str(), mDBList[dbidx].dbPass.c_str(), mDBList[dbidx].dbName.c_str(),mDBList[dbidx].dbHost.c_str(), mDBList[dbidx].dbPort);
+		if(mpDB[dbidx]!=NULL)
+		{
+			UniINFO("TDBRsc: New db rsc ok, dbID=%d", mDBList[dbidx].dbId);
+			return TRUE;
+		}
+		else
+		{
+			UniINFO("TDBRsc: New db rsc error, dbID=%d", mDBList[dbidx].dbId);
+		}
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -371,7 +370,7 @@ BOOL TTaskEnv::getDBRsc(TDBRsc& dbinfo)
 		}
 		db = db->NextSiblingElement();
 	}
-    return true;
+	return true;
 }
 
 
@@ -407,26 +406,26 @@ BOOL TKernalEnv::onLoad()
 
 void TKernalEnv::onList(CStr& result)
 {
-   result  <<  "TKernalEnv env:\n";
-   result.fCat("  logType         = %d\n", getLogType());
-   result.fCat("  logLevel        = %d\n", getLogLevel());
-   CStr scip;
-   UINT scport;
-   UINT hb;
-   getSCInfo( scip, scport, hb);
-   result  <<  " SC env:\n";
-   result.fCat("  SCIP            = %s\n", scip.c_str());
-   result.fCat("  SCPORT          = %d\n", scport);
-   result.fCat("  HB              = %d\n", hb);
-   CList<TProcRsc> list;
-   getProcList(list);
-   TProcRsc p;
-   result  <<  " Process env:\n";
-   for(int i=0; i<list.size(); i++)
-   {
-	list.pop_front(p);
-   		result.fCat("  TaskIP = %d ; TaskName = %s ; TaskType = %d ; ThreadNum = %d ; TaskDll = %s \n", p.taskID, p.taskName.c_str(), p.taskType, p.threadNum, p.taskDll.c_str());
-   }
+	result  <<  "TKernalEnv env:\n";
+	result.fCat("  logType         = %d\n", getLogType());
+	result.fCat("  logLevel        = %d\n", getLogLevel());
+	CStr scip;
+	UINT scport;
+	UINT hb;
+	getSCInfo( scip, scport, hb);
+	result  <<  " SC env:\n";
+	result.fCat("  SCIP            = %s\n", scip.c_str());
+	result.fCat("  SCPORT          = %d\n", scport);
+	result.fCat("  HB              = %d\n", hb);
+	CList<TProcRsc> list;
+	getProcList(list);
+	TProcRsc p;
+	result  <<  " Process env:\n";
+	for(int i=0; i<list.size(); i++)
+	{
+		list.pop_front(p);
+		result.fCat("  TaskIP = %d ; TaskName = %s ; TaskType = %d ; ThreadNum = %d ; TaskDll = %s \n", p.taskID, p.taskName.c_str(), p.taskType, p.threadNum, p.taskDll.c_str());
+	}
 }
 
 int TKernalEnv::getLogType()
@@ -579,13 +578,13 @@ UINT TEnv::load()
 
 void TEnv::list(CStr& result)
 {
-   result  <<  "TEnv env:\n";
-   result.fCat("  logType         = %d\n", mLogType);
-   result.fCat("  logLevel        = %d\n", mLogLevel);
-   result  <<  " TDBEnv env:\n";
-   mDBEnv.list(result);
+	result  <<  "TEnv env:\n";
+	result.fCat("  logType         = %d\n", mLogType);
+	result.fCat("  logLevel        = %d\n", mLogLevel);
+	result  <<  " TDBEnv env:\n";
+	mDBEnv.list(result);
 
-   onList(result);
+	onList(result);
 }
 
 BOOL TEnv::loadCommonEnv(TiXmlElement* root)
@@ -601,9 +600,9 @@ BOOL TEnv::loadCommonEnv(TiXmlElement* root)
 		log=comhandle.FirstChild("log").Element();
 		if(log)
 		{
-		    const char * tmp;
-            if(tmp= log->Attribute("logType")) mLogType = LogTypeFactory(tmp);
-            if(tmp = log->Attribute("logLevel")) mLogLevel = LogLevelFactory(tmp);
+			const char * tmp;
+			if(tmp= log->Attribute("logType")) mLogType = LogTypeFactory(tmp);
+			if(tmp = log->Attribute("logLevel")) mLogLevel = LogLevelFactory(tmp);
 		}
 
 		TiXmlElement* dblist=NULL;
@@ -612,10 +611,10 @@ BOOL TEnv::loadCommonEnv(TiXmlElement* root)
 			mDBEnv.load(dblist);
 
 	}
-//
-//	CStr result;
-//	list(result);
-//	UniINFO("TEnv: Load common env ok:\n %s", result.c_str());
+	//
+	//	CStr result;
+	//	list(result);
+	//	UniINFO("TEnv: Load common env ok:\n %s", result.c_str());
 	return TRUE;
 }
 
@@ -649,7 +648,7 @@ BOOL TEnv::getTimerRsc(TTimerRsc& tm)
 				if(!timer->Attribute("resendnum", &(tm.mTimerList[id].resendNum))) tm.mTimerList[id].resendNum=0;
 				memset(tm.mTimerList[id].timerName, 0, MAX_TIMER_NAME);
 				if(timer->Attribute("name"))
-				strncpy(tm.mTimerList[id].timerName, timer->Attribute("name"), MAX_TIMER_NAME-1);
+					strncpy(tm.mTimerList[id].timerName, timer->Attribute("name"), MAX_TIMER_NAME-1);
 				tm.mTimerMarkList[pos]=id;
 				pos++;
 			}

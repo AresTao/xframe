@@ -28,11 +28,11 @@ Mutex *ThreadIf::mTlsDestructorsMutex;
 #endif
 
 /**
-线程共享数据的使用方法：
-创建线程之前，主函数中调用 threadEnvCreate()，创建环境变量；
-线程入口，设置线程环境对象指针： threadEnvSet((void*)(pEnv))
-各个其他对象在使用过程中，调用方法获得环境对象指针：TEnv* p=(TEnv*)threadEnvGet();
-**/
+  线程共享数据的使用方法：
+  创建线程之前，主函数中调用 threadEnvCreate()，创建环境变量；
+  线程入口，设置线程环境对象指针： threadEnvSet((void*)(pEnv))
+  各个其他对象在使用过程中，调用方法获得环境对象指针：TEnv* p=(TEnv*)threadEnvGet();
+ **/
 //线程专有数据，目前定义了一个 p_env，用于线程内共享环境数据
 #ifdef WIN32
 //Thread Local Storage
@@ -44,73 +44,73 @@ pthread_key_t p_env;
 
 extern "C"
 {
-static void*
+	static void*
 #ifdef WIN32
 #ifdef _WIN32_WCE
-WINAPI
+		WINAPI
 #else
-__stdcall
+		__stdcall
 #endif
 #endif
-threadIfThreadWrapper( void* threadParm )
-{
-   assert( threadParm );
-   ThreadIf* t = static_cast < ThreadIf* > ( threadParm );
+		threadIfThreadWrapper( void* threadParm )
+		{
+			assert( threadParm );
+			ThreadIf* t = static_cast < ThreadIf* > ( threadParm );
 
-   assert( t );
-   t->thread();
+			assert( t );
+			t->thread();
 #ifdef WIN32
-   // Free data in TLS slots.
-   ThreadIf::tlsDestroyAll();
+			// Free data in TLS slots.
+			ThreadIf::tlsDestroyAll();
 #ifdef _WIN32_WCE
-   ExitThread( 0 );
+			ExitThread( 0 );
 #else
-   _endthreadex(0);
+			_endthreadex(0);
 #endif
 #endif
-   return 0;
-}
+			return 0;
+		}
 }
 
 #ifdef WIN32
 unsigned int TlsDestructorInitializer::mInstanceCounter=0;
 TlsDestructorInitializer::TlsDestructorInitializer()
 {
-   if (mInstanceCounter++ == 0)
-   {
-      ThreadIf::mTlsDestructorsMutex = new Mutex();
-      ThreadIf::mTlsDestructors = new ThreadIf::TlsDestructor*[ThreadIf::TLS_MAX_KEYS];
-      for (int i=0; i<ThreadIf::TLS_MAX_KEYS; i++)
-      {
-         ThreadIf::mTlsDestructors[i] = NULL;
-      }
-   }
+	if (mInstanceCounter++ == 0)
+	{
+		ThreadIf::mTlsDestructorsMutex = new Mutex();
+		ThreadIf::mTlsDestructors = new ThreadIf::TlsDestructor*[ThreadIf::TLS_MAX_KEYS];
+		for (int i=0; i<ThreadIf::TLS_MAX_KEYS; i++)
+		{
+			ThreadIf::mTlsDestructors[i] = NULL;
+		}
+	}
 }
 TlsDestructorInitializer::~TlsDestructorInitializer()
 {
-   if (--mInstanceCounter == 0)
-   {
-      delete ThreadIf::mTlsDestructorsMutex;
-      delete ThreadIf::mTlsDestructors;
-   }
+	if (--mInstanceCounter == 0)
+	{
+		delete ThreadIf::mTlsDestructorsMutex;
+		delete ThreadIf::mTlsDestructors;
+	}
 }
 #endif
 
 
 ThreadIf::ThreadIf() :
 #ifdef WIN32
-   mThread(0),
+	mThread(0),
 #endif
-   mId(0), mPID(0), mShutdown(false), mShutdownMutex()
+	mId(0), mPID(0), mShutdown(false), mShutdownMutex()
 {
 	memset(mThreadName,0,33);
 }
 
 ThreadIf::ThreadIf(const char* threadName) :
 #ifdef WIN32
-   mThread(0),
+	mThread(0),
 #endif
-   mId(0), mPID(0), mShutdown(false), mShutdownMutex()
+	mId(0), mPID(0), mShutdown(false), mShutdownMutex()
 {
 	memset(mThreadName,0,33);
 	if(threadName!=NULL) strncpy(mThreadName,threadName,32);
@@ -119,238 +119,238 @@ ThreadIf::ThreadIf(const char* threadName) :
 
 ThreadIf::~ThreadIf()
 {
-   shutdown();
-   join();
+	shutdown();
+	join();
 }
 
-void
+	void
 ThreadIf::run()
 {
-   assert(mId == 0);
+	assert(mId == 0);
 
 #if defined(WIN32)
-   // !kh!
-   // Why _beginthreadex() instead of CreateThread():
-   //   http://support.microsoft.com/support/kb/articles/Q104/6/41.ASP
-   // Example of using _beginthreadex() mixed with WaitForSingleObject() and CloseHandle():
-   //   http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclib/html/_crt__beginthread.2c_._beginthreadex.asp
+	// !kh!
+	// Why _beginthreadex() instead of CreateThread():
+	//   http://support.microsoft.com/support/kb/articles/Q104/6/41.ASP
+	// Example of using _beginthreadex() mixed with WaitForSingleObject() and CloseHandle():
+	//   http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclib/html/_crt__beginthread.2c_._beginthreadex.asp
 
-   mThread =
+	mThread =
 #ifdef _WIN32_WCE
-       // there is no _beginthreadex() for WINCE
-       CreateThread
+		// there is no _beginthreadex() for WINCE
+		CreateThread
 #else
-       (HANDLE)_beginthreadex
+		(HANDLE)_beginthreadex
 #endif // _WIN32_WCE
-         (
-         NULL, // LPSECURITY_ATTRIBUTES lpThreadAttributes,  // pointer to security attributes
-         0, // DWORD dwStackSize,                         // initial thread stack size
-         RESIP_THREAD_START_ROUTINE
-         (threadIfThreadWrapper), // LPTHREAD_START_ROUTINE lpStartAddress,     // pointer to thread function
-         this, //LPVOID lpParameter,                        // argument for new thread
-         0, //DWORD dwCreationFlags,                     // creation flags
-         (unsigned*)&mId// LPDWORD lpThreadId                         // pointer to receive thread ID
-         );
-   assert( mThread != 0 );
+		(
+		 NULL, // LPSECURITY_ATTRIBUTES lpThreadAttributes,  // pointer to security attributes
+		 0, // DWORD dwStackSize,                         // initial thread stack size
+		 RESIP_THREAD_START_ROUTINE
+		 (threadIfThreadWrapper), // LPTHREAD_START_ROUTINE lpStartAddress,     // pointer to thread function
+		 this, //LPVOID lpParameter,                        // argument for new thread
+		 0, //DWORD dwCreationFlags,                     // creation flags
+		 (unsigned*)&mId// LPDWORD lpThreadId                         // pointer to receive thread ID
+		);
+	assert( mThread != 0 );
 #else
-   // spawn the thread
-   if ( int retval = pthread_create( &mId, 0, threadIfThreadWrapper, this) )
-   {
-      std::cerr << "Failed to spawn thread: " << retval << std::endl;
-      assert(0);
-      // TODO - ADD LOGING HERE
-   }
+	// spawn the thread
+	if ( int retval = pthread_create( &mId, 0, threadIfThreadWrapper, this) )
+	{
+		std::cerr << "Failed to spawn thread: " << retval << std::endl;
+		assert(0);
+		// TODO - ADD LOGING HERE
+	}
 #endif
 
 }
 
-void
+	void
 ThreadIf::join()
 {
-   // !kh!
-   // perhaps assert instead of returning when join()ed already?
-   // programming error?
-   //assert(mId == 0);
+	// !kh!
+	// perhaps assert instead of returning when join()ed already?
+	// programming error?
+	//assert(mId == 0);
 
-   if (mId == 0)
-   {
-      return;
-   }
+	if (mId == 0)
+	{
+		return;
+	}
 
 #if defined(WIN32)
-   DWORD exitCode;
-   while (true)
-   {
-      if (GetExitCodeThread(mThread,&exitCode) != 0)
-      {
-         if (exitCode != STILL_ACTIVE)
-         {
-            break;
-         }
-         else
-         {
-            WaitForSingleObject(mThread,INFINITE);
-         }
-      }
-      else
-      {
-         // log something here
-         break;
-      }
-   }
+	DWORD exitCode;
+	while (true)
+	{
+		if (GetExitCodeThread(mThread,&exitCode) != 0)
+		{
+			if (exitCode != STILL_ACTIVE)
+			{
+				break;
+			}
+			else
+			{
+				WaitForSingleObject(mThread,INFINITE);
+			}
+		}
+		else
+		{
+			// log something here
+			break;
+		}
+	}
 
-   //  !kh!
-   CloseHandle(mThread);
-   mThread=0;
+	//  !kh!
+	CloseHandle(mThread);
+	mThread=0;
 #else
-   void* stat;
-   if (mId != pthread_self())
-   {
-      int r = pthread_join( mId , &stat );
-      if ( r != 0 )
-      {
-         //UniERROR( "Internal error: pthread_join() returned %d" ,r );
-         assert(0);
-         // TODO
-      }
-   }
+	void* stat;
+	if (mId != pthread_self())
+	{
+		int r = pthread_join( mId , &stat );
+		if ( r != 0 )
+		{
+			//UniERROR( "Internal error: pthread_join() returned %d" ,r );
+			assert(0);
+			// TODO
+		}
+	}
 
 #endif
 
-   mId = 0;
+	mId = 0;
 }
 
-void
+	void
 ThreadIf::detach()
 {
 #if !defined(WIN32)
-   pthread_detach(mId);
+	pthread_detach(mId);
 #else
-   if(mThread)
-   {
-      CloseHandle(mThread);
-      mThread = 0;
-   }
+	if(mThread)
+	{
+		CloseHandle(mThread);
+		mThread = 0;
+	}
 #endif
-   mId = 0;
+	mId = 0;
 }
 
-ThreadIf::Id
+	ThreadIf::Id
 ThreadIf::selfId()
 {
 #if defined(WIN32)
-   return GetCurrentThreadId();
+	return GetCurrentThreadId();
 #else
-   return pthread_self();
+	return pthread_self();
 #endif
 }
 
-int
+	int
 ThreadIf::tlsKeyCreate(TlsKey &key, TlsDestructor *destructor)
 {
 #if defined(WIN32)
-   key = TlsAlloc();
-   if (key!=TLS_OUT_OF_INDEXES)
-   {
-      Lock lock(*mTlsDestructorsMutex);
-      mTlsDestructors[key] = destructor;
-      return 0;
-   }
-   else
-   {
-      return GetLastError();
-   }
+	key = TlsAlloc();
+	if (key!=TLS_OUT_OF_INDEXES)
+	{
+		Lock lock(*mTlsDestructorsMutex);
+		mTlsDestructors[key] = destructor;
+		return 0;
+	}
+	else
+	{
+		return GetLastError();
+	}
 #else
-   return pthread_key_create(&key, destructor);
+	return pthread_key_create(&key, destructor);
 #endif
 }
 
-int
+	int
 ThreadIf::tlsKeyDelete(TlsKey key)
 {
 #if defined(WIN32)
-   if (TlsFree(key)>0)
-   {
-      Lock lock(*mTlsDestructorsMutex);
-      mTlsDestructors[key] = NULL;
-      return 0;
-   }
-   else
-   {
-      return GetLastError();
-   }
+	if (TlsFree(key)>0)
+	{
+		Lock lock(*mTlsDestructorsMutex);
+		mTlsDestructors[key] = NULL;
+		return 0;
+	}
+	else
+	{
+		return GetLastError();
+	}
 #else
-   return pthread_key_delete(key);
+	return pthread_key_delete(key);
 #endif
 }
 
-int
+	int
 ThreadIf::tlsSetValue(TlsKey key, const void *val)
 {
 #if defined(WIN32)
-   return TlsSetValue(key, (LPVOID)val)>0?0:GetLastError();
+	return TlsSetValue(key, (LPVOID)val)>0?0:GetLastError();
 #else
-   return pthread_setspecific(key, val);
+	return pthread_setspecific(key, val);
 #endif
 }
 
-void *
+	void *
 ThreadIf::tlsGetValue(TlsKey key)
 {
 #if defined(WIN32)
-   return TlsGetValue(key);
+	return TlsGetValue(key);
 #else
-   return pthread_getspecific(key);
+	return pthread_getspecific(key);
 #endif
 }
 
 
-void
+	void
 ThreadIf::shutdown()
 {
-   Lock lock(mShutdownMutex);
-   if (!mShutdown)
-   {
-      mShutdown = true;
-      mShutdownCondition.signal();
-   }
+	Lock lock(mShutdownMutex);
+	if (!mShutdown)
+	{
+		mShutdown = true;
+		mShutdownCondition.signal();
+	}
 }
 
 bool
 ThreadIf::waitForShutdown(int ms) const
 {
-   Lock lock(mShutdownMutex);
-   if(!mShutdown)
-   {
-      mShutdownCondition.wait(mShutdownMutex, ms);
-   }
-   return mShutdown;
+	Lock lock(mShutdownMutex);
+	if(!mShutdown)
+	{
+		mShutdownCondition.wait(mShutdownMutex, ms);
+	}
+	return mShutdown;
 }
 
 bool
 ThreadIf::isShutdown() const
 {
-   Lock lock(mShutdownMutex);
-   (void)lock;
-   return ( mShutdown );
+	Lock lock(mShutdownMutex);
+	(void)lock;
+	return ( mShutdown );
 }
 
 #ifdef WIN32
-void
+	void
 ThreadIf::tlsDestroyAll()
 {
-   Lock lock(*mTlsDestructorsMutex);
-   for (int i=0; i<TLS_MAX_KEYS; i++)
-   {
-      if (mTlsDestructors[i] != NULL)
-      {
-         void *val = TlsGetValue(i);
-         if (val != NULL)
-         {
-            (*mTlsDestructors[i])(val);
-         }
-      }
-   }
+	Lock lock(*mTlsDestructorsMutex);
+	for (int i=0; i<TLS_MAX_KEYS; i++)
+	{
+		if (mTlsDestructors[i] != NULL)
+		{
+			void *val = TlsGetValue(i);
+			if (val != NULL)
+			{
+				(*mTlsDestructors[i])(val);
+			}
+		}
+	}
 }
 #endif
 
@@ -366,21 +366,21 @@ void ThreadIf::thread()
 	//UniINFO(" Thread %s stoped!!! pid=%d ",mThreadName,mPID);
 }
 
-int
+	int
 ThreadIf::tosleep()
 {
 	return tosleep(1);
 }
 
-int
+	int
 ThreadIf::tosleep(long delay)
 {
 #ifdef WIN32
 #else
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = delay;
-    return select(0 , NULL ,NULL ,NULL , &tv);
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = delay;
+	return select(0 , NULL ,NULL ,NULL , &tv);
 #endif
 }
 

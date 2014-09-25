@@ -1,29 +1,3 @@
-/******************************************************************************
-*Copyright(c)2003-2008,by BeiJing Telestar Network Technology Company Ltd.(MT2)
-*All rights reserved
-
-*FileName:     comtypedef.h
-*System:       UniFrame
-*SubSystem:    Common
-*Author:       Long Xiangming
-*Date：         2005-2008.05.24
-*Version：      1.0
-*Description：
-   基本数据类型定义,用于标准化数据的传输，屏蔽各个不同操作系统与硬件之
-
-   间的差异. 不同的操作系统拥有不同的数据类型的长度，在这里使用统一长度
-
-   的数据类型.
-
-   (从Softswitch系统继承）
-
- *
- * Last Modified:
- *   2006.06.27, by Long Xiangming
- *     增加TPhysicalAddress定义（由comtypedef_uninet.h中挪过来）
-
-*******************************************************************************/
-
 #ifndef _COMTYPEDEF_H
 #define _COMTYPEDEF_H
 
@@ -40,14 +14,6 @@
 
 #include <strstream>
 using namespace std;
-
-/* 暂时注释掉! 因为SP与应用服务器互联有问题。可能是应用服务器没有进行大小尾处理。
-#if (defined(WIN32) || defined(LINUX) )
-#ifndef _LITTLE_ENDIAN
-#define _LITTLE_ENDIAN
-#endif
-#endif
-*/
 
 typedef char I8;
 typedef short int I16;
@@ -121,7 +87,7 @@ struct TTimeFormatted
    I32 hour;
    I32 minute;
    I32 second;
-   I32 usec; //微秒
+   I32 usec;
 };
 
 #ifdef WIN32
@@ -368,12 +334,12 @@ class TMsgPara
       virtual   CHAR* getMsgNameStr() { return getMsgName(); }
       virtual   CHAR* getMsgName(){ return "msgPara";}
       virtual   void  print(ostrstream&)=0;
-      virtual   BOOL  operator==(TMsgPara&)=0; //将isEqual换成==操作符，By Long Xiangming. 2006.3.24
-      virtual   PTMsgPara cloneMsg(){ return NULL;}    //只在其直接子类如TUniNetMsg中实现，其他子类不须实现
-      virtual   PTMsgPara cloneCtrlMsg(){ return NULL;} //只在TUniNetMsg中实现，其他子类不须实现
-      int getIndent() {return 0;}//新加的函数，输出的时候用到了。
-      void incIndent(){}//新加的函数，输出的时候用到了。
-	  void decIndent(){}//新加的函数，输出的时候用到了。
+      virtual   BOOL  operator==(TMsgPara&)=0; 
+      virtual   PTMsgPara cloneMsg(){ return NULL;}    
+      virtual   PTMsgPara cloneCtrlMsg(){ return NULL;} 
+      int getIndent() {return 0;}
+      void incIndent(){}
+      void decIndent(){}
 };
 
 

@@ -1,35 +1,3 @@
- /******************************************************************************
- *Copyright(c)2005, by MT2
- *All rights reserved
-
- *FileName:   sscstrdef_addr.h
- *System:     softswitch
- *SubSystem:
- *Author:     Li Jinglin
- *Date：         2005.11.14
- *Version：      4.0
- *Description：
-      VChar的实现
- *
- * Last Modified:
-    2005-11-13 v1.1 李静林  替代了原来的commsgtype.C文件。
-
- *
- * Description：   各个子系统编解码公用的数据结构的编解码
- *
- *    2003.12.23, 各个类的print 函数
-       By       Shuangkai
- *  2004.02.09, 重载各VarChar类的"=="运算符
-      By      PengJin
- *  2004.03.02, 将各类的print方法的参数类型从ostringstream修改为ostrstream
- *      By      PengJin
- *   2004.03.23  by PengJin
- *      因为HP的部分产品（ISUP协议栈）不能支持-AA编译选项，故将本文件中的命名空间移除
- *   2004.05.04  by ShuangKai
- *      在所有的decode函数中添加 : m_cVarCharContent[m_ucVarCharLen]=0; 这样做的结果是解码出来的
- *      就是一个标准的字符串，因为编码时并未将字符串末尾的'\0'加入到CCode中，故在decode函数中加入此语句。
- *********************************************************************/
-
 #include <memory>
 #include <iomanip>
 
@@ -78,13 +46,10 @@ CFixedChar::CFixedChar(const CFixedChar &r)
 
 CFixedChar &CFixedChar::operator=(const CFixedChar &r)
 {
-	//不能改变m_size
-	//if ( m_content != NULL ) delete[] m_content;
 	INT len = r.m_length;
 	if(len>m_size)
 		len = m_size;
 	m_length = len;
-	//m_content = new CHAR[m_size+1];
 	memset(m_content,0,m_size+1);
 	memcpy_safe(m_content, r.m_content, len);
 	return *this;
@@ -92,7 +57,6 @@ CFixedChar &CFixedChar::operator=(const CFixedChar &r)
 
 CFixedChar &CFixedChar::operator=(const CHAR* r)
 {
-	//不能改变m_size
 	set(r);
 	return *this;
 }
@@ -151,7 +115,6 @@ CFixedChar::~CFixedChar()
 
 }
 
-//重新分配空间
 BOOL CFixedChar::setSize(INT size)
 {
 	if(size<=0) return FALSE;
@@ -264,12 +227,6 @@ void CFixedChar::print(ostrstream &st)
   st << "}";
 }
 
-
-/* ---------------------------- 变长字符数组------------------------------*/
-
-
-///////////////////////////////////////////
-//////////////////////////////////////////
 CVarChar8::CVarChar8()
 {
    m_cVarCharContent = NULL;
@@ -294,7 +251,6 @@ CVarChar8::CVarChar8(const CVarChar8 &r)
    return *this;
 }
 
-//added by lxm.2009-02-26。 可以直接赋值为字符串
 CVarChar8 &CVarChar8::operator=(const CHAR* r)
 {
    if(r)
@@ -317,49 +273,14 @@ CVarChar8 &CVarChar8::operator=(const CVarChar &r)
    return *this;
 }
 
-/////////////////////////////////////////////////////////////////////
-// Function：      GetVarCharLen
-// Description:
-//   取字符串中有效字符的个数
-// Args：
-//   无
-// Return Values:
-//      BYTE
-//      返回字符串中有效字符的个数
-//////////////////////////////////////////////////////////////////////
-
  INT CVarChar8::GetVarCharLen() const
 {
    return m_ucVarCharLen;
 }
-
-/////////////////////////////////////////////////////////////////////
-// Function：      SetVarCharLen
-// Description:
-//   设置字符串中有效字符的个数
-// Args：
-//   len BYTE  字符串中有效字符的个数
-// Return Values:
-//      无
-//////////////////////////////////////////////////////////////////////
-
-
  void CVarChar8::SetVarCharLen(INT len)
 {
    m_ucVarCharLen=len;
 }
-
-/////////////////////////////////////////////////////////////////////
-// Function：      GetVarCharContent
-// Description:
-//   取成员变量m_cVarCharContent中的字符
-// Args：
-//   num   INT  所取字符的下标
-// Return Values:
-//      CHAR
-//      返回下标所对应字符
-//////////////////////////////////////////////////////////////////////
-
  CHAR CVarChar8::GetVarCharContent(INT num)
 {
    if ((num>m_ucVarCharLen) || (num<0))
@@ -368,53 +289,16 @@ CVarChar8 &CVarChar8::operator=(const CVarChar &r)
       return m_cVarCharContent[num];
 }
 
-
-/////////////////////////////////////////////////////////////////////
-// Function：      SetVarCharContent
-// Description:
-//   设置成员变量m_cVarCharContent中的字符
-// Args：
-//   num      INT        所取字符的下标
-//   character   CHAR   欲写入的字符
-// Return Values:
-//      无
-//////////////////////////////////////////////////////////////////////
-
  void CVarChar8::SetVarCharContent(INT num,CHAR character)
 {
    if ((num<=m_ucVarCharLen) && (num>=0))
       m_cVarCharContent[num]=character;
 }
 
-
-/////////////////////////////////////////////////////////////////////
-// Function：      GetVarCharContent
-// Description:
-//   取成员变量m_cVarCharContent中的指针
-// Args：
-//      无
-// Return Values:
-//         CHAR*
-//         返回成员变量m_cVarCharContent的指针
-//////////////////////////////////////////////////////////////////////
-
  CHAR* CVarChar8::GetVarCharContentPoint() const
 {
    return (CHAR*)m_cVarCharContent;
 }
-
-
-
-/////////////////////////////////////////////////////////////////////
-// Function：      SetVarCharContent
-// Description:
-//   设置成员变量m_cVarCharContent中的内容
-// Args：
-//   buf   CHAR*     待拷入成员变量m_cVarCharContent中的字符串
-//   len   INT      拷入的有效长度
-// Return Values:
-//      无
-//////////////////////////////////////////////////////////////////////
 
 void CVarChar8::SetVarCharContent(const CHAR* buf, INT len)
 {
@@ -447,24 +331,18 @@ void CVarChar8::SetVarCharContent(const CHAR* buf)
 
  INT CVarChar8::size() const
 {
-   //modified by lxm. 2008.12.09. 使用实际长度进行有效编解码。避免编码过长，减少网络传输开销。
    return ( sizeof(BYTE) +  m_ucVarCharLen );
 
    //return ( sizeof(INT) +  9 );
 }
 
-//
-//added by LXM. 2009-02-26
-//
 CHAR*  CVarChar8::c_str() const
 {
-   //相当于GetVarCharContentPoint
    return m_cVarCharContent;
 };
 
 INT   CVarChar8::length() const
 {
-   //相当于GetVarCharLen
    return m_ucVarCharLen;
 }
 
@@ -559,7 +437,6 @@ void CVarChar8::print(ostrstream &st)
    return *this;
 }
 
-//added by lxm.2009-02-27。 可以直接赋值为字符串
 CVarChar16 &CVarChar16::operator=(const CHAR* r)
 {
    if(r)
@@ -635,12 +512,9 @@ void CVarChar16::SetVarCharContent(const CHAR* buf)
       SetVarCharContent(buf,strlen(buf));
 }
 
- INT CVarChar16::size() const
+INT CVarChar16::size() const
 {
-   //modified by lxm. 2008.12.09. 使用实际长度进行有效编解码。避免编码过长，减少网络传输开销。
    return ( sizeof(BYTE) +  m_ucVarCharLen ); //等价于 ( sizeof(INT) + sizeof(CHAR) * m_ucVarCharLen );
-   //注意，对于CVarChar16，不论m_ucVarCharLen是多少，字符串空间都是17.其他类似。
-   //return ( sizeof(INT) + 17);
 }
 
 //
@@ -719,7 +593,7 @@ void CVarChar16::print(ostrstream &st)
 
 /*************************************************************/
 
- CVarChar32::CVarChar32()
+CVarChar32::CVarChar32()
 {
    m_cVarCharContent = NULL;
    m_cVarCharContent = new CHAR[33];
@@ -728,7 +602,7 @@ void CVarChar16::print(ostrstream &st)
    m_cVarCharContent[32] = '\0';
 }
 
- CVarChar32::CVarChar32(const CVarChar32 &r)
+CVarChar32::CVarChar32(const CVarChar32 &r)
 {
    m_cVarCharContent = NULL;
    m_cVarCharContent = new CHAR[33];
@@ -737,7 +611,7 @@ void CVarChar16::print(ostrstream &st)
    memcpy_safec(m_cVarCharContent, r.m_cVarCharContent, 33);
 }
 
- CVarChar32 &CVarChar32::operator=(const CVarChar32 &r)
+CVarChar32 &CVarChar32::operator=(const CVarChar32 &r)
 {
    m_ucVarCharLen = r.m_ucVarCharLen;
    memcpy_safe(m_cVarCharContent, r.m_cVarCharContent, 33);
@@ -785,12 +659,12 @@ INT CVarChar32::GetVarCharLen() const
    return m_ucVarCharLen;
 }
 
- void CVarChar32::SetVarCharLen(INT len)
+void CVarChar32::SetVarCharLen(INT len)
 {
    m_ucVarCharLen=len;
 }
 
- CHAR CVarChar32::GetVarCharContent(INT num)
+CHAR CVarChar32::GetVarCharContent(INT num)
 {
    if ((num>m_ucVarCharLen) || (num<0))
       return 0;
@@ -798,7 +672,7 @@ INT CVarChar32::GetVarCharLen() const
       return m_cVarCharContent[num];
 }
 
- void CVarChar32::SetVarCharContent(INT num,CHAR character)
+void CVarChar32::SetVarCharContent(INT num,CHAR character)
 {
    if ((num<=m_ucVarCharLen) && (num>=0))
       m_cVarCharContent[num]=character;
@@ -809,7 +683,7 @@ INT CVarChar32::GetVarCharLen() const
    return (CHAR*)m_cVarCharContent;
 }
 
- void CVarChar32::SetVarCharContent(const CHAR* buf, INT len)
+void CVarChar32::SetVarCharContent(const CHAR* buf, INT len)
 {
    if (buf && len > 0) //len<=32)
    {
@@ -820,14 +694,14 @@ INT CVarChar32::GetVarCharLen() const
    }
 }
 
- void CVarChar32::SetVarCharContent(const CHAR* buf)
+void CVarChar32::SetVarCharContent(const CHAR* buf)
 {
    if(buf)
       SetVarCharContent(buf,strlen(buf));
 }
 
 
- INT CVarChar32::size() const
+INT CVarChar32::size() const
 {
    //modified by lxm. 2008.12.09. 使用实际长度进行有效编解码。避免编码过长，减少网络传输开销。
    return ( sizeof(BYTE) +  m_ucVarCharLen );
@@ -1023,24 +897,17 @@ void CVarChar64::SetVarCharContent(const CHAR* buf)
 
 INT CVarChar64::size() const
 {
-   //modified by lxm. 2008.12.09. 使用实际长度进行有效编解码。避免编码过长，减少网络传输开销。
    return ( sizeof(BYTE) +  m_ucVarCharLen );
-   //return ( sizeof(INT) + 65 );
 }
 
 
-//
-//added by LXM. 2009-02-27
-//
 CHAR*  CVarChar64::c_str() const
 {
-   //相当于GetVarCharContentPoint
    return m_cVarCharContent;
 };
 
 INT   CVarChar64::length() const
 {
-   //相当于GetVarCharLen
    return m_ucVarCharLen;
 }
 
@@ -1104,7 +971,7 @@ void CVarChar64::print(ostrstream &st)
 
 /*************************************************************/
 
- CVarChar128::CVarChar128()
+CVarChar128::CVarChar128()
 {
    m_cVarCharContent = NULL;
    m_cVarCharContent = new CHAR[129];
@@ -1113,7 +980,7 @@ void CVarChar64::print(ostrstream &st)
    m_cVarCharContent[128] = '\0';
 }
 
- CVarChar128::CVarChar128(const CVarChar128 &r)
+CVarChar128::CVarChar128(const CVarChar128 &r)
 {
    m_cVarCharContent = NULL;
    m_cVarCharContent = new CHAR[129];
@@ -1121,7 +988,7 @@ void CVarChar64::print(ostrstream &st)
    memcpy_safec(m_cVarCharContent, r.m_cVarCharContent, 129);
 }
 
- CVarChar128 &CVarChar128::operator=(const CVarChar128 &r)
+CVarChar128 &CVarChar128::operator=(const CVarChar128 &r)
 {
    m_ucVarCharLen = r.m_ucVarCharLen;
    memcpy_safe(m_cVarCharContent, r.m_cVarCharContent, 129);
@@ -1185,7 +1052,7 @@ INT CVarChar128::GetVarCharLen() const
    m_ucVarCharLen=len;
 }
 
- CHAR CVarChar128::GetVarCharContent(INT num)
+CHAR CVarChar128::GetVarCharContent(INT num)
 {
    if ((num>m_ucVarCharLen) || (num<0))
       return 0;
@@ -1193,13 +1060,13 @@ INT CVarChar128::GetVarCharLen() const
       return m_cVarCharContent[num];
 }
 
- void CVarChar128::SetVarCharContent(INT num,CHAR character)
+void CVarChar128::SetVarCharContent(INT num,CHAR character)
 {
    if ((num<=m_ucVarCharLen) && (num>=0))
       m_cVarCharContent[num]=character;
 }
 
- CHAR* CVarChar128::GetVarCharContentPoint() const
+CHAR* CVarChar128::GetVarCharContentPoint() const
 {
    return (CHAR*)m_cVarCharContent;
 }
@@ -1225,18 +1092,12 @@ void CVarChar128::SetVarCharContent(const CHAR* buf)
 
 INT CVarChar128::size() const
 {
-   //modified by lxm. 2008.12.09. 使用实际长度进行有效编解码。避免编码过长，减少网络传输开销。
    return ( sizeof(BYTE) + m_ucVarCharLen );
-   //return ( sizeof(INT) + 129 );
 }
 
 
-//
-//added by LXM. 2009-02-27
-//
 CHAR*  CVarChar128::c_str() const
 {
-   //相当于GetVarCharContentPoint
    return m_cVarCharContent;
 };
 
