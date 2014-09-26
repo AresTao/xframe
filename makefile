@@ -1,3 +1,4 @@
+LIBVER=-x32
 UNAME_I=${shell uname -i}
 ifeq ($(UNAME_I), x86_64)
 X86_64DEF=-fPIC -DX86_64
