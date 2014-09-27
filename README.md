@@ -14,7 +14,7 @@ components
 >>common classes including thread/socket and some data structure
 
 >task
->>task defination. each task will work in a thread
+>>task defination. each task will work in a thread and have a database connection
 
 >xclient
 >>it is a client to communicate to xframe to control it, it supports reload and set command by now
@@ -27,7 +27,7 @@ git clone git@github.com:AresTao/xframe.git
 ```
 ##system
 >linux
->>ubuntu10/11 centos6.x
+>>tested on ubuntu10/11 centos6.x
 
 ##Dependencies
 ```
