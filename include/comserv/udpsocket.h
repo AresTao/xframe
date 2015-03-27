@@ -1,3 +1,24 @@
+/*************************************************************************
+
+ * Copyright (c) 2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
+ * All rights reserved.
+
+ * FileName：       udpsocket.h
+ * System：         UniFrame 
+ * SubSystem：      Common
+ * Author：         Long Xiangming
+ * Date：           2006.06.03
+ * Version：        1.0
+ * Description：
+		CUDPSocket定义。UDP协议的Socket调用。
+		其主要接口与CSocket类(TCP)相同。
+ *
+ * Last Modified:
+    2006.06.03, 完成初始版本
+        By Long Xiangming
+
+
+**************************************************************************/
 #ifndef __UDPSOCKET_H
 #define __UDPSOCKET_H
 
@@ -22,18 +43,18 @@
 #include "comtypedef_vchar.h"
 
 #ifndef _WIN32
-#define SOCKLEN_T socklen_t
+	#define SOCKLEN_T socklen_t
 #else
-#define SOCKLEN_T int
+	#define SOCKLEN_T int
 #endif
 
 const INT MaxRecvBufSize = 8096;
 const INT MaxSendBufSize = 8096;
 
 _CLASSDEF(CUDPSocket)
-	class CUDPSocket 
+class CUDPSocket 
 {
-	public:
+public:
 		CUDPSocket();
 		virtual ~CUDPSocket();
 
@@ -44,7 +65,7 @@ _CLASSDEF(CUDPSocket)
 		INT    openServer(CHAR* localAddr, INT localPort); 
 		//打开客户端socket
 		BOOL   openClient(CHAR* remoteAddr,INT remotePort); 
-
+		
 
 		//Added by Lxm. 2009-8-10
 		//打开客户端socket, 不指定对端地址。（每次发送时， 填写地址，以发往不同地址)
@@ -68,7 +89,7 @@ _CLASSDEF(CUDPSocket)
 
 		//关闭socket
 		BOOL    closeSocket();
-
+		
 		INT     getFd() { return m_socketFd;} //最近一次调用open获得的fd
 
 		//得到客户端地址,在调用recvCode之后再调用本方法。
@@ -81,7 +102,7 @@ _CLASSDEF(CUDPSocket)
 		void setRemoteSockAddr(const char* host, int port);
 		void clientInfo(CStr*);
 		void serverInfo(CStr*);
-
+	
 		void    setAddrReuse(BOOL isAddrReuse) { m_addrReuseFlag = isAddrReuse;}
 
 		//added by Long Xiangming. 2010.1.27
@@ -94,7 +115,7 @@ _CLASSDEF(CUDPSocket)
 		void setSendBufSize(INT iSendBufSize);//设置发送缓冲区大小
 		void setSendBufSize();//设置发送缓冲区大小,使用默认
 
-	protected:
+protected:
 		struct  sockaddr_in m_localAddr;
 		struct  sockaddr_in m_remoteAddr;
 		struct  sockaddr_in m_clientAddr;
@@ -104,11 +125,11 @@ _CLASSDEF(CUDPSocket)
 		INT					m_localPort;
 		INT					m_remotePort;
 		SOCKLEN_T			m_addrLen;
-
+		
 		TCommState          m_socketState;
 
 		BOOL				m_addrReuseFlag; //地址重用标记。 //added by Long Xiangming.2006.06.30
-		//缺省为0
+										     //缺省为0
 
 		//added by Long Xiangming. 2010.1.27
 		//socket buff 可以设置。目前仅使用recvBufSize

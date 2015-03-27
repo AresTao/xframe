@@ -52,11 +52,11 @@
 #include "threadlock.h"
 #include <cassert>
 
-	RWMutex::RWMutex()
-:   Lockable(),
-	mReaderCount(0),
-	mWriterHasLock(false),
-	mPendingWriterCount(0)
+RWMutex::RWMutex()
+   :   Lockable(),
+       mReaderCount(0),
+       mWriterHasLock(false),
+       mPendingWriterCount(0)
 {
 }
 
@@ -66,97 +66,97 @@ RWMutex::~RWMutex()
 }
 
 
-	void
+void
 RWMutex::readlock()
 {
-	Lock    lock(mMutex);
+   Lock    lock(mMutex);
 
-	while ( mWriterHasLock || mPendingWriterCount > 0 )
-	{
-		mReadCondition.wait(mMutex);
-	}
+   while ( mWriterHasLock || mPendingWriterCount > 0 )
+   {
+      mReadCondition.wait(mMutex);
+   }
 
-	mReaderCount++;
+   mReaderCount++;
 }
 
 
-	void
+void
 RWMutex::writelock()
 {
-	Lock    lock(mMutex);
+   Lock    lock(mMutex);
 
-	mPendingWriterCount++;
+   mPendingWriterCount++;
 
-	while ( mWriterHasLock || mReaderCount > 0 )
-	{
-		mPendingWriteCondition.wait(mMutex);
-	}
+   while ( mWriterHasLock || mReaderCount > 0 )
+   {
+      mPendingWriteCondition.wait(mMutex);
+   }
 
-	mPendingWriterCount--;
+   mPendingWriterCount--;
 
-	mWriterHasLock = true;
+   mWriterHasLock = true;
 }
 
 
-	void
+void
 RWMutex::lock()
 {
-	writelock();
+   writelock();
 }
 
 
-	void
+void
 RWMutex::unlock()
 {
-	Lock    lock(mMutex);
+   Lock    lock(mMutex);
 
-	// Unlocking a write lock.
-	//
-	if ( mWriterHasLock )
-	{
-		assert( mReaderCount == 0 );
+   // Unlocking a write lock.
+   //
+   if ( mWriterHasLock )
+   {
+      assert( mReaderCount == 0 );
 
-		mWriterHasLock = false;
+      mWriterHasLock = false;
 
-		// Pending writers have priority. Could potentially starve readers.
-		//
-		if ( mPendingWriterCount > 0 )
-		{
-			mPendingWriteCondition.signal();
-		}
+      // Pending writers have priority. Could potentially starve readers.
+      //
+      if ( mPendingWriterCount > 0 )
+      {
+         mPendingWriteCondition.signal();
+      }
 
-		// No writer, no pending writers, so all the readers can go.
-		//
-		else
-		{
-			mReadCondition.broadcast();
-		}
+      // No writer, no pending writers, so all the readers can go.
+      //
+      else
+      {
+         mReadCondition.broadcast();
+      }
 
-	}
+   }
 
-	// Unlocking a read lock.
-	//
-	else
-	{
-		assert( mReaderCount > 0 );
+   // Unlocking a read lock.
+   //
+   else
+   {
+      assert( mReaderCount > 0 );
 
-		mReaderCount--;
+      mReaderCount--;
 
-		if ( mReaderCount == 0 && mPendingWriterCount > 0 )
-		{
-			mPendingWriteCondition.signal();
-		}
-	}
+      if ( mReaderCount == 0 && mPendingWriterCount > 0 )
+      {
+         mPendingWriteCondition.signal();
+      }
+   }
 }
 
 unsigned int
 RWMutex::readerCount() const
 {
-	return ( mReaderCount );
+   return ( mReaderCount );
 }
 
 unsigned int
 RWMutex::pendingWriterCount() const
 {
-	return ( mPendingWriterCount );
+   return ( mPendingWriterCount );
 }

@@ -10,11 +10,11 @@
  * Author:       Li Jinglin
  * Date：        2010.4.4
  * Description:
- 公共线程
- 所有的应用线程都应该从这一公共线程基础类派生，因为这一线程
- 完成了线程环境变量的初始化，完成了线程基本信息的设置。
+		公共线程
+		所有的应用线程都应该从这一公共线程基础类派生，因为这一线程
+	完成了线程环境变量的初始化，完成了线程基本信息的设置。
 
- ****************************************************************/
+****************************************************************/
 
 #if !defined(_GENERAL_THREAD_H_)
 #define _GENERAL_THREAD_H_
@@ -26,23 +26,23 @@
 
 class TGeneralThread : public ThreadIf
 {
-	public:
-		TGeneralThread(const char * tname="TGeneralThread", int tLogType = File, int tLogLevel = Info, UINT inst = 0);
-		~TGeneralThread();
+public:
+	TGeneralThread(const char * tname="TGeneralThread", int tLogType = File, int tLogLevel = Info, UINT inst = 0);
+	~TGeneralThread();
 
-		virtual void process() { tosleep(1000);};
-		void prethreadstart();
-		virtual void onstart() {
-			//used to reload infomation before runnning
+    	virtual void process() { tosleep(1000);};
+	void prethreadstart();
+	virtual void onstart() {
+		//used to reload infomation before runnning
 		};
 
-	public:
-		UINT 	mThreadPID;
-		UINT	mInstID;
-		int 	mLogType;
-		int 	mLogLevel;
-		CStr	mThreadName;
-		GeneralThreadEnv tenv;
+public:
+	UINT 	mThreadPID;
+	UINT	mInstID;
+	int 	mLogType;
+	int 	mLogLevel;
+	CStr	mThreadName;
+	GeneralThreadEnv tenv;
 };
 
 #endif

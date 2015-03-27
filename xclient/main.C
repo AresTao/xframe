@@ -3,6 +3,7 @@
 #include "tinyxml.h"
 #include "udpsocket.h"
 #include "getopt_pp.h"
+#include "linenoise.h"
 #include "threadif.h"
 #include "fifo.h"
 #include <cstring>
@@ -16,8 +17,12 @@ using namespace std;
 using namespace GetOpt;
 
 char * appName = "XClient";
+string remoteIp = "127.0.0.1";
+int remotePort = 9000;
+char prompt[128];
 
-const char * defaultConfig = "config.xml";
+static const char * defaultConfig = "config.xml";
+static const char * historyConfig = ".xclient_history";
 /********************************************/
 const int maxLen = 10000;
 #pragma pack (1)
@@ -38,10 +43,10 @@ class SocketThread : public ThreadIf
 {
 	public:
 		SocketThread(CUDPSocket & socket):mThreadName("SocketThread")
-		{
-			mSocket = &socket;
-			code.content = new CHAR[maxLen];
-		}
+	        {
+		        mSocket = &socket;
+		        code.content = new CHAR[maxLen];
+	        }
 		~SocketThread(){delete code.content;}
 		void process()
 		{
@@ -51,8 +56,7 @@ class SocketThread : public ThreadIf
 				memset(code.content, 0, maxLen);
 				if(mSocket->recvCode(code)== 1 && code.length >0)
 				{
-					cout<<code.content<<"\n";
-					cout<<">";
+					cout<<code.content;
 					cout.flush();
 				}
 			}
@@ -101,7 +105,6 @@ bool getConfig(string & remoteIp, int & remotePort)
 		if(remoteIp == "") remoteIp = "127.0.0.1";
 		xclient->Attribute("remotePort", &remotePort);
 		if(remotePort == 0) remotePort = 9000;
-		cout<<"remote Ip : "<< remoteIp << "\nremote Port : "<<remotePort<<endl;
 	}
 	else
 	{
@@ -112,14 +115,23 @@ bool getConfig(string & remoteIp, int & remotePort)
 	if(config) delete config;
 	return true;
 }
+
 void show_help()
 {
 	CStr str;
-	str<<"usage : [-t|--taskid taskid] [-i|--instid instid] -c|--comand command\n";
+	str<<"usage : \n";
+	str<<"--task operation--\n";
+	str<<"# -t [taskid] -i [instid] -c [command]\n";
 	str<<"command should be one of the next:\n";
-	str<<"\tset logLevel DEBUG|INFO|ERROR|default\n";
-	str<<"\treload all|log|db|timer\n";
-	str<<"\twatch status\n";
+	str<<"\treload all | log | db | timer\n";
+	str<<"\tstatus\n";
+	str<<"\tset logLevel DEBUG | INFO | ERROR | default\n";
+	str<<"\n";
+	str<<"--kernal operation--\n";
+	str<<"# -c [command]\n";
+	str<<"command should be one of the next:\n";
+	str<<"\tstop\n";
+	str<<"\treload\n";
 	str<<"use \"quit\" or \"exit\" to stop it";
 	cout<<str.c_str()<<endl;
 }
@@ -130,17 +142,18 @@ bool parse_cmd(GetOpt_pp &ops, Command &cmd)
 	ops>>Option('c',"command", command);
 	if(command.size() == 0)
 	{
-		cout<< "can not find command string" <<endl;
+		cout<< "can not find command string." <<endl;
 		return false;
 	}
 	else
 	{
 		//reload or set log level
-		if(command[0] == "reload"||command[0] == "set") cmd.type = 0;
-		else if(command[0] == "watch") cmd.type = 1;
+		if(command[0] == "reload") cmd.type = 0;
+		else if(command[0] == "status") cmd.type = 1;
+		else if(command[0] == "stop") cmd.type = 2;
 		else
 		{
-			cout<< "command string is not correct" <<endl;
+			cout<< "command string is not supported." <<endl;
 			return false;
 		}
 		for(int i=0;i<command.size();i++)
@@ -151,11 +164,6 @@ bool parse_cmd(GetOpt_pp &ops, Command &cmd)
 	}
 	ops>>Option('t', "taskid", cmd.taskId);
 	ops>>Option('i', "instid", cmd.instId);
-
-	//debug out
-	cout<< "taskid: "<< cmd.taskId<<endl;
-	cout<< "instid: "<< cmd.instId<<endl;
-	cout<< "command: "<< cmd.cmd<<endl;
 
 	return true;
 }
@@ -178,10 +186,18 @@ void splitArgs(char * line, int & argc, char ** argv)
 		tok=strtok(NULL," \t");
 	}
 }
+
+static void cliRefreshPrompt(void) {
+	int len;
+
+	len = snprintf(prompt,sizeof(prompt),"%s:%d",(char *)remoteIp.c_str(), remotePort);
+	snprintf(prompt+len,sizeof(prompt)-len,"> ");
+}
+
 int main(int argc, char **argv)
 {
-	string remoteIp = "127.0.0.1";
-	int remotePort = 9000;
+	int history = 0;
+	char *line;
 
 	if(!getConfig(remoteIp, remotePort))
 	{
@@ -189,7 +205,6 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
-	char line[100];
 	char * args[20];
 	args[0] = "";
 
@@ -198,7 +213,7 @@ int main(int argc, char **argv)
 	BOOL success = socket.openServer(NULL, remotePort+1);
 	if(!success)
 	{
-		cout<< "Create socket failed! remoteIP="<<remoteIp <<" remotePort=" << remotePort <<endl;
+		cout<<"Connect xframe failed."<<endl;
 		return 0;
 	}
 	socket.setRecvBufSize(maxLen);
@@ -207,39 +222,60 @@ int main(int argc, char **argv)
 	SocketThread mThread(socket);
 	mThread.run();
 
-	cout<<">";
-	while(cin.getline(line, 100) && strcmp(line, "quit")!=0 && strcmp(line, "exit")!=0)
-	{
-		if(strlen(line) == 0)
-		{
-			cout<<">";
-			continue;
-		}
-		int argcnt = 1;
-		splitArgs(line, argcnt,args);
-		GetOpt_pp ops(argcnt, args);
-		//check if it is a show help command
-		if (ops >> OptionPresent('h', "help"))
-		{
-			cout<<"show help"<<endl;
-			show_help();
-			continue;
-		}
-		Command cmd;
-		if(parse_cmd(ops, cmd))
-		{
-			send_to_remote(socket, (CHAR *)remoteIp.c_str(), remotePort, (char *)&cmd, sizeof(cmd));
-		}
-		else
-		{
-			cout<<"!!your args are not correct!!"<<endl;
-			show_help();
-		}
-		recvStr = NULL;
-		cout<<">";
-		cout.flush();
+	linenoiseSetMultiLine(1);
+	//linenoiseSetCompletionCallback(completionCallback);
 
+	if (isatty(fileno(stdin))) {
+		history = 1;
+		linenoiseHistoryLoad(historyConfig);
 	}
+
+	cliRefreshPrompt();
+	while((line = linenoise( success ? prompt : "not connected> ")) )
+	{
+		if (strcmp(line, "quit")==0 || strcmp(line, "exit")==0)
+		{
+			break;
+		}
+		if(line[0] != '\0')
+		{
+			if (history) 
+				linenoiseHistoryAdd(line);
+			if (historyConfig) 
+				linenoiseHistorySave(historyConfig);
+
+			int argcnt = 1;
+			splitArgs(line, argcnt,args);
+			GetOpt_pp ops(argcnt, args);
+			//check if it is a show help command
+			if (ops >> OptionPresent('h', "help"))
+			{
+				cout<<"show help"<<endl;
+				show_help();
+				free(line);
+				continue;
+			}
+
+			Command cmd;
+			if(parse_cmd(ops, cmd))
+			{
+				char s[1000];
+				memset(s,0,sizeof(s));
+				sprintf(s,"%d %d %d %s",cmd.type,cmd.taskId,cmd.instId,cmd.cmd);
+				send_to_remote(socket, (CHAR *)remoteIp.c_str(), remotePort, (char *)s, strlen(s));
+				//  send_to_remote(socket, (CHAR *)remoteIp.c_str(), remotePort, (char *)&cmd, sizeof(cmd));
+			}
+			else
+			{
+				cout<<"your args are not correct!!"<<endl;
+				show_help();
+			}
+			recvStr = NULL;
+
+		}
+		free(line);
+	}
+	cout<<"Bye."<<endl;
 	mThread.detach();
 	socket.closeSocket();
 	return 0;

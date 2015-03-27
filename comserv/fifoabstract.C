@@ -3,106 +3,113 @@
 #include "func.h"
 
 AbstractFifo::AbstractFifo(unsigned int maxSize)
-: mSize(0),
-	mMaxSize(maxSize)
+   : mSize(0),
+     mMaxSize(maxSize)
 {}
 
 AbstractFifo::~AbstractFifo()
 {}
 
 
-	void*
+void*
 AbstractFifo ::getNext()
 {
-	Lock lock(mMutex); (void)lock;
+   Lock lock(mMutex); (void)lock;
 
-	// Wait util there are messages available.
-	while (mFifo.empty())
-	{
-		mCondition.wait(mMutex);
-	}
+   // Wait util there are messages available.
+   while (mFifo.empty())
+   {
+      mCondition.wait(mMutex);
+   }
 
-	// Return the first message on the fifo.
-	//
-	void* firstMessage = mFifo.front();
-	mFifo.pop_front();
-	assert(mSize != 0);
-	mSize--;
-	return firstMessage;
+   // Return the first message on the fifo.
+   //
+   void* firstMessage = mFifo.front();
+   mFifo.pop_front();
+   assert(mSize != 0);
+   mSize--;
+   return firstMessage;
 }
 
-void* AbstractFifo::getNext(int ms)
+void*
+AbstractFifo::getNext(int ms)
 {
-	if(ms == 0) 
-	{
-		return getNext();
-	}
+   if(ms == 0) 
+   {
+      return getNext();
+   }
 
-	const UInt64 begin(getTimeMs());
-	const UInt64 end(begin + (unsigned int)(ms)); // !kh! ms should've been unsigned :(
-	Lock lock(mMutex); (void)lock;
+   const UInt64 begin(getTimeMs());
+   const UInt64 end(begin + (unsigned int)(ms)); // !kh! ms should've been unsigned :(
+   Lock lock(mMutex); (void)lock;
 
-	// Wait until there are messages available
-	while (mFifo.empty())
-	{
-		const UInt64 now(getTimeMs());
-		if(now >= end)
-		{
-			return 0;
-		}
+   // Wait until there are messages available
+   while (mFifo.empty())
+   {
+      const UInt64 now(getTimeMs());
+      if(now >= end)
+      {
+          return 0;
+      }
 
-		unsigned int timeout((unsigned int)(end - now));
+      unsigned int timeout((unsigned int)(end - now));
+              
+      // bail if total wait time exceeds limit
+      bool signaled = mCondition.wait(mMutex, timeout);
+      if (!signaled)
+      {
+         return 0;
+      }
+   }
 
-		// bail if total wait time exceeds limit
-		bool signaled = mCondition.wait(mMutex, timeout);
-		if (!signaled)
-		{
-			return 0;
-		}
-	}
-
-	// Return the first message on the fifo.
-	//
-	void* firstMessage = mFifo.front();
-	mFifo.pop_front();
-	assert(mSize != 0);
-	mSize--;
-	return firstMessage;
+   // Return the first message on the fifo.
+   //
+   void* firstMessage = mFifo.front();
+   mFifo.pop_front();
+   assert(mSize != 0);
+   mSize--;
+   return firstMessage;
 }
 
-bool AbstractFifo::empty() const
+bool
+AbstractFifo::empty() const
 {
-	Lock lock(mMutex); (void)lock;
-	return mSize == 0;
+   Lock lock(mMutex); (void)lock;
+   return mSize == 0;
 }
 
 
-unsigned int AbstractFifo ::size() const
+unsigned int
+AbstractFifo ::size() const
 {
-	Lock lock(mMutex); (void)lock;
-	return mSize;
+   Lock lock(mMutex); (void)lock;
+   return mSize;
 }
 
-time_t AbstractFifo::timeDepth() const
+time_t
+AbstractFifo::timeDepth() const
 {
-	return 0;
+   return 0;
 }
 
-bool AbstractFifo::messageAvailable() const
+bool
+AbstractFifo::messageAvailable() const
 {
-	Lock lock(mMutex); (void)lock;
-	assert(mSize != NoSize);
-	return !mFifo.empty();
+   Lock lock(mMutex); (void)lock;
+   assert(mSize != NoSize);
+   return !mFifo.empty();
 }
 
-size_t AbstractFifo::getCountDepth() const
+size_t 
+AbstractFifo::getCountDepth() const
 {
-	return mSize;
+   return mSize;
 }
 
-time_t AbstractFifo::getTimeDepth() const
+time_t 
+AbstractFifo::getTimeDepth() const
 {
-	return 0;
+   return 0;
 }
 
 

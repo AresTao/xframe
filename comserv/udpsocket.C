@@ -1,3 +1,23 @@
+/*************************************************************************
+
+ * Copyright (c) 2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
+ * All rights reserved.
+
+ * FileName：       udpsocket.C
+ * System：         UniFrame
+ * SubSystem：      Common
+ * Author：         Long Xiangming
+ * Date：           2006.06.03
+ * Version：        1.0
+ * Description：
+		CUdpSocket实现。UDP协议的Socket调用。
+ *
+ * Last Modified:
+    2006.06.03, 完成初始版本
+        By Long Xiangming
+
+
+**************************************************************************/
 #include "udpsocket.h"
 #include "func.h"
 #include "info.h"
@@ -61,10 +81,10 @@ INT CUDPSocket::openServer(CHAR* localAddr, INT localPort)
 	memset(&(m_localAddr.sin_zero), '\0', 8);
 	m_localPort = localPort;
 
-	m_localFd = socket(AF_INET, SOCK_DGRAM, 0);
+  	m_localFd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(m_localFd<0) {
-		perror("open socket server");
-		//exit(1);
+	    perror("open socket server");
+	    //exit(1);
 	}
 
 	if (setsockopt(m_localFd, SOL_SOCKET, SO_REUSEADDR, (CHAR*)&m_addrReuseFlag, sizeof(m_addrLen)) == -1) {
@@ -74,9 +94,9 @@ INT CUDPSocket::openServer(CHAR* localAddr, INT localPort)
 	}
 
 	if (bind(m_localFd, (struct sockaddr *)&m_localAddr, sizeof(struct sockaddr)) != 0) {
-		perror("bind");
+	    perror("bind");
 		return -1;
-		//exit(1);
+	    //exit(1);
 	}
 	m_socketState = OPEN;
 	m_socketFd = m_localFd;
@@ -130,7 +150,7 @@ BOOL  CUDPSocket::openClient(CHAR* remoteAddr,INT remotePort)
 	if(m_remoteFd<0)
 	{
 		perror("open socket client");
-		//exit(1);
+	    //exit(1);
 		return FALSE;
 	}
 
@@ -146,7 +166,7 @@ BOOL  CUDPSocket::openClient()
 	if(m_remoteFd<0)
 	{
 		perror("open socket client");
-		//exit(1);
+	    //exit(1);
 		return FALSE;
 	}
 
@@ -224,7 +244,7 @@ BOOL   CUDPSocket::closeSocket()
 		}
 		else
 			rt = FALSE;
-	}
+    }
 
 	if(m_localFd>0)
 	{
@@ -237,7 +257,7 @@ BOOL   CUDPSocket::closeSocket()
 		else
 			rt = FALSE;
 	}
-	return rt;
+  	return rt;
 }
 
 void CUDPSocket::setRecvBufSize(INT iRecvBufSize)
@@ -248,7 +268,7 @@ void CUDPSocket::setRecvBufSize(INT iRecvBufSize)
 		m_socketRecvBufSize = iRecvBufSize;
 
 		if (setsockopt(m_socketFd, SOL_SOCKET, SO_RCVBUF, (CHAR*)&iRecvBufSize,
-					sizeof(iRecvBufSize))<0)
+				sizeof(iRecvBufSize))<0)
 		{
 			UniERROR("set UDP receive buffer size error: %d.", iRecvBufSize);
 			perror("setRecvBufSize:");
@@ -274,7 +294,7 @@ void CUDPSocket::setSendBufSize(INT iSendBufSize)
 		m_socketSendBufSize = iSendBufSize;
 
 		if (setsockopt(m_socketFd, SOL_SOCKET, SO_SNDBUF, (CHAR*)&iSendBufSize,
-					sizeof(iSendBufSize))<0)
+				sizeof(iSendBufSize))<0)
 		{
 			UniERROR("set UDP send buffer size error: %d.", iSendBufSize);
 			perror("setSendBufSize:");

@@ -1,0 +1,20 @@
+#ifndef _MSGDEF_COMMSG_H
+#define _MSGDEF_COMMSG_H
+
+class TComCtrlMsg: public TCtrlMsg
+{
+public:
+	INT		status;
+	INT		pri;
+	INT 		facility;
+};
+
+class TComMsg: public TMsgBody
+{
+public:
+        CStr	comMsg;
+}=
+COM_MESSAGE_REQ(100)|
+COM_MESSAGE_RSP(101);
+
+#endif

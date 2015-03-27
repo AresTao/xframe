@@ -15,7 +15,7 @@ SRC_BIN = \
 	../comserv/threadlock.C  ../comserv/threadmutex.C\
 	../comserv/socket.C   ../comserv/udpsocket.C\
 	../comserv/tinystr.C   ../comserv/tinyxml.C  ../comserv/tinyxmlerror.C	 ../comserv/tinyxmlparser.C\
-	getopt_pp/getopt_pp.C
+	getopt_pp/getopt_pp.C    linenoise/linenoise.C
 SRC_ALL = \
 	${SRC_COM}\
 	${SRC_BIN}
@@ -25,6 +25,7 @@ OBJ_BIN = ${SRC_BIN:.C=.o}
 UNIFRAMEINC = \
 	-I.\
 	-I./getopt_pp\
+	-I./linenoise\
 	-I../include/comserv
 
 

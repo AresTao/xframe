@@ -77,3 +77,4 @@ class TFRAMEControl:public TGeneralObject
 
 #endif
 
+

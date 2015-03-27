@@ -81,7 +81,9 @@ class TEventMsg:public TMsg
 		UINT           eventID;		//事件ID
 		UINT		   transID;		//事务ID
 		INT			   status;		//事件状态，一般在返回中提供
-		CStr		   eventInfo;	//事件信息
+		UINT             taskID;    //dest task id
+        UINT             instID;    //dest inst id
+        CStr		   eventInfo;	//事件信息
 		inline         TEventMsg();
 		virtual 	~TEventMsg() {};
 
@@ -131,6 +133,8 @@ inline TEventMsg::TEventMsg()
 {
 	eventID                   = 0;
 	transID					  = 0;
+    taskID                    = 0;
+    instID                    = 0;
 	status					  = 0;
 }
 

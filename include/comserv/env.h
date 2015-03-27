@@ -29,22 +29,23 @@ class TTimerRsc
 		~TTimerRsc() {};
 
 		void list(CStr& result);
+		TTimeMark getTimerIDbyName(char* name);
 
-		inline void clear();
-		TTimeMarkExt& operator[](const TTimeMark timerId);
+		void clear();
+        TTimeMarkExt& operator[](const TTimeMark timerId);
 
 };
 
 
 struct TDBMarkExt
 {
-	INT        dbId;
-	INT        dbType;
-	CStr       dbUser;
-	CStr       dbPass;
-	CStr       dbName;
-	CStr       dbHost;
-	INT        dbPort;
+   INT        dbId;
+   INT        dbType;
+   CStr       dbUser;
+   CStr       dbPass;
+   CStr       dbName;
+   CStr       dbHost;
+   INT        dbPort;
 };
 
 _CLASSDEF(TDBEnv);
@@ -63,7 +64,7 @@ class TDBEnv
 		UINT  load(TiXmlElement* dblistnode);
 		void list(CStr& result);
 
-		inline void clear();
+		void clear();
 		inline TDBMarkExt& operator[](const INT dbID);
 
 };
@@ -83,7 +84,7 @@ class TDBRsc
 		BOOL conn(const INT dbidx);
 		BOOL conn();
 		BOOL disconn(const INT dbidx);
-		inline void clear();
+		void clear();
 		CDB* operator[](const INT dbidx);
 };
 
@@ -99,8 +100,10 @@ class TEnv
 		TDBEnv 			mDBEnv;
 		int				mLogType;			//Log类型
 		int				mLogLevel;			//Log等级
-		CStr            mThreadName;        //线程名
+        CStr            mThreadName;        //线程名
 
+		int				mLogToSyslog;		//输出到syslog开关，默认不输出
+		int				mSyslogTaskID;		//如果打开了syslog开环，需要设置syslog的taskid
 		BOOL  loadCommonEnv(TiXmlElement* root);
 
 	public:
@@ -118,6 +121,8 @@ class TEnv
 
 		virtual int getLogType() { return mLogType;}
 		virtual int getLogLevel() { return mLogLevel; }
+		int logToSyslog() { return mLogToSyslog; }
+		int syslogTaskID() { return mSyslogTaskID; }
 		virtual const char * getThreadName() {return mThreadName.c_str(); }
 		virtual BOOL getTimerRsc(TTimerRsc& tm);
 
@@ -127,24 +132,24 @@ class TEnv
 _CLASSDEF(TTaskEnv);
 class TTaskEnv : public TEnv
 {
-	private:
-		INT mTaskID;
-		TiXmlElement*	task;
-		TiXmlElement*	log;
-		TiXmlElement*	dbrsc;
+private:
+	INT mTaskID;
+	TiXmlElement*	task;
+	TiXmlElement*	log;
+	TiXmlElement*	dbrsc;
 
-	public:
-		TiXmlElement*	extend;
-		TTaskEnv(UINT taskID) { mTaskID=taskID; task = log = dbrsc = NULL; }
-		~TTaskEnv() {  }
+public:
+	TiXmlElement*	extend;
+	TTaskEnv(UINT taskID) { mTaskID=taskID; task = log = dbrsc = NULL; }
+	~TTaskEnv() {  }
 
-		virtual BOOL onLoad();
-		virtual void onList(CStr& result);
-		virtual int getLogType();
-		virtual int getLogLevel();
+	virtual BOOL onLoad();
+	virtual void onList(CStr& result);
+	virtual int getLogType();
+	virtual int getLogLevel();
 
-		BOOL getTaskInfo( INT&	taskType, CStr&	taskName);
-		BOOL getDBRsc(TDBRsc& db);
+	BOOL getTaskInfo( INT&	taskType, CStr&	taskName);
+	BOOL getDBRsc(TDBRsc& db);
 
 };
 
@@ -193,9 +198,9 @@ class TKernalEnv : public TEnv
 
 _CLASSDEF(GeneralThreadEnv);
 struct GeneralThreadEnv{
-	const char * threadName;
-	int logType;
-	int logLevel;
+    const char * threadName;
+    int logType;
+    int logLevel;
 };
 
 //这个参数在系统启动的时候初始化，用于加载系统的配置文件路径，在程序其他任何地方都不能修改，以避免线程冲突

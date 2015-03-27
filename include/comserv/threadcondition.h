@@ -20,90 +20,90 @@ class Mutex;
   Condition variable</a> that can be signaled or waited on, wraps POSIX/Windows 
   implementations depending on environment.
 
-  Here's an example (from ThreadIf):
+   Here's an example (from ThreadIf):
 
-  @code
+@code
   void
   ThreadIf::shutdown()
   {
-  Lock lock(mShutdownMutex);
-  if (!mShutdown)
-  {
-  mShutdown = true;
-  mShutdownCondition.signal();
-  }
+     Lock lock(mShutdownMutex);
+     if (!mShutdown)
+     {
+        mShutdown = true;
+        mShutdownCondition.signal();
+     }
   }
 
   bool
   ThreadIf::waitForShutdown(int ms) const
   {
-  Lock lock(mShutdownMutex);
-  mShutdownCondition.wait(mShutdownMutex, ms);
-  return mShutdown;
+     Lock lock(mShutdownMutex);
+     mShutdownCondition.wait(mShutdownMutex, ms);
+     return mShutdown;
   }
   @endcode
 
   @see Mutex
-  */
+*/
 class Condition
 {
-	public:
-		Condition();
-		virtual ~Condition();
+   public:
+      Condition();
+      virtual ~Condition();
 
-		/** wait for the Condition to be signaled
+	  /** wait for the Condition to be signaled
+		@param mtx	The Mutex associated with the Condition variable
+	 */
+      void wait (Mutex& mtx);
+	  /** wait for the Condition to be signaled
 		  @param mtx	The Mutex associated with the Condition variable
-		  */
-		void wait (Mutex& mtx);
-		/** wait for the Condition to be signaled
-		  @param mtx	The Mutex associated with the Condition variable
-		  @retval true The Condition was woken up by activity
+          @retval true The Condition was woken up by activity
 		  @retval false Timeout or interrupt.
-		  */
-		bool wait (Mutex& Mutex, unsigned int ms);
+       */
+      bool wait (Mutex& Mutex, unsigned int ms);
 
-		// !kh!
-		//  deprecate these?
-		void wait (Mutex* Mutex);
-		bool wait (Mutex* Mutex, unsigned int ms);
+      // !kh!
+      //  deprecate these?
+      void wait (Mutex* Mutex);
+      bool wait (Mutex* Mutex, unsigned int ms);
 
-		/** Signal one waiting thread.
-		  @return 0 Success
-		  @return errorcode The error code of the failure
-		  */
-		void signal();
+      /** Signal one waiting thread.
+			@return 0 Success
+			@return errorcode The error code of the failure
+       */
+      void signal();
 
-		/** Signal all waiting threads.
-		  @return 0 Success
-		  @return errorcode The error code of the failure
-		  */
-		void broadcast();
+      /** Signal all waiting threads.
+			@return 0 Success
+			@return errorcode The error code of the failure
+       */
+      void broadcast();
 
-	private:
-		// !kh!
-		//  no value sematics, therefore private and not implemented.
-		Condition (const Condition&);
-		Condition& operator= (const Condition&);
+   private:
+      // !kh!
+      //  no value sematics, therefore private and not implemented.
+      Condition (const Condition&);
+      Condition& operator= (const Condition&);
 
-	private:
+   private:
 #ifdef WIN32
 #  ifdef RESIP_CONDITION_WIN32_CONFORMANCE_TO_POSIX
-		// !kh!
-		// boost clone with modification
-		// licesnse text below
-		void enterWait ();
-		void* m_gate;
-		void* m_queue;
-		void* m_mutex;
-		unsigned m_gone;  // # threads that timed out and never made it to m_queue
-		unsigned long m_blocked; // # threads blocked on the Condition
-		unsigned m_waiting; // # threads no longer waiting for the Condition but
-		// still waiting to be removed from m_queue
+   // !kh!
+   // boost clone with modification
+   // licesnse text below
+   void enterWait ();
+   void* m_gate;
+   void* m_queue;
+   void* m_mutex;
+   unsigned m_gone;  // # threads that timed out and never made it to m_queue
+   unsigned long m_blocked; // # threads blocked on the Condition
+   unsigned m_waiting; // # threads no longer waiting for the Condition but
+                        // still waiting to be removed from m_queue
 #  else
-		HANDLE mId;
+   HANDLE mId;
 #  endif
 #else
-		mutable  pthread_cond_t mId;
+   mutable  pthread_cond_t mId;
 #endif
 };
 

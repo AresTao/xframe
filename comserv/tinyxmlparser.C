@@ -1,26 +1,26 @@
 /*
-   www.sourceforge.net/projects/tinyxml
-   Original code (2.0 and earlier )copyright (c) 2000-2002 Lee Thomason (www.grinninglizard.com)
+ www.sourceforge.net/projects/tinyxml
+ Original code (2.0 and earlier )copyright (c) 2000-2002 Lee Thomason (www.grinninglizard.com)
 
-   This software is provided 'as-is', without any express or implied
-   warranty. In no event will the authors be held liable for any
-   damages arising from the use of this software.
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any
+ damages arising from the use of this software.
 
-   Permission is granted to anyone to use this software for any
-   purpose, including commercial applications, and to alter it and
-   redistribute it freely, subject to the following restrictions:
+ Permission is granted to anyone to use this software for any
+ purpose, including commercial applications, and to alter it and
+ redistribute it freely, subject to the following restrictions:
 
-   1. The origin of this software must not be misrepresented; you must
-   not claim that you wrote the original software. If you use this
-   software in a product, an acknowledgment in the product documentation
-   would be appreciated but is not required.
+ 1. The origin of this software must not be misrepresented; you must
+ not claim that you wrote the original software. If you use this
+ software in a product, an acknowledgment in the product documentation
+ would be appreciated but is not required.
 
-   2. Altered source versions must be plainly marked as such, and
-   must not be misrepresented as being the original software.
+ 2. Altered source versions must be plainly marked as such, and
+ must not be misrepresented as being the original software.
 
-   3. This notice may not be removed or altered from any source
-   distribution.
-   */
+ 3. This notice may not be removed or altered from any source
+ distribution.
+ */
 
 #include <ctype.h>
 #include <stddef.h>
@@ -42,11 +42,11 @@
 // or order will break putstring.
 TiXmlBase::Entity TiXmlBase::entity[NUM_ENTITY] =
 {
-	{ "&amp;", 5, '&' },
-	{ "&lt;", 4, '<' },
-	{ "&gt;", 4, '>' },
-	{ "&quot;", 6, '\"' },
-	{ "&apos;", 6, '\'' } };
+{ "&amp;", 5, '&' },
+{ "&lt;", 4, '<' },
+{ "&gt;", 4, '>' },
+{ "&quot;", 6, '\"' },
+{ "&apos;", 6, '\'' } };
 
 // Bunch of unicode info at:
 //		http://www.unicode.org/faq/utf_bom.html
@@ -64,24 +64,24 @@ const unsigned char TIXML_UTF_LEAD_2 = 0xbfU;
 
 const int TiXmlBase::utf8ByteTable[256] =
 {
-	//	0	1	2	3	4	5	6	7	8	9	a	b	c	d	e	f
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x00
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x10
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x20
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x30
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x40
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x50
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x60
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x70	End of ASCII range
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x80 0x80 to 0xc1 invalid
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x90
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0xa0
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0xb0
-	1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // 0xc0 0xc2 to 0xdf 2 byte
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // 0xd0
-	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 0xe0 0xe0 to 0xef 3 byte
-	4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 // 0xf0 0xf0 to 0xf4 4 byte, 0xf5 and higher invalid
-};
+//	0	1	2	3	4	5	6	7	8	9	a	b	c	d	e	f
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x00
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x10
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x20
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x30
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x40
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x50
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x60
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x70	End of ASCII range
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x80 0x80 to 0xc1 invalid
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0x90
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0xa0
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 0xb0
+		1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // 0xc0 0xc2 to 0xdf 2 byte
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, // 0xd0
+		3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 0xe0 0xe0 to 0xef 3 byte
+		4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 // 0xf0 0xf0 to 0xf4 4 byte, 0xf5 and higher invalid
+		};
 
 void TiXmlBase::ConvertUTF32ToUTF8(unsigned long input, char* output,
 		int* length)
@@ -110,21 +110,21 @@ void TiXmlBase::ConvertUTF32ToUTF8(unsigned long input, char* output,
 	// Scary scary fall throughs.
 	switch (*length)
 	{
-		case 4:
-			--output;
-			*output = (char) ((input | BYTE_MARK) & BYTE_MASK);
-			input >>= 6;
-		case 3:
-			--output;
-			*output = (char) ((input | BYTE_MARK) & BYTE_MASK);
-			input >>= 6;
-		case 2:
-			--output;
-			*output = (char) ((input | BYTE_MARK) & BYTE_MASK);
-			input >>= 6;
-		case 1:
-			--output;
-			*output = (char) (input | FIRST_BYTE_MARK[*length]);
+	case 4:
+		--output;
+		*output = (char) ((input | BYTE_MARK) & BYTE_MASK);
+		input >>= 6;
+	case 3:
+		--output;
+		*output = (char) ((input | BYTE_MARK) & BYTE_MASK);
+		input >>= 6;
+	case 2:
+		--output;
+		*output = (char) ((input | BYTE_MARK) & BYTE_MASK);
+		input >>= 6;
+	case 1:
+		--output;
+		*output = (char) (input | FIRST_BYTE_MARK[*length]);
 	}
 }
 
@@ -171,7 +171,7 @@ void TiXmlBase::ConvertUTF32ToUTF8(unsigned long input, char* output,
 class TiXmlParsingData
 {
 	friend class TiXmlDocument;
-	public:
+public:
 	void Stamp(const char* now, TiXmlEncoding encoding);
 
 	const TiXmlCursor& Cursor()
@@ -179,7 +179,7 @@ class TiXmlParsingData
 		return cursor;
 	}
 
-	private:
+private:
 	// Only used by the document!
 	TiXmlParsingData(const char* start, int _tabsize, int row, int col)
 	{
@@ -219,97 +219,97 @@ void TiXmlParsingData::Stamp(const char* now, TiXmlEncoding encoding)
 		// Code contributed by Fletcher Dunn: (modified by lee)
 		switch (*pU)
 		{
-			case 0:
-				// We *should* never get here, but in case we do, don't
-				// advance past the terminating null character, ever
-				return;
+		case 0:
+			// We *should* never get here, but in case we do, don't
+			// advance past the terminating null character, ever
+			return;
 
-			case '\r':
-				// bump down to the next line
-				++row;
-				col = 0;
-				// Eat the character
+		case '\r':
+			// bump down to the next line
+			++row;
+			col = 0;
+			// Eat the character
+			++p;
+
+			// Check for \r\n sequence, and treat this as a single character
+			if (*p == '\n')
+			{
 				++p;
+			}
+			break;
 
-				// Check for \r\n sequence, and treat this as a single character
-				if (*p == '\n')
-				{
-					++p;
-				}
-				break;
+		case '\n':
+			// bump down to the next line
+			++row;
+			col = 0;
 
-			case '\n':
-				// bump down to the next line
-				++row;
-				col = 0;
+			// Eat the character
+			++p;
 
-				// Eat the character
+			// Check for \n\r sequence, and treat this as a single
+			// character.  (Yes, this bizarre thing does occur still
+			// on some arcane platforms...)
+			if (*p == '\r')
+			{
 				++p;
+			}
+			break;
 
-				// Check for \n\r sequence, and treat this as a single
-				// character.  (Yes, this bizarre thing does occur still
-				// on some arcane platforms...)
-				if (*p == '\r')
+		case '\t':
+			// Eat the character
+			++p;
+
+			// Skip to next tab stop
+			col = (col / tabsize + 1) * tabsize;
+			break;
+
+		case TIXML_UTF_LEAD_0:
+			if (encoding == TIXML_ENCODING_UTF8)
+			{
+				if (*(p + 1) && *(p + 2))
 				{
-					++p;
-				}
-				break;
-
-			case '\t':
-				// Eat the character
-				++p;
-
-				// Skip to next tab stop
-				col = (col / tabsize + 1) * tabsize;
-				break;
-
-			case TIXML_UTF_LEAD_0:
-				if (encoding == TIXML_ENCODING_UTF8)
-				{
-					if (*(p + 1) && *(p + 2))
+					// In these cases, don't advance the column. These are
+					// 0-width spaces.
+					if (*(pU + 1) == TIXML_UTF_LEAD_1 && *(pU + 2)
+							== TIXML_UTF_LEAD_2)
+						p += 3;
+					else if (*(pU + 1) == 0xbfU && *(pU + 2) == 0xbeU)
+						p += 3;
+					else if (*(pU + 1) == 0xbfU && *(pU + 2) == 0xbfU)
+						p += 3;
+					else
 					{
-						// In these cases, don't advance the column. These are
-						// 0-width spaces.
-						if (*(pU + 1) == TIXML_UTF_LEAD_1 && *(pU + 2)
-								== TIXML_UTF_LEAD_2)
-							p += 3;
-						else if (*(pU + 1) == 0xbfU && *(pU + 2) == 0xbeU)
-							p += 3;
-						else if (*(pU + 1) == 0xbfU && *(pU + 2) == 0xbfU)
-							p += 3;
-						else
-						{
-							p += 3;
-							++col;
-						} // A normal character.
-					}
+						p += 3;
+						++col;
+					} // A normal character.
 				}
-				else
-				{
-					++p;
-					++col;
-				}
-				break;
+			}
+			else
+			{
+				++p;
+				++col;
+			}
+			break;
 
-			default:
-				if (encoding == TIXML_ENCODING_UTF8)
-				{
-					// Eat the 1 to 4 byte utf8 character.
-					int step =
+		default:
+			if (encoding == TIXML_ENCODING_UTF8)
+			{
+				// Eat the 1 to 4 byte utf8 character.
+				int step =
 						TiXmlBase::utf8ByteTable[*((const unsigned char*) p)];
-					if (step == 0)
-						step = 1; // Error case from bad encoding, but handle gracefully.
-					p += step;
+				if (step == 0)
+					step = 1; // Error case from bad encoding, but handle gracefully.
+				p += step;
 
-					// Just advance one column, of course.
-					++col;
-				}
-				else
-				{
-					++p;
-					++col;
-				}
-				break;
+				// Just advance one column, of course.
+				++col;
+			}
+			else
+			{
+				++p;
+				++col;
+			}
+			break;
 		}
 	}
 	cursor.row = row;
@@ -377,7 +377,7 @@ const char* TiXmlBase::SkipWhiteSpace(const char* p, TiXmlEncoding encoding)
 		int c = in->peek();
 		// At this scope, we can't get to a document. So fail silently.
 		if ( !IsWhiteSpace( c ) || c <= 0 )
-			return true;
+		return true;
 
 		*tag += (char) in->get();
 	}
@@ -390,9 +390,9 @@ const char* TiXmlBase::SkipWhiteSpace(const char* p, TiXmlEncoding encoding)
 	{
 		int c = in->peek();
 		if ( c == character )
-			return true;
+		return true;
 		if ( c <= 0 ) // Silent failure: can't get document at this scope
-			return false;
+		return false;
 
 		in->get();
 		*tag += (char) c;
@@ -424,7 +424,7 @@ const char* TiXmlBase::ReadName(const char* p, TIXML_STRING * name,
 	{
 		const char* start = p;
 		while (p && *p && (IsAlphaNum((unsigned char) *p, encoding) || *p
-					== '_' || *p == '-' || *p == '.' || *p == ':'))
+				== '_' || *p == '-' || *p == '.' || *p == ':'))
 		{
 			//(*name) += *p; // expensive
 			++p;
@@ -989,13 +989,13 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 		{
 			TiXmlDocument* document = GetDocument();
 			if ( document )
-				document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
+			document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
 			return;
 		}
 		(*tag) += (char) c;
 
 		if ( c == '>' )
-			break;
+		break;
 	}
 
 	if ( tag->length() < 3 ) return;
@@ -1044,19 +1044,19 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 			for(;; )
 			{
 				if ( !in->good() )
-					return;
+				return;
 
 				int c = in->peek();
 				if ( c <= 0 )
 				{
 					TiXmlDocument* document = GetDocument();
 					if ( document )
-						document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
+					document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
 					return;
 				}
 
 				if ( c == '>' )
-					break;
+				break;
 
 				*tag += (char) c;
 				in->get();
@@ -1077,7 +1077,7 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 				{
 					firstCharFound = true;
 					if ( c == '/' )
-						closingTag = true;
+					closingTag = true;
 				}
 			}
 			// If it was a closing tag, then read in the closing '>' to clean up the input stream.
@@ -1085,14 +1085,14 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 			if ( closingTag )
 			{
 				if ( !in->good() )
-					return;
+				return;
 
 				int c = in->get();
 				if ( c <= 0 )
 				{
 					TiXmlDocument* document = GetDocument();
 					if ( document )
-						document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
+					document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
 					return;
 				}
 				assert( c == '>' );
@@ -1107,7 +1107,7 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 				const char* tagloc = tag->c_str() + tagIndex;
 				TiXmlNode* node = Identify( tagloc, TIXML_DEFAULT_ENCODING );
 				if ( !node )
-					return;
+				return;
 				node->StreamIn( in, tag );
 				delete node;
 				node = 0;
@@ -1386,7 +1386,7 @@ void TiXmlUnknown::StreamIn( std::istream * in, TIXML_STRING * tag )
 		{
 			TiXmlDocument* document = GetDocument();
 			if ( document )
-				document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
+			document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
 			return;
 		}
 		(*tag) += (char) c;
@@ -1446,7 +1446,7 @@ void TiXmlComment::StreamIn( std::istream * in, TIXML_STRING * tag )
 		{
 			TiXmlDocument* document = GetDocument();
 			if ( document )
-				document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
+			document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
 			return;
 		}
 
@@ -1492,17 +1492,17 @@ const char* TiXmlComment::Parse(const char* p, TiXmlParsingData* data,
 	//
 	// from the XML spec:
 	/*
-	   [Definition: Comments may appear anywhere in a document outside other markup; in addition,
-	   they may appear within the document type declaration at places allowed by the grammar.
-	   They are not part of the document's character data; an XML processor MAY, but need not,
-	   make it possible for an application to retrieve the text of comments. For compatibility,
-	   the string "--" (double-hyphen) MUST NOT occur within comments.] Parameter entity
-	   references MUST NOT be recognized within comments.
+	 [Definition: Comments may appear anywhere in a document outside other markup; in addition,
+	 they may appear within the document type declaration at places allowed by the grammar.
+	 They are not part of the document's character data; an XML processor MAY, but need not,
+	 make it possible for an application to retrieve the text of comments. For compatibility,
+	 the string "--" (double-hyphen) MUST NOT occur within comments.] Parameter entity
+	 references MUST NOT be recognized within comments.
 
-	   An example of a comment:
+	 An example of a comment:
 
-	   <!-- declarations for <head> & <body> -->
-	   */
+	 <!-- declarations for <head> & <body> -->
+	 */
 
 	value = "";
 	// Keep all the white space.
@@ -1619,7 +1619,7 @@ void TiXmlText::StreamIn( std::istream * in, TIXML_STRING * tag )
 		{
 			TiXmlDocument* document = GetDocument();
 			if ( document )
-				document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
+			document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
 			return;
 		}
 
@@ -1697,7 +1697,7 @@ void TiXmlDeclaration::StreamIn( std::istream * in, TIXML_STRING * tag )
 		{
 			TiXmlDocument* document = GetDocument();
 			if ( document )
-				document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
+			document->SetError( TIXML_ERROR_EMBEDDED_NULL, 0, 0, TIXML_ENCODING_UNKNOWN );
 			return;
 		}
 		(*tag) += (char) c;

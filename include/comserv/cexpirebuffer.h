@@ -1,3 +1,17 @@
+/*********************************************************************
+ * Copyright (c)2010, by MT2
+ * All rights reserved.
+ * FileName：				CExpireBuffer.h
+ * System：           		SoftSwitch
+ * SubSystem：	        	Common
+ * Author：					李静林
+ * Description：
+		带超时时间的缓冲，可以自动清除超期的数据
+ *
+ * Last Modified:
+		2005-11-16 v1.1 李静林 建立基本文件
+ *********************************************************************/
+
 #ifndef _UNI_EXPIRE_BUFFER_H_
 #define _UNI_EXPIRE_BUFFER_H_
 

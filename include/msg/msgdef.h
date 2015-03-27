@@ -31,11 +31,12 @@ using namespace std;
 typedef UINT  TMsgType;           //消息类型的数据类型定义. 与TMsgType含义同.
 typedef BYTE  TDialogType;        //对话类型的数据类型定义
 
-const TDialogType DIALOG_BEGIN        =0;
-const TDialogType DIALOG_CONTINUE     =1;
-const TDialogType DIALOG_END          =2;
-const TDialogType DIALOG_BROADCAST    =3;
-const TDialogType DIALOG_MULTICAST    =4;
+const TDialogType DIALOG_MESSAGE      =0;	//通知类消息，不会创建对话，一收一发
+const TDialogType DIALOG_BEGIN        =1;	//创建对话消息
+const TDialogType DIALOG_CONTINUE     =2;	//对话内消息
+const TDialogType DIALOG_END          =3;	//结束对话消息
+const TDialogType DIALOG_BROADCAST    =4;	//广播类消息，向所有Task的实例分发
+const TDialogType DIALOG_MULTICAST    =5;	//多播类消息，向相同Task的实例分发
 
 /*======================================================*/
 //通用可选参数设置与存在判断宏

@@ -9,70 +9,70 @@
 
 
 /**
-  @brief A templated, threadsafe message-queue class with a fixed size.
-  */
+   @brief A templated, threadsafe message-queue class with a fixed size.
+*/
 template < class Msg >
 class FiniteFifo : public AbstractFifo
 {
-	public:
-		FiniteFifo(unsigned int maxSize);
-		virtual ~FiniteFifo();
+   public:
+      FiniteFifo(unsigned int maxSize);
+      virtual ~FiniteFifo();
+      
+      // Add a message to the fifo.
+      // return true if succeed, false if full
+      bool add(Msg* msg);
 
-		// Add a message to the fifo.
-		// return true if succeed, false if full
-		bool add(Msg* msg);
-
-		/** Returns the first message available. It will wait if no
-		 *  messages are available. If a signal interrupts the wait,
-		 *  it will retry the wait. Signals can therefore not be caught
-		 *  via getNext. If you need to detect a signal, use block
-		 *  prior to calling getNext.
-		 */
-		Msg* getNext();
+      /** Returns the first message available. It will wait if no
+       *  messages are available. If a signal interrupts the wait,
+       *  it will retry the wait. Signals can therefore not be caught
+       *  via getNext. If you need to detect a signal, use block
+       *  prior to calling getNext.
+       */
+      Msg* getNext();
 };
 
-	template <class Msg>
-	FiniteFifo<Msg>::FiniteFifo(unsigned int maxSize)
-: AbstractFifo(maxSize)
+template <class Msg>
+FiniteFifo<Msg>::FiniteFifo(unsigned int maxSize)
+   : AbstractFifo(maxSize)
 {
 }
 
-	template <class Msg>
+template <class Msg>
 FiniteFifo<Msg>::~FiniteFifo()
 {
-	Lock lock(mMutex); (void)lock;
-	while ( ! mFifo.empty() )
-	{
-		delete static_cast<Msg*>(mFifo.front());
-		mFifo.pop_front();
-	}
-	mSize = NoSize;
+   Lock lock(mMutex); (void)lock;
+   while ( ! mFifo.empty() )
+   {
+      delete static_cast<Msg*>(mFifo.front());
+      mFifo.pop_front();
+   }
+   mSize = NoSize;
 }
 
 template <class Msg>
-	bool
+bool
 FiniteFifo<Msg>::add(Msg* msg)
 {
-	Lock lock(mMutex); (void)lock;
-	if (mMaxSize != NoSize &&
-			mSize >= mMaxSize)
-	{
-		return false;
-	}
-	else
-	{
-		mFifo.push_back(msg);
-		mSize++;
-		mCondition.signal();
-		return true;
-	}
+   Lock lock(mMutex); (void)lock;
+   if (mMaxSize != NoSize &&
+       mSize >= mMaxSize)
+   {
+      return false;
+   }
+   else
+   {
+      mFifo.push_back(msg);
+      mSize++;
+      mCondition.signal();
+      return true;
+   }
 }
 
 template <class Msg>
-	Msg*
+Msg*
 FiniteFifo<Msg> ::getNext()
 {
-	return static_cast<Msg*>(AbstractFifo::getNext());
+   return static_cast<Msg*>(AbstractFifo::getNext());
 }
 
 #endif
