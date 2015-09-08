@@ -1,21 +1,3 @@
-/****************************************************************
- * Copyright (c)2011, by BUPT
- * All rights reserved.
- *      The copyright notice above does not evidence any
- *      actual or intended publication of such source code
-
- * FileName：      abstracttask.h
- * System:       xframe
- * SubSystem：     Kernel_Task
- * Author:       Li Jinglin
- * Date：        2010.4.4
- * Version：      1.0
- * Description：
-      注意，TAbstractTask是提供给所有应用实现的上层Application的接口。
-	  TAbstractTask提供独立的process方法供线程调用，使用time limit fifo接收消息。
-
-********************************************************************/
-
 #ifndef _TABSTRACTTASK_H
 #define _TABSTRACTTASK_H
 

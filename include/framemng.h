@@ -1,18 +1,3 @@
-/****************************************************************
- * Copyright (c)2011, by BUPT
- * All rights reserved.
- *      The copyright notice above does not evidence any
- *      actual or intended publication of such source code
-
- * FileName:    framectrl.h $
- * System:       xframe
- * SubSystem:    common
- * Author:       zhangzhixiang
- * Date：        2011.4.25
- * Description:
- XframeManager主要用于task以及psa，framecontrol 的建立，以及各个线程的建立，运行等～～
-
- ****************************************************************/
 #ifndef _TFRAMEMANAGER_H
 #define _TFRAMEMANAGER_H
 

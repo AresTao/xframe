@@ -1,18 +1,3 @@
-/****************************************************************
- * Copyright (c)2011, by BUPT
- * All rights reserved.
- *      The copyright notice above does not evidence any
- *      actual or intended publication of such source code
-
- * FileName:    taskselector.h $
- * System:       xframe
- * SubSystem:    common
- * Author:       Li Jinglin
- * Date：        2010.4.4
- * Description:
-		用于管理task，包括task的加载、注册、消息分发处理等。
-
-****************************************************************/
 #if !defined(TaskSelector_H)
 #define TaskSelector_H
 

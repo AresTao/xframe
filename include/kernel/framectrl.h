@@ -1,24 +1,3 @@
-/****************************************************************
- * Copyright (c)2011, by BUPT
- * All rights reserved.
- *      The copyright notice above does not evidence any
- *      actual or intended publication of such source code
-
- * FileName:    framectrl.h $
- * System:       xframe
- * SubSystem:    common
- * Author:       Li Jinglin
- * Date：        2010.4.4
- * Description:
- 在多线程模式下，FrameControl 只完成 Team / Task创建，Feam / Psa创建，定时器管理，消息转发，
- 当前时间获取等功能，不进行各模块线程的管理。
- FrameControl 需维护各个Task的msgBuffer，并向各个task提供frameCtrl的msgBuffer。
- 各个Task有几个线程处理，由外部的线程管理模块完成。
-
- framectrl在多线程模式下，是一个线程，轮训多个msgqueue好还是多个线程，每个线程阻塞在msgqueue好？
- 可能得需要测试才能决定。
-
- ****************************************************************/
 #ifndef _CFRAMECONTROL_H
 #define _CFRAMECONTROL_H
 

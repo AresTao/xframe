@@ -1,13 +1,3 @@
-/*********************************************************************
- * FileName：       msgutil.h
- * System：         XFrame
- * SubSystem：
- * Author：         Li Jinglin
- * Date：           2011.02.11
- * Version：        4.0
- * Description：
-     与消息处理相关的一些工具，包括编解码宏，一些处理函数等.
-*********************************************************************/
 #ifndef _MSGUTIL_H
 #define _MSGUTIL_H
 

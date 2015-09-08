@@ -1,20 +1,3 @@
-/******************************************************************************
-*Copyright(c) 2011,by BUPT
-*All rights reserved
-
-*FileName:     generalobj.h
-*System:       xframe
-*SubSystem:    common
-*Author:       Li Jinglin
-*Date£º        2010.4.4
-*Version£º      1.0
-*Description£º
-     the declaration for TGeneralObject
- *
- * Last Modified:
-
-*******************************************************************************/
-
 #ifndef _GENERALOBJ_H_
 #define _GENERALOBJ_H_
 

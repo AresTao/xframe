@@ -1,14 +1,3 @@
-/*****************************************************************************
- * msgdatadef_uninet.h
- * It is a message declaration head file.
- * 
- * Note: This file is created automatically by msg compiler tool. 
- *       Please do not modify it.
- * 
- * Created at Fri Dec 14 13:05:18 2012
-.
- * 
- ******************************************************************************/
 #ifndef __MSGDATADEF_UNINET_H_
 #define __MSGDATADEF_UNINET_H_
 

@@ -1,17 +1,3 @@
-/****************************************************************
- * Copyright (c)2005, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
- *      The copyright notice above does not evidence any
- *      actual or intended publication of such source code
-
- * FileName:    msgdef.h
- * Version:        1.0
- * Author:      Li Jinglin
- * Date:        2011.2.10
- * Description:
- * Last Modified:
-****************************************************************/
-
 #if !defined __MSGDEF_H
 #define __MSGDEF_H
 

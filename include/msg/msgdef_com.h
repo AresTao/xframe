@@ -1,14 +1,3 @@
-/*****************************************************************************
- * msgdef_com.h
- * It is a message declaration head file.
- * 
- * Note: This file is created automatically by msg compiler tool. 
- *       Please do not modify it.
- * 
- * Created at Thu May 22 18:20:03 2014
-.
- * 
- ******************************************************************************/
 #ifndef __MSGDEF_COM_H_
 #define __MSGDEF_COM_H_
 

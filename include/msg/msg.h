@@ -1,14 +1,3 @@
-/*****************************************************************************
- * msg.h
- * It is a message declaration head file.
- *
- * Note: This file is created automatically by msg compiler tool.
- *       Please do not modify it.
- *
- * Created at Thu May  5 12:00:51 2011
-.
- *
- ******************************************************************************/
 #ifndef __MSG_H_
 #define __MSG_H_
 

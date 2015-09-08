@@ -1,26 +1,3 @@
-/*********************************************************************
-
- * Copyright (c)2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
-
- * FileName：       xmlmsgconvertor.h
- * System：         UniFrame 
- * SubSystem：      Common
- * Author：         Long Xiangming
- * Date：           2006.03.02
- * Version：        1.0
- * Description：
-     XML消息到C++消息转换器函数原型。各模块需实现之，以便能进行集成测试。 
-     
- *
- * Last Modified:
-    
-    2006-4-4 使用tinyXML重构消息解码宏
-    
-    2006-4-10 将控制消息头和消息体的解码宏从每个消息库的.C中统一到本文件中
-
-**********************************************************************/
-
 #ifndef _MYCONVERTER_H
 #define _MYCONVERTER_H
 #include <stdio.h>
