@@ -109,7 +109,9 @@ PTMsg TEventMsg::clone()
 	amsg->sender					= sender;
 	amsg->eventID                   = eventID;
 	amsg->transID                   = transID;
-	amsg->status					= status;
+    amsg->taskID                   = taskID;
+    amsg->instID                   = instID;
+    amsg->status					= status;
 	amsg->eventInfo                 = eventInfo;
 	return amsg;
 }
@@ -118,6 +120,8 @@ TEventMsg& TEventMsg::operator=(const TEventMsg &r)
 	sender					  = r.sender;
 	eventID                   = r.eventID;
 	transID                   = r.transID;
+    taskID                    = r.taskID;
+    instID                    = r.instID;
 	status                    = r.status;
 	eventInfo                 = r.eventInfo;
 	return *this;
@@ -125,7 +129,7 @@ TEventMsg& TEventMsg::operator=(const TEventMsg &r)
 
 BOOL TEventMsg::operator == (TEventMsg& msg)
 {
-	if(sender==msg.sender && eventID==msg.eventID && transID==msg.transID && status==msg.status) return TRUE;
+	if(sender==msg.sender && eventID==msg.eventID && transID==msg.transID && taskID==msg.taskID && instID==msg.instID && status==msg.status) return TRUE;
 	else return FALSE;
 }
 
@@ -136,6 +140,8 @@ INT TEventMsg::size()
 	tmpSize += sender.size();
 	tmpSize += sizeof(UINT);
 	tmpSize += sizeof(UINT);
+    tmpSize += sizeof(UINT);
+    tmpSize += sizeof(UINT);
 	tmpSize += sizeof(INT);
 	tmpSize += eventInfo.size();
 
@@ -150,6 +156,10 @@ void TEventMsg::print(ostrstream& st)
 	st << eventID << endl;
 	st << "  $transID   = ";
 	st << transID << endl;
+    st << "  $taskID   = ";
+    st << taskID << endl;
+    st << "  $instID   = ";
+    st << instID << endl;
 	st << "  $status   = ";
 	st << status << endl;
 	st << "  $eventInfo = ";

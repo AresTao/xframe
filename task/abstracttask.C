@@ -4,6 +4,9 @@
 #include "comconst.h"
 #include "framectrl.h"
 
+#include "msgdef_com.h"
+#include "msghelper_com.h"
+
 TAbstractTask::TAbstractTask():TGeneralObject()
 {
     mTaskRxFifo = new Fifo<TMsg>();
@@ -20,6 +23,8 @@ TAbstractTask::TAbstractTask():TGeneralObject()
 	mMsgProcCount=0;
 	mTimerProcCount=0;
 	mInnerProcCount=0;
+	logToSyslog=0;
+	syslogTaskID=10;
 }
 
 TAbstractTask::~TAbstractTask()
@@ -37,6 +42,8 @@ BOOL TAbstractTask::init(UINT instid, UINT hostid, UINT taskid, TFRAMEControl* f
 	mInstId=instid;
 	mHostId=hostid;
 	mTaskId=taskid;
+	
+
 	mFrameCtrl = framectrl;
 
 	TTaskEnv env(mTaskId);
@@ -48,6 +55,8 @@ BOOL TAbstractTask::init(UINT instid, UINT hostid, UINT taskid, TFRAMEControl* f
 
 	logType=env.getLogType();
 	logLevel=env.getLogLevel();
+	logToSyslog=env.logToSyslog();
+	syslogTaskID=env.syslogTaskID();
 	env.getTaskInfo(objectType, objectName);
 	mTME.clear();
 	env.getTimerRsc(mTME);
@@ -73,6 +82,9 @@ void TAbstractTask::process()
 		{
 			//procMsg(pUniNetMsg);
 			msg.release();
+
+			currentTime=time(0);
+
 			procMsg(std::auto_ptr<TUniNetMsg>(pUniNetMsg));
 
 			mMsgProcCount++;
@@ -82,6 +94,8 @@ void TAbstractTask::process()
 		pTimeOutMsg=dynamic_cast<TTimeOutMsg*>(msg.get());
 		if(pTimeOutMsg)
 		{
+
+			currentTime=time(0);
 			onTimeOut(pTimeOutMsg->timerKey, pTimeOutMsg->timerPara);
 			//注意不要删掉该消息，该消息会自动删掉，因为用了 auto_ptr。
 
@@ -92,26 +106,41 @@ void TAbstractTask::process()
 		pEventMsg=dynamic_cast<TEventMsg*>(msg.get());
 		if(pEventMsg)
 		{
-			switch(pEventMsg->eventID)
-			{
-				case KERNAL_APP_INIT:
-					onStart(pEventMsg->transID);
-					break;
-				case KERNAL_APP_HEATBEAT:
-					onHeartBeat(pEventMsg->transID);
-					break;
-				case KERNAL_APP_RELOAD:
-					onReload(pEventMsg->transID, pEventMsg->eventInfo);
-					break;
-				case KERNAL_APP_SHUTDOWN:
-					onShutdown(pEventMsg->transID);
-					break;
-				case KERNAL_APP_STATUES:
-					onStatues(pEventMsg->transID, pEventMsg->eventInfo);
-				default:
-					break;
-			}
-			mInnerProcCount++;
+            if(pEventMsg->taskID==0 || (pEventMsg->taskID==getTaskId() && pEventMsg->instID==0) || (pEventMsg->taskID==getTaskId() && pEventMsg->instID==getInstId()))
+            {
+                TEventMsg* rspmsg=new TEventMsg();
+                if(rspmsg)
+                {
+                    rspmsg->eventID=pEventMsg->eventID;
+                    rspmsg->status=0;
+                    rspmsg->transID=pEventMsg->transID;
+                    rspmsg->taskID=pEventMsg->sender.taskID;
+                    rspmsg->instID=pEventMsg->sender.instID;
+
+    	    		switch(pEventMsg->eventID)
+	    	    	{
+				    case KERNAL_APP_INIT:
+					    onStart(rspmsg);
+    					break;
+	    			case KERNAL_APP_HEATBEAT:
+		    			onHeartBeat(rspmsg);
+			    		break;
+				    case KERNAL_APP_RELOAD:
+					    onReload(rspmsg, pEventMsg->eventInfo);
+    					break;
+	    			case KERNAL_APP_SHUTDOWN:
+		    			onShutdown(rspmsg);
+			    		break;
+				    case KERNAL_APP_STATUES:
+					    onStatues(rspmsg, pEventMsg->eventInfo);
+    				default:
+	    				break;
+		    	    }
+			        mInnerProcCount++;
+        
+                    postEvent(rspmsg);
+                }
+            }    
 			return;
 		}
 
@@ -144,9 +173,25 @@ void  TAbstractTask::sendMsg(std::auto_ptr<TUniNetMsg> msg)
 	if(pUniNetMsg) sendMsg(pUniNetMsg);
 }
 
+void  TAbstractTask::postEvent(TEventMsg* msg)
+{
+    post(msg);
+}
+
+void  TAbstractTask::postEvent(std::auto_ptr<TEventMsg> msg)
+{
+    TEventMsg* pEventMsg = msg.release();
+    if(pEventMsg) post(pEventMsg);
+}
+
+
 TTimerKey TAbstractTask::setTimer(TTimeMark timerId, TTimeDelay timerDelay, void* para)
 {
-	return mTTQ->add(timerId, timerDelay, para);
+	//判断定时器时延一定要大于0
+	if(timerDelay>0)
+		return mTTQ->add(timerId, timerDelay, para);
+	else
+		return 0;
 }
 
 TTimerKey TAbstractTask::setTimer(TTimeMark timerId, void* para)
@@ -179,40 +224,40 @@ BOOL  TAbstractTask::post(TMsg* msg)
 	return mFrameCtrl->postTo(msg);
 }
 
-void TAbstractTask::onStart(UINT transid)
+void TAbstractTask::onStart(TEventMsg* msg)
 {
 	BOOL ret=preTaskStart();
 
-	TEventMsg* msg=new TEventMsg();
+	//TEventMsg* msg=new TEventMsg();
 	if(msg)
 	{
-		msg->eventID=KERNAL_APP_INIT;
-		msg->transID=transid;
+		//msg->eventID=KERNAL_APP_INIT;
+		//msg->transID=transid;
 		if(ret)	msg->status=1;	//1=active
-		else msg->status=0;		//0=inactive
-	    post(msg);
+		else msg->status=2;		//2=inactive
+	    //post(msg);
 	}
 }
 
-void TAbstractTask::onShutdown(UINT transid)
+void TAbstractTask::onShutdown(TEventMsg* msg)
 {
 
 	BOOL ret=preTaskShutdown();
 
-	TEventMsg* msg=new TEventMsg();
+//	TEventMsg* msg=new TEventMsg();
 	if(msg)
 	{
-		msg->eventID=KERNAL_APP_SHUTDOWN;
-		msg->transID=transid;
+//		msg->eventID=KERNAL_APP_SHUTDOWN;
+//		msg->transID=transid;
 		if(ret)	msg->status=1;	//1=shutdown
-		else msg->status=0;		//0=still active
+		else msg->status=2;		//0=still active
 
-		post(msg);
+//		post(msg);
 	}
 
 }
 
-void TAbstractTask::onReload(UINT transid, CStr& cmd)
+void TAbstractTask::onReload(TEventMsg* msg, CStr& cmd)
 {
 // set logLevel DEBUG     设置信息输出级别为调试
 // set logLevel INFO      设置信息输出级别为信息
@@ -290,36 +335,38 @@ void TAbstractTask::onReload(UINT transid, CStr& cmd)
 
 	BOOL ret=reloadTaskEnv(cmd, env.extend);
 
-	TEventMsg* msg=new TEventMsg();
+	//TEventMsg* msg=new TEventMsg();
 	if(msg)
 	{
-		msg->eventID=KERNAL_APP_RELOAD;
-		msg->transID=transid;
+		//msg->eventID=KERNAL_APP_RELOAD;
+		//msg->transID=transid;
 		if(ret) msg->status=1;	//1=reload success
-		else msg->status=0; 	//0=reload error
-		post(msg);
+		else msg->status=2; 	//2=reload error
+		//post(msg);
 	}
 	return;
 }
 
-void TAbstractTask::onHeartBeat(UINT transid)
+void TAbstractTask::onHeartBeat(TEventMsg* msg)
 {
-	TEventMsg* msg=new TEventMsg();
+//	TEventMsg* msg=new TEventMsg();
 	if(msg)
 	{
-		msg->eventID=KERNAL_APP_HEATBEAT;
-		msg->transID=transid;
+//		msg->eventID=KERNAL_APP_HEATBEAT;
+//		msg->transID=transid;
 		msg->status=1;	//1=active
 
-		post(msg);
+//		post(msg);
 	}
 	return;
 }
 
-void TAbstractTask::onStatues(UINT transid, CStr& cmd)
+void TAbstractTask::onStatues(TEventMsg* msg, CStr& cmd)
 {
 	CStr sts;
-
+	sts<<"TaskName=";
+	sts<<getObjectNameStr()<<"\r\n";
+	sts<<getBuildInfo();
 	sts<<"TaskID=";
 	sts<<mTaskId;
 	sts<<", HostID=";
@@ -337,14 +384,14 @@ void TAbstractTask::onStatues(UINT transid, CStr& cmd)
 
 	getStatues(cmd, sts);
 
-	TEventMsg* msg=new TEventMsg();
+//	TEventMsg* msg=new TEventMsg();
 	if(msg)
 	{
-		msg->eventID=KERNAL_APP_STATUES;
-		msg->transID=transid;
+//		msg->eventID=KERNAL_APP_STATUES;
+//		msg->transID=transid;
 		msg->status=1;	//1=get statues
 		msg->eventInfo=sts;
-		post(msg);
+//		post(msg);
 	}
 	return;
 
@@ -362,4 +409,83 @@ void TAbstractTask::procMsg(std::auto_ptr<TUniNetMsg> msg)
     if(pUniNetMsg) procMsg(pUniNetMsg);
 }
 
+void TAbstractTask::sysLog(CStr &id, int logLevel, CStr &logInfo, int logType)
+{
+	if(!logToSyslog) return;
+	sysLog(id.c_str(), logLevel, logInfo.c_str(), logType);
+}
 
+void TAbstractTask::sysLog(const char* id, int logLevel, CStr &logInfo, int logType)
+{
+	if(!logToSyslog) return;
+	sysLog(id, logLevel, logInfo.c_str(), logType);
+}
+
+void TAbstractTask::sysLog(const char* id, int logLevel, const char* logInfo, int logType)
+{
+//	struct tm *timenow;
+//	timenow = localtime(&currentTime);
+	if(!logToSyslog) return;
+
+	CStr log;
+	if(logLevel>=LOG_EMERG && logLevel<=LOG_DEBUG)
+	{
+		log<<"["<<cLogLevel[logLevel]<<"]";
+	}
+/*	switch(logLevel)
+	{
+		case LOG_DEBUG:
+			log<<"[LOG_DEBUG]";
+			break;
+		case LOG_INFO:
+            log<<"[LOG_INFO]";
+            break;
+		case LOG_NOTICE:
+            log<<"[LOG_NOTICE]";
+            break;
+		case LOG_WARNING:
+            log<<"[LOG_WARNING]";
+            break;
+		case LOG_ERR:
+            log<<"[LOG_ERR]";
+            break;
+		case LOG_CRIT:
+            log<<"[LOG_CRIT]";
+            break;
+		case LOG_ALERT:
+            log<<"[LOG_ALERT]";
+            break;
+		case LOG_EMERG:
+            log<<"[LOG_EMERG]";
+            break;
+		default:
+			log<<"[LOG_INFO]";
+	}
+*/
+	log<<getObjectNameStr()<<" ";
+	log<<mTaskId<<" ";
+	log<<mInstId<<"/";
+	log<<"id="<<id<<"/";
+	log<<logInfo;
+	
+	TUniNetMsg* tMsg = new TUniNetMsg();
+
+	COMMsgHelper::addMsgBody(tMsg, log);
+	COMMsgHelper::addCtrlMsgHdr(tMsg, 0, logLevel, logType);
+	
+	tMsg->tAddr.logAddr = syslogTaskID;
+	tMsg->dialogType = DIALOG_MESSAGE;
+	sendMsg(tMsg);
+}
+
+/*
+void TAbstractTask::print(const char* fmt, ...)
+{
+   char tempBuffer[8192];
+   va_list args;
+   va_start(args, fmt);
+   vsprintf(tempBuffer, fmt, args);
+   va_end(args);
+}
+
+*/

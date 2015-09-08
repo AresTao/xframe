@@ -56,22 +56,4 @@ void TGeneralObject::putObjectType(TObjectType type)
    return;
 }
 
-void TGeneralObject::errorLog(const char* fmt, ...)
-{
-   char tempBuffer[8192];
-   va_list args;
-   va_start(args, fmt);
-   vsprintf(tempBuffer, fmt, args);
-   va_end(args);
-   LogERROR( << tempBuffer);
-}
 
-void TGeneralObject::print(const char* fmt, ...)
-{
-   char tempBuffer[8192];
-   va_list args;
-   va_start(args, fmt);
-   vsprintf(tempBuffer, fmt, args);
-   va_end(args);
-   LogINFO( << tempBuffer);
-}
