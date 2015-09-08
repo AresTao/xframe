@@ -1,28 +1,3 @@
-/******************************************************************************
-*Copyright(c)2003-2008,by BeiJing Telestar Network Technology Company Ltd.(MT2)
-*All rights reserved
-
-*FileName:     comtypedef.h
-*System:       UniFrame
-*SubSystem:    Common
-*Author:       Long Xiangming
-*Date：         2005-2008.05.24
-*Version：      1.0
-*Description：
-   基本数据类型定义,用于标准化数据的传输，屏蔽各个不同操作系统与硬件之
-
-   间的差异. 不同的操作系统拥有不同的数据类型的长度，在这里使用统一长度
-
-   的数据类型.
-
-   (从Softswitch系统继承）
-
- *
- * Last Modified:
- *   2006.06.27, by Long Xiangming
- *     增加TPhysicalAddress定义（由comtypedef_uninet.h中挪过来）
-
-*******************************************************************************/
 
 #ifndef _COMTYPEDEF_H
 #define _COMTYPEDEF_H

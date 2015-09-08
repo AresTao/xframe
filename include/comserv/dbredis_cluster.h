@@ -1,13 +1,3 @@
-/*************************************************************************
- * FileName：       dbredis.h
- * Author：         Li Jinglin
- * Date：           2014.08.20
- * Version：        1.0
- * Description：
-    CDBRedis定义；数据库操作定义。
- *
- * Last Modified:
-**************************************************************************/
 #ifndef __DBREDISCLUSTER_H
 #define __DBREDISCLUSTER_H
 #include <stdio.h>

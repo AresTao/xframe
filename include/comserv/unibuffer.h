@@ -1,11 +1,3 @@
-//============================================================================
-// Name        : unibuffer.h
-// Author      : Yubo Chow, lxm.
-// Version     :
-// Copyright   : 
-// Description : a general buffer.
-//============================================================================
-
 
 #ifndef __UNIBUFFER_H_
 #define __UNIBUFFER_H_

@@ -1,13 +1,4 @@
-/** 
-* (C) Copyright 2009, asiainfo 
-* @version  v1.0 
-* @author   chenli 
-* @brief    base64±àÂëºÍ½âÂë 
-* 
-* history: 
-* <p>chenli 2009-02-17 1.0 build this moudle</p> 
-*/  
-  
+ 
 #ifndef ___BASE64_H___  
 #define ___BASE64_H___  
   

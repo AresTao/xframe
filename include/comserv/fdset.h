@@ -1,4 +1,3 @@
-// the code of this file is copy from resip
 
 #ifndef _FDSET_H
 #define _FDSET_H
