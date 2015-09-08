@@ -1,24 +1,3 @@
-/*********************************************************************
-
- * Copyright (c)2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
-
- * FileName：       comconst.h
- * System：         UniFrame 
- * SubSystem：      Common
- * Author：         Long Xiangming
- * Date：           2005-2008.04.19
- * Version：        1.0
- * Description：
-     公共常量定义。定义了所有模块将要用到的大部分常量，包括：
-     
- *
- * Last Modified:
-    2005.08.23, 从软交换系统继承到UniFrame. 完成初始版本.
-        By Long Xiangming
-	  2006.9.5 李静林 添加用户自定义协议栈标识
-
-**********************************************************************/
 #ifndef __COMCONST_H_
 #define __COMCONST_H_
 

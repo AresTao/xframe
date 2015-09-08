@@ -1,24 +1,3 @@
-/*************************************************************************
-
- * Copyright (c) 2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
-
- * FileName：       udpsocket.h
- * System：         UniFrame 
- * SubSystem：      Common
- * Author：         Long Xiangming
- * Date：           2006.06.03
- * Version：        1.0
- * Description：
-		CUDPSocket定义。UDP协议的Socket调用。
-		其主要接口与CSocket类(TCP)相同。
- *
- * Last Modified:
-    2006.06.03, 完成初始版本
-        By Long Xiangming
-
-
-**************************************************************************/
 #ifndef __UDPSOCKET_H
 #define __UDPSOCKET_H
 

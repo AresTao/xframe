@@ -1,23 +1,3 @@
-/*************************************************************************
-
- * Copyright (c)2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
-
- * FileName：       dbmysql.h
- * System：         UniFrame 
- * SubSystem：      Common-DB
- * Author：         Long Xiangming
- * Date：           2005.10.06
- * Version：        1.0
- * Description：
-    CDBMySQL定义；数据库操作定义。
-	完成数据库操作。针对MySQL数据库
-	 
- *
- * Last Modified:
-     2005.10.06, 完成初始版本
-        By Long Xiangming
-**************************************************************************/
 #ifndef __DBMYSQL_H
 #define __DBMYSQL_H
 #include <stdio.h>

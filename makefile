@@ -20,6 +20,7 @@ endif
 LIB_DIR=./_lib
 EXE_DIR=./_bin
 
+REDISVER=hiredis
 SQLITEVER=sqlite3
 ifndef ORACLEVER
 ORACLEVER=oracle10
@@ -33,21 +34,25 @@ endif
 ifndef INSTALL_DIR
 INSTALL_DIR=../_lib/xframe
 endif
+ifndef SSLVER
+SSLVER=openssl1.0.1e
+endif
 
+REDIS_DIR=$(LIB_DIR)/${REDISVER}${LIBVER}
 ORACLE_DIR=$(LIB_DIR)/${ORACLEVER}${LIBVER}
 MYSQL_DIR=$(LIB_DIR)/${MYSQLVER}${LIBVER}
 SQLITE_DIR=$(LIB_DIR)/${SQLITEVER}${LIBVER}
 
-
-OPENSSL_DIR=$(LIB_DIR)/openssl1.0.0${LIBVER}
+OPENSSL_DIR=$(LIB_DIR)/${SSLVER}${LIBVER}
 
 ###############################################################################
 # Set all includes here
 ###############################################################################
+INC_DB_REDIS   = -I$(REDIS_DIR)/include
 INC_DB_MYSQL   = -I$(MYSQL_DIR)/include
 INC_DB_ORACLE  = -I$(ORACLE_DIR)/include
 INC_DB_SQLITE  = -I$(SQLITE_DIR)/include
-INC_DB	       = $(INC_DB_MYSQL) 
+INC_DB	       = $(INC_DB_MYSQL) $(INC_DB_REDIS)
 INC_OPENSSL    = -I$(OPENSSL_DIR)/include
 
 INC_UNIFRAME=\
@@ -58,7 +63,6 @@ INC_UNIFRAME=\
 	-Iinclude/task\
 	-Iinclude/msg\
 	-Iinclude/_compat\
-	-I/usr/include/mysql\
 	${INC_DB}\
 	${INC_OPENSSL}
 
@@ -81,7 +85,7 @@ INC_UNIFRAME=\
 # the following lines for Linux
 CC=g++
 cc=g++
-OSFLAGS=
+OSFLAGS=-std=c++0x
 SYSLIB=-lrt -L$(OPENSSL_DIR) -lssl -lcrypto
 
 ###############################################################################
@@ -93,10 +97,11 @@ UNICFLAGS=${MG} -Wno-deprecated ${OSFLAGS} $(INC_UNIFRAME) ${X86_64DEF}
 
 ###############################################################################
 # Set all Basic libs  here
-#   °üÀ¨ ÏµÍ³LIBÉèÖÃ£¬ UniFrame LIBÉèÖÃ
+#   °ü??¨ ????????LIB??è???????? UniFrame LIB??è????
 ###############################################################################
 # database LIB
 DBLIB_MYSQL  = -L$(MYSQL_DIR) -lmysqlclient_r
+DBLIB_REDIS  = -L$(REDIS_DIR) -lhiredis
 
 ifeq ($(ORACLEVER),oracle10)
 DBLIB_ORACLE = -L$(ORACLE_DIR) -lclntsh -lnnz10 
@@ -104,7 +109,7 @@ else
 DBLIB_ORACLE = -L$(ORACLE_DIR) -lclntsh -lwtc9
 endif
 
-DBLIB        = $(DBLIB_MYSQL) $
+DBLIB        = $(DBLIB_MYSQL) $(DBLIB_REDIS) $
 
 ###############################################################################
 # Section 5:  Specify all SOURCEs 
@@ -114,7 +119,7 @@ DBLIB        = $(DBLIB_MYSQL) $
 # The following is for UniFrame Source
 SRC_C_COMSERV=\
 	comserv/base64.C   comserv/cmd5.C   comserv/comtypedef_vchar.C\
-	comserv/dataconvert.C   comserv/db.C    comserv/dbmysql.C\
+	comserv/dataconvert.C   comserv/db.C    comserv/dbmysql.C  comserv/dbredis.C comserv/dbredis_cluster.C\
 	comserv/des.C	 comserv/env.C		comserv/fifoabstract.C\
 	comserv/func.C	  comserv/hashtable.C	   comserv/info.C\
 	comserv/socket.C   comserv/udpsocket.C\
@@ -126,7 +131,7 @@ SRC_C_TASK=\
 	task/abstracttask.C	  task/taskthread.C
 
 SRC_C_MSG=\
-	msg/msg.C	msg/msgutil.C	msg/msgdatadef.C	msg/msgdef.C
+	msg/msg.C	msg/msgutil.C	msg/msgdatadef.C	msg/msgdef.C	 msg/msghelper_com.C	msg/msgdef_com.C 
 
 SRC_C_KERNEL=\
 	kernel/framectrl.C	kernel/generalobj.C	kernel/generalthread.C\
@@ -184,8 +189,9 @@ SVNINFO="\"`LANG=;svn info | grep Revision | cut -b11-`\""
 all: 
 	echo "#ifndef _VERSION_H" > include/kernel/version.h
 	echo "#define _VERSION_H" >> include/kernel/version.h
-	echo "#define SVNVERSION "${SVNINFO} >> include/kernel/version.h
-	echo "#define DBVERSION \""${MYSQLVER}", "${ORACLEVER}", "${SQLITEVER}"\"" >> include/kernel/version.h
+	echo "#define BUILDVERSION "${SVNINFO} >> include/kernel/version.h
+	echo "#define SSLVERSION \""${SSLVER}"\"" >> include/kernel/version.h
+	echo "#define DBVERSION \""${MYSQLVER}", "${ORACLEVER}", "${SQLITEVER}", "${REDISVER}"\"" >> include/kernel/version.h
 	echo "#define DBVERSION_B \""${DBVER_STR}"\"" >> include/kernel/version.h
 	echo "#endif" >> include/kernel/version.h
 	g++ -o ./_bin/xframev -Iinclude/kernel xframev.C -ldl
@@ -218,6 +224,8 @@ ${BINNAME}: ${OBJ_XFRAME} ${OBJ_COMSERV}
 		include/msg/msgdef.h\
 		include/msg/msg.h\
 		include/msg/xmlmsgconvertor.h\
+		include/msg/msgdef_com.h\
+		include/msg/msghelper_com.h\
 		include/comserv/base64.h\
 		include/comserv/cexpirebuffer.h\
 		include/comserv/clist.h\
@@ -232,6 +240,8 @@ ${BINNAME}: ${OBJ_XFRAME} ${OBJ_COMSERV}
 		include/comserv/dataconvert.h\
 		include/comserv/db.h\
 		include/comserv/dbmysql.h\
+		include/comserv/dbredis.h\
+		include/comserv/dbredis_cluster.h\
 		include/comserv/defs.h\
 		include/comserv/env.h\
 		include/comserv/fdset.h\
@@ -272,18 +282,19 @@ install:
 	rm -rf ${INSTALL_DIR}/include
 	tar xf ${EXE_DIR}/include.tar --directory=${INSTALL_DIR}/
 	mkdir -p ${INSTALL_DIR}/include/mysql
+	mkdir -p ${INSTALL_DIR}/include/redis
 	mkdir -p ${INSTALL_DIR}/include/openssl
 	mkdir -p ${INSTALL_DIR}/lib/
-	mkdir -p ${INSTALL_DIR}/lib/mysql
-	mkdir -p ${INSTALL_DIR}/lib/openssl
 	cp ${BINNAME_LIB} ${INSTALL_DIR}/lib/
 	cp ${COMSERV_LIB} ${INSTALL_DIR}/lib/
 	cp ${BINNAME_SO} ${INSTALL_DIR}/lib/
 	cp ${COMSERV_SO} ${INSTALL_DIR}/lib/
 	cp _lib/${MYSQLVER}${LIBVER}/include/*  ${INSTALL_DIR}/include/mysql/ -R
-	cp _lib/${MYSQLVER}${LIBVER}/lib*  ${INSTALL_DIR}/lib/
-	cp _lib/openssl1.0.0${LIBVER}/include/openssl  ${INSTALL_DIR}/include/ -R
-	cp _lib/openssl1.0.0${LIBVER}/lib* ${INSTALL_DIR}/lib/
+	cp _lib/${MYSQLVER}${LIBVER}/lib*  ${INSTALL_DIR}/lib/ -d
+	cp _lib/${REDISVER}${LIBVER}/include/*  ${INSTALL_DIR}/include/redis/ -R
+	cp _lib/${REDISVER}${LIBVER}/lib*  ${INSTALL_DIR}/lib/ -d
+	cp _lib/${SSLVER}${LIBVER}/include/openssl  ${INSTALL_DIR}/include/ -R
+	cp _lib/${SSLVER}${LIBVER}/lib* ${INSTALL_DIR}/lib/ -d
 	cp refcheck ${INSTALL_DIR}/bin
 	chmod 755 ${INSTALL_DIR}/bin/refcheck
 	(cd xclient && make install)	

@@ -1,25 +1,3 @@
-/*************************************************************************
-
- * Copyright (c)2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
-
- * FileName：       db.h
- * System：         UniFrame
- * SubSystem：      Facility-DB
- * Author：         Long Xiangming
- * Date：           2005.10.06
- * Version：        1.0
- * Description：
-    CDB定义；数据库操作定义。
-	完成数据库操作。
-
- *
- * Last Modified:
-     2005.10.06, 完成初始版本
-        By Long Xiangming
-	2011-2-12，修订，删掉单例，支持多实例; 增加mConnectionID参数，区分每一个建立的连接
-		By Li jinglin
-**************************************************************************/
 #ifndef __DB_H
 #define __DB_H
 
