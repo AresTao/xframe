@@ -1,27 +1,25 @@
+/*
+ *@author   AresTao
+ *@function map that store fix-time data and remove timeout data automatically
+ * */
 #ifndef _UNI_EXPIRE_BUFFER_H_
 #define _UNI_EXPIRE_BUFFER_H_
 
 #include <map>
 #include <time.h>
 
-///////////////////////////////////////////////////////////////////////
-// 定义 CExpireBuffer< TKey, TValue > 类
-///////////////////////////////////////////////////////////////////////
 template <class TKey, class TValue>
-class CExpireBuffer	// TValue........
+class CExpireBuffer	
 {
 private:
-	//--------------------------
-	//.......
-	//--------------------------
-	class _ExpireBuffer_Value	// ..........
+	class _ExpireBuffer_Value //a record that store in CExpireBuffer
 	{
 	public:
-		TValue	m_value;		// 此节点的内容
-		TKey	m_key;			// 此节点的内容
-		time_t	m_inittime;		// 添加节点的时间
-		time_t	m_refreshtime;	// 刷新节点的时间
-		time_t	m_endtime;		// 删除节点的时间
+		TValue	m_value;		// record value
+		TKey	m_key;			// record key
+		time_t	m_inittime;		// add record time
+		time_t	m_refreshtime;	        // refresh record time
+		time_t	m_endtime;		// delete record time
 		
 		_ExpireBuffer_Value(const TKey &key, const TValue &value, time_t inittime=0)
 		{
@@ -61,16 +59,13 @@ private:
 
 	};
 
-	//-----------------------------
-	// 链表的节点类型
-	//-----------------------------
-	class _ExpireBuffer_Enty	// 定义链表中的节点类型
+	class _ExpireBuffer_Enty	//list node
 	{
 	public:
-		_ExpireBuffer_Value		m_value;		// 此节点的内容
-		_ExpireBuffer_Enty*		m_prev;			// 指向前一个节点
-		_ExpireBuffer_Enty*		m_next;			// 指向下一个节点
-		// 节点的构造函数，其中会调用键值设置函数来设置这个节点的键
+		_ExpireBuffer_Value		m_value;		// node record
+		_ExpireBuffer_Enty*		m_prev;			// previous node pointer
+		_ExpireBuffer_Enty*		m_next;			// next node pointer
+		
 		_ExpireBuffer_Enty( _ExpireBuffer_Value value, _ExpireBuffer_Enty* prev, _ExpireBuffer_Enty* next )
 		{
 			m_value=value;
@@ -83,7 +78,7 @@ private:
 			m_prev=prev;
 			m_next=next;
 		};
-		// 节点的析构函数，其中调用键值清除函数来清除此节点的键
+
 		~_ExpireBuffer_Enty( void )
 		{
 
@@ -95,40 +90,29 @@ private:
 	_ExpireBuffer_Enty* m_pCurrent;
 	_ExpireBuffer_Enty* m_pTag;
 
-	 TValue tmpValue;
+	TValue tmpValue;
 	
-	//--------------------------
-	// 哈希表，用于快速检索
-	//--------------------------
 	std::map<TKey, _ExpireBuffer_Enty*>  m_map;
 
-	//--------------------------
-	// 公共参数
-	//--------------------------
-	unsigned int m_count;			//记录数量
-	unsigned int m_count_max;		//限制的最大记录数量 0：默认没有限制
-	bool m_destroy_old;		//销毁记录的策略 默认0：不自动销毁过期记录；1：自动销毁过期记录，当到达最大记录数量的时候，从最老的开始销毁
-	unsigned int m_living_time;		//生存时间，单位秒，默认172800秒；当最后一次刷新的时间超过这一时间长度（currenttime-refreshtime > m_living_time），则过期
+	unsigned int m_count;			//record count
+	unsigned int m_count_max;		//max count default unlimited
+	bool m_destroy_old;		        //destroy strategy 0: not automatically 1: automatically
+	unsigned int m_living_time;		//record living time
 
 public:
 	CExpireBuffer(unsigned int max_count=0, bool destroy_old=false, unsigned int living_time=172800);
 	~CExpireBuffer();
 
-	//表长度. 
 	void setMaxCount(unsigned int max_count=0) { m_count_max=max_count; };
 	void setLivingTime(unsigned int living_time=172800) { m_living_time=living_time;};
 	void setDestroyPolicy(bool destroy_old=false) { m_destroy_old=destroy_old;};
-	//缓冲表能够保存的最大条目数量
 	int getMaxSize() {return m_count_max;};
 	bool getDestoryPolicy() {return m_destroy_old;};
 	int getLivingTime() {return m_living_time;};
-	//当前数量
 	int count() { return m_count; };	
 		
-	// 清空缓冲表
 	void clear( void );
 
-	//遍历缓冲表，首先调用front或back或find，之后使用next或prev
 	bool front(TKey& key, TValue& value);
 	bool front(TValue& value);
 	bool front();
@@ -141,35 +125,31 @@ public:
 	bool prev(TKey& key, TValue& value);
 	bool prev(TValue& value);
 	bool prev();
-	//根据输入的key获得记录
 	bool find(const TKey& key, TValue& value);
 	bool find(const TKey& key);
 	TValue& operator[](const TKey& key);
 	
-	//销毁头或尾节点
 	bool pop_front(TKey&key, TValue& value);
 	bool pop_front(TValue& value);
 	bool pop_front();
 	bool pop_back(TKey& key, TValue& value);
 	bool pop_back(TValue& value);
 	bool pop_back();
-	//根据输入的TKey删除指定记录
 	bool pop(const TKey& key, TValue& value);
 	bool pop(const TKey& key);
-	//销毁过期节点（如果其到期时间早于指定时间），默认输入为当前时间；用户可自行调用清理超期对象
+
 	bool pop_front_old(TKey& key, TValue& value, const time_t currenttime=0);
 	bool pop_front_old(TValue& value, const time_t currenttime=0);
 	bool pop_front_old(const time_t currenttime=0);
-	int  pop_old(const time_t currenttime=0);	//返回删除的条目数量
+	int  pop_old(const time_t currenttime=0);	
 	
-	//添加新记录，暂不支持设置初始化时间
-	// 0: 添加失败
-	// 1: 添加成功
-	// 2: 添加成功，但替换掉了最旧的节点
+	//add node 
+	// 0: add failed
+	// 1: add new
+	// 2: cover old node
 	int push(const TKey& key, const TValue& value);
 	int push(const TKey& key, const TValue& value, TValue& oldValue);
 	
-	//更新记录，更新记录的同时刷新了记录的刷新时间，默认输入为当前时间，暂不支持设置刷新时间
 	bool update(const TKey& key, time_t refreshtime = 0);
 	bool update(const TKey& key, const TValue& value, TValue& oldValue);
 	
