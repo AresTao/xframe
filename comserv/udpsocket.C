@@ -1,23 +1,3 @@
-/*************************************************************************
-
- * Copyright (c) 2005-2008, by Beijing TeleStar Network Technology Company Ltd.(MT2)
- * All rights reserved.
-
- * FileName：       udpsocket.C
- * System：         UniFrame
- * SubSystem：      Common
- * Author：         Long Xiangming
- * Date：           2006.06.03
- * Version：        1.0
- * Description：
-		CUdpSocket实现。UDP协议的Socket调用。
- *
- * Last Modified:
-    2006.06.03, 完成初始版本
-        By Long Xiangming
-
-
-**************************************************************************/
 #include "udpsocket.h"
 #include "func.h"
 #include "info.h"
@@ -31,9 +11,8 @@ CUDPSocket::CUDPSocket()
 	m_remotePort = 0;
 
 	m_socketState= CLOSE;
-	m_addrReuseFlag = 0;     //缺省为“地址不重用”
+	m_addrReuseFlag = 0;
 
-	//在Win32下，必须使用WSAStartup，否则socket()调用始终不成功
 #ifdef WIN32
 	WORD wVersionRequested = MAKEWORD(2,0);
 	WSADATA wsaData;

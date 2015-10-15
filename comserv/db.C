@@ -1,22 +1,3 @@
-/****************************************************************
- * Copyright (c)2002, by Marching Telecom. Tech. Ltd.
- * All rights reserved.
-
- * FileName：			db.C
- * System：          	UniFrame
- * SubSystem：        	Common
- * Author：				Long Xiangming
- * Date：				2005.10.09
- * Version：			1.0
- * Description：
-     	数据库的c++编程接口程序实现. 对原有UniNet SSC 的CDB进行了完全重写。
-
-		现在的CDB封装了不同的数据库实现，通过编译选项的宏开关控制(_MYSQL or _ORACLE)，
-		对调用者则是透明的，因为要做到完全透明，故未采用多态技术（没有使用任何纯
-		虚函数）。
-	2011-2-12，修订，删掉单例，删掉建立第二个数据库连接的内容，支持多实例; 增加mConnectionID参数，区分每一个建立的连接
-		By Li jinglin
-****************************************************************/
 #include <stdarg.h>
 //#ifdef WIN32
 //#include <winsock2.h>

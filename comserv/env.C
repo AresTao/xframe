@@ -1,8 +1,6 @@
-
 #include "env.h"
 #include "info.h"
 #include "db.h"
-
 
 int LogLevelFactory(const char * Level)
 {
@@ -13,6 +11,7 @@ int LogLevelFactory(const char * Level)
     else if(strcmp(Level,"Error")==0)
         return Err;
 }
+
 int LogTypeFactory(const char * type)
 {
     if(strcmp(type,"Cout")==0)
@@ -278,7 +277,6 @@ BOOL  TDBRsc::disconn(const INT dbidx)
 	return FALSE;
 }
 
-
 BOOL TTaskEnv::onLoad()
 {
 	UniINFO("Try to load Task env....");
@@ -331,7 +329,6 @@ void TTaskEnv::onList(CStr& result)
 
 }
 
-
 int TTaskEnv::getLogType()
 {
 	if(log)
@@ -342,7 +339,6 @@ int TTaskEnv::getLogType()
 	return mLogType;
 
 }
-
 
 int TTaskEnv::getLogLevel()
 {
@@ -363,7 +359,6 @@ BOOL TTaskEnv::getTaskInfo(INT& taskType, CStr& taskName)
 	else taskType=TaskTypeFactory("task");
 	return TRUE;
 }
-
 
 BOOL TTaskEnv::getDBRsc(TDBRsc& dbinfo)
 {
@@ -393,7 +388,6 @@ BOOL TTaskEnv::getDBRsc(TDBRsc& dbinfo)
     return true;
 }
 
-
 BOOL TKernalEnv::onLoad()
 {
 	UniINFO("Try to load Kernal env...");
@@ -422,7 +416,6 @@ BOOL TKernalEnv::onLoad()
 
 	return TRUE;
 }
-
 
 void TKernalEnv::onList(CStr& result)
 {
@@ -514,7 +507,6 @@ BOOL TKernalEnv::getProcList(CList<TProcRsc>& list)
 
 }
 
-
 BOOL TKernalEnv::getSCInfo(CStr& scip, UINT& scport, UINT& hb)
 {
 	if(sc==NULL) return FALSE;
@@ -524,7 +516,6 @@ BOOL TKernalEnv::getSCInfo(CStr& scip, UINT& scport, UINT& hb)
 	if(!sc->Attribute("hbInterval", (int *)&hb)) hb=10000;
 	return TRUE;
 }
-
 
 TEnv::TEnv()
 {
@@ -643,13 +634,8 @@ BOOL TEnv::loadCommonEnv(TiXmlElement* root)
 			if(!syslogcfg->Attribute("taskID", &mSyslogTaskID)) mSyslogTaskID = 10;
 		}
 	}
-//
-//	CStr result;
-//	list(result);
-//	UniINFO("TEnv: Load common env ok:\n %s", result.c_str());
 	return TRUE;
 }
-
 
 BOOL TEnv::getTimerRsc(TTimerRsc& tm)
 {
@@ -695,7 +681,4 @@ BOOL TEnv::getTimerRsc(TTimerRsc& tm)
 
 	return pos;
 }
-
-
-
 

@@ -1,35 +1,3 @@
- /******************************************************************************
- *Copyright(c)2005, by MT2
- *All rights reserved
-
- *FileName:   sscstrdef_addr.h
- *System:     softswitch
- *SubSystem:
- *Author:     Li Jinglin
- *Date：         2005.11.14
- *Version：      4.0
- *Description：
-      VChar的实现
- *
- * Last Modified:
-    2005-11-13 v1.1 李静林  替代了原来的commsgtype.C文件。
-
- *
- * Description：   各个子系统编解码公用的数据结构的编解码
- *
- *    2003.12.23, 各个类的print 函数
-       By       Shuangkai
- *  2004.02.09, 重载各VarChar类的"=="运算符
-      By      PengJin
- *  2004.03.02, 将各类的print方法的参数类型从ostringstream修改为ostrstream
- *      By      PengJin
- *   2004.03.23  by PengJin
- *      因为HP的部分产品（ISUP协议栈）不能支持-AA编译选项，故将本文件中的命名空间移除
- *   2004.05.04  by ShuangKai
- *      在所有的decode函数中添加 : m_cVarCharContent[m_ucVarCharLen]=0; 这样做的结果是解码出来的
- *      就是一个标准的字符串，因为编码时并未将字符串末尾的'\0'加入到CCode中，故在decode函数中加入此语句。
- *********************************************************************/
-
 #include <memory>
 #include <iomanip>
 

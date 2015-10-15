@@ -1,8 +1,8 @@
 /****************************************************************
- * FileName£º			dbredis.C
- * Author£º				LiJinglin
- * Date£º				2014.08.20
- * Version£º			1.0
+ * FileName			dbredis.C
+ * Author			LiJinglin
+ * Date				2014.08.20
+ * Version			1.0
  ***************************************************************/
 #include <string.h>
 #include <stdarg.h>
