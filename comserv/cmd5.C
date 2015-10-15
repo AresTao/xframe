@@ -1,24 +1,3 @@
-/******************************************************************** 
- * Copyright (c)2002, by Beijing TeleStar Telecom Technology Institue 
- * All rights reserved.                                               
-                                                                      
- * FileName：      cmd5.C                                       
- * System：            SoftSwitch                                    
- * SubSystem：      Call Service                         
- * Author：         Wu Jing                                
- * Date：         2003.11.24                                    
- * Version：         1.0                                           
- * Description：                                                 
-        MD5加密算法                           
- *                                                                    
- * Last Modified:                                                     
-        2003.11.28 完成初始版本
-              by Wu Jing
-        2004.05.30 使 GetDigest()的输入不限于C风格字符串那样的字符数组，而可以
-            是各字节取值任意的字节数组。
-              by Zhao Wenfeng
-      2009.8.10 添加字符串风格的摘要输出。李静林
-********************************************************************/
 #include <memory.h>
 #include <openssl/md5.h>
 
