@@ -1,16 +1,8 @@
 #include <stdarg.h>
-//#ifdef WIN32
-//#include <winsock2.h>
-//#else
-//#include <socket.h>
-//#endif
-
 #include "db.h"
 #include "dbmysql.h"
 #include "dbredis.h"
 #include "dbredis_cluster.h"
-//#include "dboracle.h"
-//#include "dbsqlite.h"
 
 static INT DBConnectionID=0;
 
@@ -37,7 +29,7 @@ CDB::CDB()
 
 CDB::~CDB()
 {
-	freeResult(); //释放m_pSelectResult内部的rows的内存
+	freeResult();
 	delete m_pSelectResult;
 	m_pSelectResult = NULL;
 }
@@ -63,27 +55,14 @@ INT CDB::execSQLFmt(const char *format, ...)
     return re;
 }
 
-
-
-// 当应用处理SQL语句失败时调用该函数返回错误信息
-// Return Values
-//	CHAR* 指向错误信息的指针
-//////////////////////////////////////////////////////////
 CHAR* CDB::getErrMsg()
 {
 	return m_pcErrMsg;
 }
 
-//////////////////////////////////////////////////////////
-//	释放查询结果占用的内存空间
-// Args：
-//	struct slctRslt* 指向要释放空间的行的行首结构的指针
 void CDB::freeRowMem(struct slctRslt* pstruSlctRslt)
 {
 	struct slctRslt* p = NULL;
-	/*
-	 *删除pstruSlctRslt指针执行的返回数据行。
-	 */
 	while (pstruSlctRslt != NULL)
 	{
 		p = pstruSlctRslt;
@@ -94,7 +73,6 @@ void CDB::freeRowMem(struct slctRslt* pstruSlctRslt)
 	}
 }
 
-//	释放查询结果占用的内存空间
 void CDB::freeResult()
 {
 	TRow *row = m_pSelectResult->pRows;
@@ -104,14 +82,11 @@ void CDB::freeResult()
 		row = row->next;
 		delete p;
 	}
-	m_pSelectResult->pRows=NULL; // 必须置空，否则将出现野指针。下次再调用此函数将出断错误（double free)。
+	m_pSelectResult->pRows=NULL; 
 	m_pSelectResult	-> rowNum = 0;
 	return;
 }
 
-//////////////////////////////////////////////////////////
-// 初始化数据库连接
-//////////////////////////////////////////////////////////
 CDB* initDB(CDB::DBType dbType, const CHAR* dbUser, const CHAR* dbPasswd, const CHAR* dbName, const CHAR* dbHost, INT dbPort)
 {
 	INT rt = 0;
@@ -136,24 +111,6 @@ CDB* initDB(CDB::DBType dbType, const CHAR* dbUser, const CHAR* dbPasswd, const 
                 if (rt < 0)
                     UniERROR("DBRedisCluster setup error");
 	}
-	/*else if(dbType == CDB::DB_ORACLE)
-	{
-		uniDB = new CDBOracle();
-		UniINFO(<<"new DBOracle ok.");
-		rt = uniDB->connDB(dbUser, dbPasswd, dbName);
-	}
-	else if(dbType == CDB::DB_SQLITE)
-	{
-		uniDB = new CDBSqlite();
-		UniINFO(<<"new CDBSqlite ok.");
-		//added by LXM. 2010-07-01
-		CHAR sqliteDbName[100];
-		if(dbName!=NULL) //由系统自动生成数据库名，每个数据库连接都不相同。
-		{
-			sprintf(sqliteDbName,"db.sqlite.%s.%d",dbName,uniDB->getConnectionID());
-		}
-		rt = uniDB->connDB(dbUser, dbPasswd, sqliteDbName);
-	}*/
 	else
 	{
 		UniERROR("DBType %d is not supported yet. The program will exit now...", dbType);
