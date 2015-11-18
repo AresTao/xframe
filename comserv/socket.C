@@ -6,10 +6,6 @@
 #include "socket.h"
 #include "func.h"
 #include "info.h"
-//#ifndef NOFRAME
-//#include "framectrl.h"
-//#endif
-//#define SOCKET_OLD_VERSION
 
 #define SO_SNDLOWAT_VALUE 40000
 #define MAX_SOCKET_CACHE_SEND_SIZE  200000000 //200M 
@@ -18,8 +14,6 @@
 int errno = 0;
 #endif
 
-//不同CSocket共享这些变量
-//for send
 UINT blockCounter         =0;
 UINT fullCounter            =0;
 UINT notenoughCounter      =0;
@@ -48,15 +42,6 @@ UINT readDirectFullCounter            =0;
 #define OUTPUT_READDIRECT_FULL_COUNTER            10000
 
 
-/////////////////////////////////////////////////////////
-// Function：   SocketDown
-// Description:
-//  捕获SIGPIPE信号，否则接到此信号进程将终止
-// Args：
-//  INT 信号编号
-// Return Values：
-//  无
-////////////////////////////////////////////////////////////
 extern "C"
 {
 }
@@ -66,24 +51,11 @@ void socketDown(INT i)
    return;
 }
 
-///////////////////////////////////////////////////////////////////////
-// Function：CSocket
-// Description:
-//  此函数是CSocket类的构造函数，用来对成员变量进行赋初值
-// Args：
-//  无
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
 CSocket::CSocket()
 {
-   /*  modified by Long Xiangming. 2008.02.19
-    not moved to func.C(sig_action).  */
 #ifndef WIN32
    act.sa_handler = socketDown; //设置新的信号处理器
    sigemptyset(&act.sa_mask);
-   //不阻塞其他的信号
    act.sa_flags = 0; //没有特殊选项
    if (sigaction(SIGPIPE,&act,NULL) == -1)
       UniERROR("Could not install  SIGPIPE signal handler.");
@@ -103,28 +75,13 @@ CSocket::CSocket()
 
    pSendMsgBuf = NULL;
    UINT size = MaxMsgLength;
-//#ifndef NOFRAME
-//   if(g_frameControl)
-//   {
-//      UINT size = g_envs->socketCacheRecvBufSize;//default is 2048000
-//      if(size<MaxMsgLength)
-//      {
-//         size = MaxMsgLength;
-//      }
-//   }
-//#endif
    pRecvMsgBuf = new TBuffer<CSocket>(size, this, &CSocket::_readFromBuff, &CSocket::_recvSocketIntoBuff);
 
    recvBufHasMessage = FALSE;
 
    m_bNoBlock=TRUE; //socket文件阻塞标记   
-   //--Modified by He Jiangling,2003.03.28
-   //WriteState=NoMsgInQueue;  //写状态初始值为“队列中无消息”
 
-   //m_addrReuseFlag = 0; //缺省为“地址不重用”modified by lxm. 2008.11.29
-   m_addrReuseFlag = 1; //缺省为“地址重用”modified by lxm. 2008.12.1 。因为进程重启后可能端口没有被立即释放而导致重启失败。
-//   bAddressInUse=FALSE; //IP地址被占用初始值为FALSE
-
+   m_addrReuseFlag = 1; 
 
    //--Modified 2005-2008.07.10, by He Jiangling
    //PrePackage.length=0;
@@ -146,38 +103,20 @@ CSocket::CSocket()
    m_localClientPort =0;
    m_conAttemptTimeout.tv_sec = 2;//默认连接尝试的超时时间为2s 
    m_conAttemptTimeout.tv_usec = 0; 
-//#ifdef NOFRAME
    m_socketSendBufSize = SendBufSize;
    m_socketRecvBufSize = RecvBufSize;
-//#else
-//   m_socketSendBufSize = g_envs->socketSendBufSize;
-//   m_socketRecvBufSize = g_envs->socketRecvBufSize;
-//
-//#endif
 
    m_remoteAddrStr[0] = 0;
    m_connectedCounter = 0;
 
    FD_ZERO(&fd_writeset);
    b_writeNeedSelect=FALSE;
-   //added by Yubo Chow on Oct 10, 2008
 
    m_resendSelectWaitTime.tv_sec = 0;
    m_resendSelectWaitTime.tv_usec = 0;
 
    m_shortConnectionMode = 0;
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：~CSocket
-// Description:
-//  此函数是CSocket类的析构函数，用来关闭监听和连接socket句柄
-// Args：
-//  无
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
 CSocket::~CSocket()
 {
    closeSocket();
@@ -221,23 +160,6 @@ void CSocket::connectionInfo(CStr* s)
          , c_str_remote()
       );
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：OpenServer
-// Description:
-//  此函数是CSocket类的成员函数，用来打开服务端socket
-// Args：
-//  CHAR* pcServerAddr      服务端IP地址
-//  INT iServerPort         服务端监听端口
-
-//   BOOL bNoBlock   是否采用阻塞模式,此参数可选，默认值TRUE
-// Return Values：
-//  INT     打开服务端socket是否成功
-//           -1: 失败
-//            0: 打开成功，但未连接
-//            1: 已连接   
-//////////////////////////////////////////////////////////////////////
-
 INT CSocket::openServer(CHAR* pcServerAddr, INT iServerPort, BOOL bNoBlock)
 {
    m_bNoBlock=bNoBlock;
@@ -271,7 +193,6 @@ INT CSocket::openServer(CHAR* pcServerAddr, INT iServerPort, BOOL bNoBlock)
       if (bNoBlock)
       {
 #ifndef WIN32
-         //文件控制，将socket I/O设置为非阻塞
          if (fcntl(m_iSockWait, F_SETFL, FNDELAY)<0)
          {
             UniERROR("Set server socket non_block flag error.");
@@ -289,53 +210,28 @@ INT CSocket::openServer(CHAR* pcServerAddr, INT iServerPort, BOOL bNoBlock)
 #endif
       }
       server.sin_family=AF_INET; //socket使用的协议
-      //将服务端socket地址字符串转化为网络形式
-      //Added by Long Xiangming. 2007.02.10
-      //可以在任何地址监听
       if (pcServerAddr==NULL)
          server.sin_addr.s_addr=htonl(INADDR_ANY);
       else
       {
-         //modified by Long Xiangming. 2007.11.07
          if (pcServerAddr[0]==0 || strcmp(pcServerAddr, "0")==0 || strcmp(
                pcServerAddr, "0.0.0.0")==0)
             server.sin_addr.s_addr=htonl(INADDR_ANY);
          else
             server.sin_addr.s_addr=inet_addr(pcServerAddr);
       }
-      //将服务端socket端口主机形式转化为网络形式
       server.sin_port=htons(iServerPort);
 
-      //if(m_addrReuseFlag)
       {
          setServerLinger(1); //设置服务端Linger
          setServerAlive(1);//moved here. by lxm. 2008.12.02
       }
-      /*else 
-      {
-         setServerLinger(0); //如果不是端口重用，那么，关闭socket后应该立即释放端口，不等待握手。如ame端口。这样，uniframe重启才不会失败。
-                     //但这样设置后，如果客户端没有关闭，仍然不生效。Server会一直在FIN_WAIT2状态。
-         setServerAlive(0);
-      }*/
-      
-      //setServerAlive();
-
-      //设置socket选项参数
-      //重用地址标志缺省置为0，可以通过setAddrReuse()进行更改（调用openServer之前）
       setsockopt(m_iSockWait, SOL_SOCKET, SO_REUSEADDR,
-            (CHAR*)(&m_addrReuseFlag), sizeof(m_addrReuseFlag));
+		      (CHAR*)(&m_addrReuseFlag), sizeof(m_addrReuseFlag));
 
-      /*        #ifdef _LITTLE_ENDIAN
-       server.sin_port=xshort(iServerPort);
-       #endif
-       //前面htons函数等同于xshort。无须再调用。
-       */
-      //modified by shuangkai 2004.2.18
-      //if(bind(m_iSockWait,(struct sockaddr*)&server,sizeof server)<0)
       if (bind(m_iSockWait, reinterpret_cast<struct sockaddr*>(&server),
-            sizeof server)<0)
+			      sizeof server)<0)
       {
-         //绑定服务端地址结构失败
          UniERROR("binding server socket error. addr: %s, port: %d",
                pcServerAddr, iServerPort);
          close_socket(m_iSockWait);
@@ -348,9 +244,6 @@ INT CSocket::openServer(CHAR* pcServerAddr, INT iServerPort, BOOL bNoBlock)
    } //  end of (if m_iSockwait<0)
 
 
-   //接受连接请求
-   //modified by shuangkai 2004.2.18
-   //m_iSockfd = accept(m_iSockWait,(struct sockaddr*)&client,&m_iSocklen);
    UniINFO("Openning server(%s:%d) success. wait fd is %d",
          pcServerAddr, iServerPort,m_iSockWait);
          
@@ -363,17 +256,11 @@ INT CSocket::openServer(CHAR* pcServerAddr, INT iServerPort, BOOL bNoBlock)
    INT ret = 0;
    if (m_iSockfd > 0)
    {
-      //接收到一个socket连接请求
       m_socketState = OPEN; //socket状态置为OPEN
-      //added by xfzhou 20060403
       setNoBlock(m_bNoBlock);
       _setSendBufSize(m_socketSendBufSize); //设置服务端发送缓冲区大小
       _setRecvBufSize(m_socketRecvBufSize); //设置服务端接收缓冲区大小
       INT val= SO_SNDLOWAT_VALUE;
-//#ifndef NOFRAME
-//      if(g_frameControl)
-//      val = g_envs->so_SNDLOWAT_VALUE;
-//#endif
       setsockopt(m_iSockfd, SOL_SOCKET, SO_SNDLOWAT, (CHAR*)&val, sizeof(val));
       FD_SET(m_iSockfd, &fd_writeset);
 
@@ -388,8 +275,6 @@ INT CSocket::openServer(CHAR* pcServerAddr, INT iServerPort, BOOL bNoBlock)
    return ret;
 }
 
-//Added by Long Xiangming. 2006.03.02
-//重新监听连接
 BOOL CSocket::reAccept()
 {
    if (m_iSockWait<=0)
@@ -400,17 +285,11 @@ BOOL CSocket::reAccept()
          reinterpret_cast<struct sockaddr*>(&client), &m_iSocklen);
    if (m_iSockfd > 0)
    {
-      //接收到一个socket连接请求
       m_socketState = OPEN; //socket状态置为OPEN
-      //Added by Long Xiangming. 2006.08.04
       setNoBlock(m_bNoBlock);
       _setSendBufSize(m_socketSendBufSize); //设置服务端发送缓冲区大小
       _setRecvBufSize(m_socketRecvBufSize); //设置服务端接收缓冲区大小
       INT val= SO_SNDLOWAT_VALUE;
-//#ifndef NOFRAME
-//      if(g_frameControl)
-//      val = g_envs->so_SNDLOWAT_VALUE;
-//#endif
       setsockopt(m_iSockfd, SOL_SOCKET, SO_SNDLOWAT, (CHAR*)&val, sizeof(val));
       FD_SET(m_iSockfd, &fd_writeset);
 
@@ -427,24 +306,12 @@ BOOL CSocket::reAccept()
 
 }
 
-//对端断开时调用
 void CSocket::setSocketStateClose()
 {
    m_socketState = CLOSE;
    m_iSockfd = -99;
 
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：closeSocket
-// Description:
-//  此函数是CSocket类的成员函数，关闭socket
-// Args：
-//  无
-// Return Values：
-//  BOOL     是否成功关闭socket连接句柄
-//////////////////////////////////////////////////////////////////////
-
 BOOL CSocket::closeSocketConnection()
 {
    clearBuffer();
@@ -492,18 +359,6 @@ BOOL CSocket::closeSocket()
    return rt;
 
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：setNoBlock
-// Description:
-//  此函数是CSocket类的成员函数，
-//      用来设置socket是否以非阻塞模式进行通信
-// Args：
-//  BOOL bIsNoBlock  是否是非阻塞模式
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
 void CSocket::setNoBlock(BOOL bIsNoBlock)
 {
    INT iFlag; //文件状态标记
@@ -546,17 +401,6 @@ void CSocket::setNoBlock(BOOL bIsNoBlock)
 
    return;
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：getFlag
-// Description:
-//  此函数是CSocket类的成员函数，用来取得socket文件状态标志
-// Args：
-//  无
-// Return Values：
-//  INT   文件状态标志
-//////////////////////////////////////////////////////////////////////
-
 INT CSocket::getFlag()
 {
    INT iFlag = -1; //文件状态标记
@@ -574,18 +418,6 @@ INT CSocket::getFlag()
 
    return iFlag;
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：isNoBlock
-// Description:
-//  此函数是CSocket类的成员函数，
-//      用来取得socket文件当前状态是否是阻塞模式
-// Args：
-//  无
-// Return Values：
-//  BOOL     socket文件当前状态是否是阻塞模式
-//////////////////////////////////////////////////////////////////////
-
 BOOL CSocket::isNoBlock()
 {
 #ifndef WIN32  
@@ -605,17 +437,6 @@ BOOL CSocket::isNoBlock()
 
 #endif
 }
-
-/////////////////////////////////////////////////////////
-// Function：   peekSocket
-// Description:
-//  通过从socket中读取一个字节，来判断socket状态
-// Args：
-//   无
-// Return Values：
-//   INT  返回值标识socket的状态，主要用于判断当前的
-//  socket是否是无效的连接
-/////////////////////////////////////////////////////////
 INT CSocket::peekSocket()
 {
    INT iNRead;
@@ -625,7 +446,6 @@ INT CSocket::peekSocket()
    {
       UniINFO("CSocket::PeekSocket() -> invalid socketid！");
    }
-   //read 1 byte, but don't delete from socket.
 #ifdef WIN32
    iNRead=recv(m_iSockfd, buf, 1, MSG_PARTIAL);
 #else
@@ -660,17 +480,6 @@ INT CSocket::peekSocket()
       return (-1);
    }
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：CSocket::setListenPort
-// Description:
-//  此函数只是为了实现多态而设置的,在CSocket中不应调用此方法
-// Args：
-//  CHAR* pcListenAddr 监听IP地址
-//  INT iListenPort    监听端口
-// Return Values：
-//  BOOL    是否设置成功
-//////////////////////////////////////////////////////////////////////
 BOOL CSocket::setListenPort(CHAR* pcListenAddr, INT iListenPort)
 {
    UniINFO("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
@@ -678,16 +487,6 @@ BOOL CSocket::setListenPort(CHAR* pcListenAddr, INT iListenPort)
    UniINFO("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
    return FALSE;
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：setSendBufSize(INT iSendBufSize)
-// Description:
-//  此函数是CSocket类的成员函数，设置发送缓冲区大小
-// Args：
-//  INT iSendBufSize    发送缓冲区大小
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
 void CSocket::setSendBufSize(INT iSendBufSize)
 {
    if (iSendBufSize>0)
@@ -714,15 +513,6 @@ void CSocket::_setSendBufSize(INT iSendBufSize)
    }
 }
 
-///////////////////////////////////////////////////////////////////////
-// Function：setRecvBufSize(INT iRecvBufSize)
-// Description:
-//  此函数是CSocket类的成员函数，设置接收缓冲区大小
-// Args：
-//  INT iRecvBufSize    接收缓冲区大小
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
 void CSocket::setRecvBufSize(INT iRecvBufSize)
 {
 
@@ -738,7 +528,6 @@ void CSocket::setRecvBufSize(INT iRecvBufSize)
 void CSocket::_setRecvBufSize(INT iRecvBufSize)
 {
    INT iBufSize, iBufLength;
-   //初始化Socket接收缓冲大小，见comconst.h
    iBufSize=iRecvBufSize;
    iBufLength=sizeof iRecvBufSize;
    if (setsockopt(m_iSockfd, SOL_SOCKET, SO_RCVBUF, (CHAR*)&iBufSize,
@@ -748,19 +537,6 @@ void CSocket::_setRecvBufSize(INT iRecvBufSize)
       perror("setRecvBufSize:");
    }
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：setServerLinger
-// Description:
-//  此函数是CSocket类的成员函数，设置服务端Linger。
-//      显示地对socket作出标记，强迫应用程序关闭前进行等待，
-//      直到未完成的数据已清空，连接停止
-// Args：
-//  无
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
 void CSocket::setServerLinger(BOOL isLinger)
 {
    struct linger SendOver;
@@ -776,19 +552,6 @@ void CSocket::setServerLinger(BOOL isLinger)
       UniERROR("set linger error");
    }
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：setClientLinger
-// Description:
-//  此函数是CSocket类的成员函数，设置客户端Linger。
-//      显示地对socket作出标记，强迫应用程序关闭前进行等待，
-//      直到未完成的数据已清空，连接停止
-// Args：
-//  无
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
 void CSocket::setClientLinger(BOOL isLinger)
 {
    struct linger SendOver;
@@ -804,17 +567,6 @@ void CSocket::setClientLinger(BOOL isLinger)
       UniERROR("set linger error");
    }
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：setServerAlive
-// Description:
-//  此函数是CSocket类的成员函数，设置服务端Alive
-// Args：
-//  无
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
 void CSocket::setServerAlive(BOOL isAlive)
 {
    INT ikeepAliveFlag=isAlive;
@@ -826,17 +578,6 @@ void CSocket::setServerAlive(BOOL isAlive)
       UniERROR("setServerAlive error: %d",isAlive);
    }
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：SetClientAlive
-// Description:
-//  此函数是CSocket类的成员函数，设置客户端Alive
-// Args：
-//  无
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
 void CSocket::setClientAlive(BOOL isAlive)
 {
    INT ikeepAliveFlag=isAlive;
@@ -871,30 +612,23 @@ CHAR* CSocket::c_str_remote() //得到对端的地址:端口
 
 BOOL CSocket::isReconnected()
 {
-   //仅仅当以前连接成功且调用了reconnect成功之后，才为TRUE
    if (m_connectedCounter>=2)
       return TRUE;
    else
       return FALSE;
 
 }
-//重现连接到Server
-//Added by Long Xiangming. 2006.05.31
 
 BOOL CSocket::reConnect()
 {
-   //确保已经调用过openClient()
    if (m_remoteServerPort <=0)
       return FALSE;
    return openClient(m_remoteServerAddr, m_remoteServerPort,
          m_localClientAddr, m_localClientPort, &m_conAttemptTimeout) ;
 }
 
-//added by Yubo Chow on Oct 9, 2008.
-//packet not sent completely will be recorded in sendMsgBuf. If there is some packet(s), there are codes.
 BOOL CSocket::hasUnsentCode()
 {
-   //if (pSendMsgBuf->iLengthToRead > 0) {
    if (pSendMsgBuf && pSendMsgBuf->filledLength()>0)
    {
       return TRUE;
@@ -915,33 +649,12 @@ void CSocket::clearBuffer()
       pSendMsgBuf->reset();
 
 }
-
-//--Modified 2005-2008.06.24, by He Jiangling
-///////////////////////////////////////////////////////////////////////
-// Function：sendCode
-// Description:
-//  此函数是CSocket类的成员函数，发送消息的主函数
-// Args：
-//  CCode code      待发送的消息
-// Return Values：
-//      INT
-//       1-----发送成功
-//       -1----写socket失败
-//       -2----向socket写入的字节数与期望值不相同
-//       -3----socket关闭
-//       -4----写状态的值无效
-//        -6---- Msg Too Long : Added by shuangkai.
-//       -9----对端Socket连接已经断开，或者物理链路故障
-// note: 如果调用者为code.content分配了空间，请自行回收
-//////////////////////////////////////////////////////////////////////
-
 INT CSocket::sendCode(CCode &code)
 {
    INT SendResult=-1;
 
    if (SOCKET_CODE_MAXLENGTH < code.length)
    {
-      //发送的消息长度超过限制
       UniINFO("CSocket::Send() -> Msg Too Long! Must LESS Than: %d ", 
       SOCKET_CODE_MAXLENGTH);
       return -6;
@@ -957,12 +670,9 @@ INT CSocket::sendCode(CCode &code)
 
    if (SendResult==1)
    {
-      //发送成功 
-      // UTest((CHAR*)"CSocket.Send",(CHAR*)"Send Success");
    }
    else
    {
-      //发送失败
       if (SendResult == -2)
       {
          b_writeNeedSelect = TRUE;
@@ -982,27 +692,10 @@ INT CSocket::sendCode(CCode &code)
    }
    return (SendResult);
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：pack
-// Description:
-//  此函数是CSocket类的成员函数，将待发送的消息打包
-// Args：
-//  CCode code      待发送的消息
-//  CCode& Packet     打包之后的消息
-// Return Values：
-//      无
-//////////////////////////////////////////////////////////////////////
-
-
 void CSocket::pack(CCode & code, CCode& Packet)
 {
-   //code.length指的是code.content的长度；
-   //而Packet.length的长度是整个Packet的长度
    Packet.length = code.length+8+COM_MSG_LENGTH;
    CHAR* pcPacket=Packet.content+8;
-   //Modified by Long Xiangming. 2007.01.23
-   //We use htonl() to replace xlong, so that we do not need to use '_LITTLE_ENDIAN' macro in makefile.
    UINT MsgLength = htonl((UINT)(code.length));
 
    memcpy(pcPacket, &MsgLength, COM_MSG_LENGTH); //填写消息长度
@@ -1011,24 +704,6 @@ void CSocket::pack(CCode & code, CCode& Packet)
    memcpy(pcPacket, code.content, code.length); //填写消息内容
    Packet.content[Packet.length] = 0;
 }
-
-///////////////////////////////////////////////////////////////////////
-// Function：sendMessage
-// Description:
-//  此函数是CSocket类的成员函数,  发送消息
-// Args：
-//  CCode code      打包之后待发送的消息
-// Return Values：
-//      INT
-//       1-----发送成功
-//       -1----写socket失败
-//       -2----向socket写入的字节数与期望值不相同
-//       -3----socket关闭(不用)
-//       -5----写socket sendbuff 满
-//        0 ---- 对端socket主动关闭或本端socket主动关闭。
-//       -9----对端Socket连接已经断开，或者物理链路故障
-//////////////////////////////////////////////////////////////////////
-
 INT CSocket::sendMessage(CCode &code)
 {
 
@@ -1040,25 +715,6 @@ INT CSocket::sendMessage(CCode &code)
       UniERROR("sendMessage() ERROR: socket state is CLOSE. m_socketState: %d. m_sockfd: %d",m_socketState,m_iSockfd);
       return 0;
    }
-   /* the old code .2008.12.08
-   if (b_writeNeedSelect)
-   {
-      ret = preSendProcess(code);
-
-      if (ret <= 0)
-      {
-         return ret;
-      }
-   }
-   if (hasUnsentCode())
-   {
-      ret = sendUnsentCode(code);
-      if (ret!=1)
-         return ret;
-   }
-   */
-   //modified by lxm. 2008.12.08
-   //resend last unsent code unitil all sent out.
    while(hasUnsentCode() && ret==1)
    {
       if(b_writeNeedSelect)
@@ -1078,8 +734,6 @@ INT CSocket::sendMessage(CCode &code)
          return 1;
       }
 
-      //向socket写入code
-   //#define MYTEST 13
 #ifndef MYTEST
       iNwrite=send(m_iSockfd, code.content, code.length, MSG_DONTROUTE);
 #else
@@ -1089,15 +743,12 @@ INT CSocket::sendMessage(CCode &code)
       iNwrite += send(m_iSockfd, code.content + MYTEST, code.length - MYTEST, MSG_DONTROUTE);
       
 #endif
-      //向socket写入的字节数等于code.length
       if (iNwrite > 0)
       {
          if (iNwrite==code.length)
          {
-            //发送成功
             return (1);
          }
-         //发送不完全
          notenoughCounter++;
          if (notenoughCounter==1 || notenoughCounter%OUTPUT_NOTENOUGH_COUNTER==0)
             UniINFO(
@@ -1128,7 +779,6 @@ INT CSocket::sendMessage(CCode &code)
          }
          else
          {
-            //发送失败
             ret = -1;
             if (-1 == iNwrite)
             {
@@ -1158,7 +808,6 @@ INT CSocket::sendMessage(CCode &code)
    
    if (ret == -2)
    {
-      //backup
       return backupToSendBuff(code.content+iNwrite, code.length-iNwrite, code.flag,
             "sendMessage()");
    }
@@ -1234,36 +883,16 @@ INT CSocket::preSendProcess(CCode &code)
 
       }
    }
-   //modified by lxm. 2008.12.08. do nothing here.
-   //backup moved to sendMessage().
-/*   if (ret == -2)
-   {
-      //back up
-      return backupToSendBuff(code.content, code.length, code.flag,
-            "preSendProcess()");
-
-   }
-   if (ret <= 0)
-   {
-      //do nothing. by lxm. 2008.10.15
-      //if(pSendMsgBuf)
-      //pSendMsgBuf->reset();
       return ret;
-   }
-*/
-   return ret;
 }
 
-// return 1 means send out succeed and no packet in the buff left.
 INT CSocket::sendUnsentCode(CCode &code)
 {
    INT ret = 1;
    INT iNwrite=0;
    if (pSendMsgBuf==NULL)
       return 1;
-   //modified by lxm. 2008.12.05. The max resend length is set to socketSendBufSize so that it can re-send out as fast as possible.
    UINT lengthToSend=
-//         MaxResendLength<=pSendMsgBuf->filledLength() ? MaxResendLength
          m_socketSendBufSize<=pSendMsgBuf->filledLength() ? m_socketSendBufSize
                : pSendMsgBuf->filledLength();
    if (lengthToSend==0)
@@ -1322,7 +951,6 @@ INT CSocket::sendUnsentCode(CCode &code)
       }
       else
       {
-         //发送失败
          ret = -1;
          if (-1== iNwrite)
          {
@@ -1346,20 +974,7 @@ INT CSocket::sendUnsentCode(CCode &code)
          }
       }
    }
-   // if ret is -2, means socket is working while its buffer is full.
-   //modified by lxm. 2008.12.08. backup moved to sendMessage().
-   /*if (ret == -2)
-   {
-      //back up
-      return backupToSendBuff(code.content, code.length, code.flag,
-            "sendUnsentCode()");
-   }*/
-   //modified by lxm. 2008.12.08. do nothing.
-   /*
-   if (ret <= 0)
-   {
-      pSendMsgBuf->reset();
-   }*/
+
    return ret;
 }
 
@@ -1375,14 +990,8 @@ int CSocket::_sendBuffToSocket(void *dst, const void *src, unsigned int length)
    return send(m_iSockfd, (const char*)src, length, MSG_DONTROUTE) ;
 }
 
-/*
- * not enough: this means some message read is useful, (ret - useful_length) is going to be returned.
- * success: this means code is filled, ret should plus code's length.
- */
 int CSocket::_readFromBuff(void *dst, const void *src, unsigned int length)
 {
-   //pointer dst means nothing in this function.
-   //length means nothing in this function
    TStateMachine state = Wait;
    int bufferLength = pRecvMsgBuf->filledLength();
    int ret = 0;
@@ -1517,24 +1126,13 @@ int CSocket::_recvSocketIntoBuff(void *dst, const void *src, unsigned int length
    }
    return ret;
 }
-//这里nWrite指unsentCode中已经发出的字节数
 INT CSocket::backupToSendBuff(CHAR* codeContent, UINT codeLength, INT codeFlag,
       CHAR* funcName)
 {
-   //back up
    INT ret = -2;
    if (pSendMsgBuf==NULL)
    {
       UINT size = MaxMsgLength;
-      //dynamiclly allocate mem.
-//#ifndef NOFRAME
-//      if(g_frameControl)
-//      {
-//         size = g_envs->socketCacheSendBufSize;//default is MaxMsgLength*10
-//         if(size<MaxMsgLength)
-//         size = MaxMsgLength;
-//      }
-//#endif      
       pSendMsgBuf = new TBuffer<CSocket>(size,this,&CSocket::_sendBuffToSocket,&CSocket::_writeToBuff);
       UniINFO(
             "Prepare for backup sending msg:  new socket backup SendMsgBuf  %u bytes succeed.",
@@ -1555,7 +1153,6 @@ INT CSocket::backupToSendBuff(CHAR* codeContent, UINT codeLength, INT codeFlag,
    {
       pSendMsgBuf->writeIntoBuffer(codeContent, codeLength);
       backupCounter++;
-      //if (backupCounter==1 || backupCounter%OUTPUT_BLOCK_COUNTER==0)
          UniINFO(
                "CSocket::%s: Write Socket Blocked! backup this emergency msg to SendMsgBuf succeed(%u bytes). counter: %u",
                funcName, codeLength, backupCounter);
@@ -1563,9 +1160,6 @@ INT CSocket::backupToSendBuff(CHAR* codeContent, UINT codeLength, INT codeFlag,
    }
    else
    {
-      //added by lxm. 2008.12.04.
-      //如果空间不够，则扩大一倍。
-      //今后添加此功能，可以在TBuffer(unibuffer.h)中增加一个resize方法″（涉及到将原内容拷贝到新的空间，而位置指针是个问题)
       fullCounter++;
       if(codeFlag==code_emergency)
       {   UniERROR(
@@ -1585,23 +1179,6 @@ INT CSocket::backupToSendBuff(CHAR* codeContent, UINT codeLength, INT codeFlag,
 
 }
 
-
-///////////////////////////////////////////////////////////////////////
-// Function：openClient
-// Description:
-//  此函数是CSocket类的成员函数，用来打开客户端socket
-// Args：
-//  CHAR* pcServerAddr      服务端IP地址
-//  INT iServerPort         服务端监听端口
-//  增加iClientPort参数。如果等于0,则由操作系统选定客户端端口；如果不为0,则使用此客户端端口
-//  Modified By Long Xiangming. 2007.03.29
-
-// Return Values：
-//  BOOL     打开客户端socket是否成功
-//////////////////////////////////////////////////////////////////////
-
-//added by Yubo Chow,异步的带超时的openclient
-//使用非阻塞连接
 BOOL CSocket::openClient(CHAR* pcServerAddr, INT iServerPort,
       CHAR* pcClientAddr, INT iClientPort, struct timeval *timeout)
 {
@@ -1611,12 +1188,10 @@ BOOL CSocket::openClient(CHAR* pcServerAddr, INT iServerPort,
 #else
    if (!socketInit(pcServerAddr, iServerPort, pcClientAddr, iClientPort))
    {
-      //return FALSE;
       return openClientResult(-1);//modified by lxm. 2008.10.22
    }
 
 #ifndef WIN32
-   //文件控制，将socket I/O设置为非阻塞
    int flags = fcntl(m_iSockfd, F_GETFL, 0);
 
    if (fcntl(m_iSockfd, F_SETFL, flags | O_NONBLOCK) < 0)
@@ -1667,7 +1242,6 @@ BOOL CSocket::openClient(CHAR* pcServerAddr, INT iServerPort,
       m_conAttemptTimeout = *timeout;
    }
 
-   //modified by lxm 2008.10.23. 注意，select会修改timeout的值，所以每次都传入一个临时变量
    timeval tempTimeout=m_conAttemptTimeout;
    rt=select(m_iSockfd + 1, &rset, &wset, NULL, &tempTimeout);
 
@@ -1677,13 +1251,10 @@ BOOL CSocket::openClient(CHAR* pcServerAddr, INT iServerPort,
       UniINFO("CSocket::openClient()  ERROR: connect timeout: sec: %d. orgin_sec: %d",tempTimeout.tv_sec,m_conAttemptTimeout.tv_sec);
       return openClientResult(-4);
    }
-   // if not timeout
    if (FD_ISSET(m_iSockfd, &rset) || FD_ISSET(m_iSockfd, &wset))
    {
       INT error;
       socklen_t len = sizeof(error);
-      //
-      // 如果连接成功，此调用返回 0 
 
       if (getsockopt(m_iSockfd, SOL_SOCKET, SO_ERROR, &error, &len) < 0)
       {
@@ -1694,7 +1265,6 @@ BOOL CSocket::openClient(CHAR* pcServerAddr, INT iServerPort,
          errno = error;
          return openClientResult(-6);
       }
-      //error的值为零，表示连接成功
 #ifndef WIN32
       fcntl(m_iSockfd, F_SETFL, flags);
 #endif
@@ -1722,7 +1292,6 @@ BOOL CSocket::socketInit(CHAR* pcServerAddr, INT iServerPort,
    }
    else
    {
-      //保留地址和端口，以便将来reConnect
       if (pcServerAddr[0] == 0 || strcmp(pcServerAddr, "0")==0 || strcmp(
             pcServerAddr, "0.0.0.0") ==0)
          strcpy(m_remoteServerAddr, "127.0.0.1");
@@ -1753,11 +1322,9 @@ BOOL CSocket::socketInit(CHAR* pcServerAddr, INT iServerPort,
    m_remoteServerPort=iServerPort;
    m_localClientPort = iClientPort;
 
-   //建立客户端使用的socket句柄
    m_iSockfd=socket(AF_INET,SOCK_STREAM,0);
    if (m_iSockfd < 0)
    {
-      //建立socket句柄失败
       m_iSockfd=-99;
       m_socketState = CLOSE;
       return FALSE;
@@ -1769,20 +1336,9 @@ BOOL CSocket::socketInit(CHAR* pcServerAddr, INT iServerPort,
    setClientAlive(1); //设置客户端Alive
 
    server.sin_family=AF_INET; //socket使用的协议
-   //将服务端地址字符串转化为网络形式
    server.sin_addr.s_addr=inet_addr(m_remoteServerAddr);
-   //将服务端socket端口主机形式转化为网络形式
    server.sin_port=htons(iServerPort);
 
-   /*    #ifdef _LITTLE_ENDIAN
-    server.sin_port=xshort(iServerPort);
-    #endif
-    前面的htons函数等同于htons函数，无须再调用。
-    */
-
-   //请求连接
-   //modified by shuangkai 2004.2.18
-   //INT re=connect(m_iSockfd,(struct sockaddr*)&server,sizeof server);
    if (iClientPort>0 || m_localClientAddr[0]!=0) //需要绑定客户端IP或端口
 
    {
@@ -1822,7 +1378,6 @@ BOOL CSocket::openClientResult(int rt)
 {
    if (rt < 0)
    {
-      //提交连接请求失败
       m_socketState = CLOSE; //socket状态置为CLOSE
       if(m_iSockfd>0) //added by lxm. 2008.10.22
          close_socket(m_iSockfd);
@@ -1833,34 +1388,15 @@ BOOL CSocket::openClientResult(int rt)
    }
    else
    {
-      //提交连接请求成功
       m_socketState = OPEN; //socket状态置为OPEN
-      //Added by Long Xiangming. 2006.08.04
       setNoBlock(m_bNoBlock);
       _setSendBufSize(m_socketSendBufSize); //设置服务端发送缓冲区大小
       _setRecvBufSize(m_socketRecvBufSize); //设置服务端接收缓冲区大小
 
       FD_SET(m_iSockfd, &fd_writeset);
       INT val= SO_SNDLOWAT_VALUE;
-//#ifndef NOFRAME
-//      if(g_frameControl)
-//      val = g_envs->so_SNDLOWAT_VALUE;
-//#endif
       setsockopt(m_iSockfd, SOL_SOCKET, SO_SNDLOWAT, (CHAR*)&val, sizeof(val));
       b_writeNeedSelect = FALSE;
-      /*#ifndef WIN32
-       INT iFlag;              //文件状态标记
-       iFlag=getFlag();        //取得当前socket文件的状态标记
-       iFlag |= O_NONBLOCK;    //将标记置为非阻塞
-       if (fcntl(m_iSockfd,F_SETFL,iFlag)==-1)
-       {
-       //设置文件状态失败
-       UniINFO("CSocket::OpenClient() -> After Connect to Server success, set flag error.");
-       return FALSE;
-       }
-       #endif
-
-       */
       UniINFO("Open client socket succeed. remoteAddr: %s. clientPort: %d.  sock_fd: %d",
                c_str_remote(), m_localClientPort,getFd());
 
@@ -1874,22 +1410,6 @@ BOOL CSocket::hasBufferedCode()
 {
    return recvBufHasMessage;
 }
-
-/*
- * return result:
- * 1：成功读到所需数据
- * 0：读到了0个字节. 对方socket已断开
- * -1：socket错误
- * -2：读到字节数少于要求数
- * -3：不再使用（原意为搜索包头失败）
- * -4：code错误，未分配地址空间
- * -5：直接读取（无定界）时超长
- * -9：socket没有建立
- *
- *   只有返回1表示读取正确。
- *   如果返回0或-9，应该关闭或移除本socket，并进行重新连接或监听。
- 其他错误不用管。
- */
 
 INT CSocket::recvCode(CCode& code)
 {
@@ -1919,10 +1439,8 @@ INT CSocket::recvCode(CCode& code)
 
 }
 
-//不需要处理消息定界符，直接接收
 INT CSocket::recvCodeDirect(CCode& code)
 {
-   //不搜索包头，直接接收
 
    UINT iRecvLength=MaxRecvLength;//<=MaxMsgLength;
 
@@ -1930,7 +1448,6 @@ INT CSocket::recvCodeDirect(CCode& code)
 
    if (ReadResult > 0) //读取socket成功
    {
-      //Added by Long Xiangming. 2007.03.21
       if (ReadResult > MaxMsgLength)
       {
          UniERROR(
@@ -1974,7 +1491,6 @@ INT CSocket::recvCodeDirect(CCode& code)
       UniERROR(
             "CSocket::recvCodeDirect() -> Read Socket Error !  ReadResult: %d(return -1), errno: %d(%s)",
             ReadResult, errno, strerror(errno));
-      //return (ReadResult); //读取socket失败
       return (-1); //读取socket失败. modified by lxm. 2008.10.10
 
    }
@@ -1986,7 +1502,6 @@ INT CSocket::recvCodeByFindHead(CCode& code)
    INT ret;
    if (!recvBufHasMessage)
    {
-      //read from wire socket.
       ret = pRecvMsgBuf->writeIntoBuffer(NULL, pRecvMsgBuf->size());
       if (ret <= 0)
       {
@@ -2032,7 +1547,6 @@ INT CSocket::recvCodeByFindHead(CCode& code)
    return ret;
 }
 
-////////////////////////// For CCUri //////////////////////
 CUri::CUri()
 {
    mHost[0]=0;
@@ -2054,7 +1568,6 @@ CUri::CUri(const char* host,const int port,const char* sessionId)
 
 CUri::CUri(sockaddr_in addr)
 {
-   //strcpy(mHost,inet_ntoa(*(reinterpret_cast<struct in_addr*>(&addr))));
    strcpy(mHost, inet_ntoa(addr.sin_addr));
    mPort = ntohs(addr.sin_port);
 
@@ -2065,7 +1578,6 @@ CUri::CUri(const CUri& uri)
 {
    strcpy(mHost,uri.host());
    mPort = uri.port() ;
-   //strcpy(mSessionId,uri.sessionId()); 
 
 }
 
@@ -2074,7 +1586,6 @@ CUri& CUri::operator=(const CUri& uri)
 {
    strcpy(mHost,uri.host());
    mPort = uri.port() ;
-   //strcpy(mSessionId,uri.sessionId()); 
    return *this;
 }
 
@@ -2092,7 +1603,6 @@ bool CUri::operator<(const CUri& r) const
    else return false;
 }
 
-//模糊比较。（只比较host和port)
 bool CUri::approxEqualsTo(const CUri& r) const
 {
    if(strcmp(mHost,r.host())==0 && mPort == r.port())
@@ -2121,7 +1631,6 @@ const char* CUri::sessionId() const
    return (char*)mSessionId;
 }
 
-//获得其完整string
 const char* CUri::c_str() const
 {
    static char temp[256];
@@ -2149,7 +1658,6 @@ void  CUri::setSessionId(const char* sessionId)
       strcpy(mSessionId,sessionId);
 }
 
-////////////////////////// For CCTcpConnection ////////////
 CTcpConnection::CTcpConnection()
 {
    mLinkId = 0;
@@ -2256,7 +1764,6 @@ CUri& CTcpConnection::remoteUri()
    return mRemoteUri;
 }
 
-////////////////////////// For CTcpListener //////////////
 CTcpListener::CTcpListener(BOOL needFindHead)
 {
    setNeedFindHead(needFindHead);
@@ -2343,7 +1850,6 @@ CTcpConnection* CTcpConnectionManager::find(const CUri& remoteUri)
       if((*i)->remoteUri() == remoteUri)
          return (*i);
    }
-   //再模糊比较一遍（只比较host和port, 这样就可以共享连接）
    for(CTcpConnectionList::iterator it=mConnections.begin();it!=mConnections.end();it++)
    {
       if((*it)->remoteUri().approxEqualsTo(remoteUri))
@@ -2372,13 +1878,12 @@ CTcpConnection* CTcpConnectionManager::findByConnId(UINT connid)
    return NULL;
 }
 
-//关闭一个connection，且delete之。
 bool CTcpConnectionManager::close(const CUri &remoteUri)
 {
    bool rt = false;
    for(CTcpConnectionList::iterator i=mConnections.begin();i!=mConnections.end();)
    {
-      if(((*i)->remoteUri() == remoteUri)||( (*i)->remoteUri().approxEqualsTo(remoteUri) ) )//再模糊比较一遍（只比较host和port, 这样就可以共享连接）
+      if(((*i)->remoteUri() == remoteUri)||( (*i)->remoteUri().approxEqualsTo(remoteUri) ) )
       {
          rt = (*i)->close();
          delete (*i);
@@ -2434,7 +1939,6 @@ bool CTcpConnectionManager::closeByLinkId(UINT linkId)
    return rt;
 }
 
-//关闭所有Connection,且移除它们
 void CTcpConnectionManager::closeAll()
 {
    if(mConnections.empty()) return;
@@ -2466,7 +1970,7 @@ int CTcpConnectionManager::procFdSet(CFdSet& fdSet)
       int re = (*i)->process(fdSet);
       if(re < 0)
       {
-         (*i)->close(); //close后，对端进程如果正常，则一定会readSocket==-1.
+         (*i)->close(); 
          delete (*i);
          i=mConnections.erase(i);
          continue;

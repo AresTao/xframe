@@ -16,7 +16,6 @@
 
 Condition::Condition()
 {
-   //std::cerr << this << " Condition::Condition" << std::endl;
 
 #ifdef WIN32
 #  ifdef RESIP_CONDITION_WIN32_CONFORMANCE_TO_POSIX
