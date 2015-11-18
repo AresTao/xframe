@@ -36,12 +36,8 @@ void CUDPSocket::serverInfo(CStr* s)
 	s->fCat("fd=%d, port=%d", getFd(), m_localPort);
 }
 
-//打开服务端socket
-//-1: 失败
-// 1: 成功
 INT CUDPSocket::openServer(CHAR* localAddr, INT localPort)
 {
-	//if(localAddr == NULL) return -1;
 	if(localPort <=0    ) return -1;
 
 	m_localAddr.sin_family = AF_INET;
@@ -50,7 +46,6 @@ INT CUDPSocket::openServer(CHAR* localAddr, INT localPort)
 		m_localAddr.sin_addr.s_addr = INADDR_ANY;
 	else
 	{
-		//added by Long Xiangming. 2007.11.07
 		if(localAddr[0]==0 || strcmp(localAddr,"0")==0 || strcmp(localAddr,"0.0.0.0")==0)
 			m_localAddr.sin_addr.s_addr = INADDR_ANY;
 		else
@@ -63,19 +58,16 @@ INT CUDPSocket::openServer(CHAR* localAddr, INT localPort)
   	m_localFd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(m_localFd<0) {
 	    perror("open socket server");
-	    //exit(1);
 	}
 
 	if (setsockopt(m_localFd, SOL_SOCKET, SO_REUSEADDR, (CHAR*)&m_addrReuseFlag, sizeof(m_addrLen)) == -1) {
 		perror("setsockopt");
 		return -1;
-		//exit(1);
 	}
 
 	if (bind(m_localFd, (struct sockaddr *)&m_localAddr, sizeof(struct sockaddr)) != 0) {
 	    perror("bind");
 		return -1;
-	    //exit(1);
 	}
 	m_socketState = OPEN;
 	m_socketFd = m_localFd;
@@ -100,10 +92,8 @@ void CUDPSocket::setRemoteSockAddr(const char* addr)
 	setRemoteSockAddr(host.c_str(), atoi(p+1));
 }
 
-//打开客户端socket
 BOOL  CUDPSocket::openClient(CHAR* remoteAddr,INT remotePort)
 {
-	//if(remoteAddr == NULL) return FALSE;
 	if(remotePort <=0    ) return FALSE;
 	CHAR remoteAddress[256];
 	if(remoteAddr == NULL)
@@ -129,7 +119,6 @@ BOOL  CUDPSocket::openClient(CHAR* remoteAddr,INT remotePort)
 	if(m_remoteFd<0)
 	{
 		perror("open socket client");
-	    //exit(1);
 		return FALSE;
 	}
 
@@ -138,14 +127,12 @@ BOOL  CUDPSocket::openClient(CHAR* remoteAddr,INT remotePort)
 	return TRUE;
 }
 
-//打开客户端socket
 BOOL  CUDPSocket::openClient()
 {
 	m_remoteFd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(m_remoteFd<0)
 	{
 		perror("open socket client");
-	    //exit(1);
 		return FALSE;
 	}
 
@@ -154,10 +141,6 @@ BOOL  CUDPSocket::openClient()
 	return TRUE;
 }
 
-//发送消息
-//-1：写socket失败
-//-3: socket关闭
-//1 ：成功
 INT CUDPSocket::sendCode(CCode &code)
 {
 	if(m_socketState == CLOSE) return -3;
@@ -186,17 +169,10 @@ INT CUDPSocket::sendCode(CCode &code,CHAR* remoteAddr,INT remotePort)
 
 }
 
-//接收消息
-//-1: 读Socket失败
-//-3: socket关闭
-//-4: code.content==NULL，
-//    调用Recv()之前未给code.content分配空间
-// 1: 成功
 INT CUDPSocket::recvCode(CCode& code)
 {
 	if(m_socketState == CLOSE) return -3;
 	if(code.content == NULL) return -4;
-	//sockaddr tempAddr;
 	INT rt =recvfrom(m_socketFd, code.content, MaxRecvBufSize, MSG_DONTWAIT, (struct sockaddr *)&m_clientAddr, &m_addrLen);
 
 	if(rt>0)
@@ -208,7 +184,6 @@ INT CUDPSocket::recvCode(CCode& code)
 
 }
 
-//关闭socket
 BOOL   CUDPSocket::closeSocket()
 {
 	if(m_socketState == CLOSE) return FALSE;
@@ -258,7 +233,6 @@ void CUDPSocket::setRecvBufSize(INT iRecvBufSize)
 	}
 }
 
-//这里使用默认取值进行设置。
 void CUDPSocket::setRecvBufSize()
 {
 	m_socketRecvBufSize = MaxRecvBufSize;
@@ -284,7 +258,6 @@ void CUDPSocket::setSendBufSize(INT iSendBufSize)
 	}
 }
 
-//这里使用默认取值进行设置。
 void CUDPSocket::setSendBufSize()
 {
 	m_socketSendBufSize = MaxSendBufSize;
