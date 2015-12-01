@@ -18,40 +18,40 @@ using namespace std;
 
 class MSGDATADEF_UNINET_H_IDName
 {
-public:
-	static const char* n(int id, const char* defaultName)
-	{
-		switch(id)
-		{
-			default: return defaultName;
-		};
-	};
+    public:
+        static const char* n(int id, const char* defaultName)
+        {
+            switch(id)
+            {
+                default: return defaultName;
+            };
+        };
 };
 
 
 _CLASSDEF(TMsgAddress)
-class TMsgAddress:public TMsgPara
+    class TMsgAddress:public TMsgPara
 {
-	public:
-		UINT           logAddr;
-		UINT           phyAddr;
-		UINT           taskInstID;
+    public:
+        UINT           logAddr;
+        UINT           phyAddr;
+        UINT           taskInstID;
 
-		inline         TMsgAddress();
-		CHAR*          getMsgName(){ return (char*)"TMsgAddress";};
-		TMsgAddress    &operator=(const TMsgAddress &r);
-		PTMsgPara      clone();
-		BOOL           operator == (TMsgPara&);
+        inline         TMsgAddress();
+        CHAR*          getMsgName(){ return (char*)"TMsgAddress";};
+        TMsgAddress    &operator=(const TMsgAddress &r);
+        PTMsgPara      clone();
+        BOOL           operator == (TMsgPara&);
 
-		INT            size();
-		INT            encode(CHAR* &buf);
-		INT            decode(CHAR* &buf);
-		BOOL           decodeFromXML(TiXmlHandle& xmlParser,PCGFSM fsm);
+        INT            size();
+        INT            encode(CHAR* &buf);
+        INT            decode(CHAR* &buf);
+        BOOL           decodeFromXML(TiXmlHandle& xmlParser,PCGFSM fsm);
 
-		void           print(ostrstream& st);
-		const CHAR*    getMsgNameById(int id){ return MSGDATADEF_UNINET_H_IDName::n(id, "TMsgAddress");};
-		int            getFieldValue(const char** p, int& type, CStr& value);
-		int            setFieldValue(const char** p, int& type, CStr& value);
+        void           print(ostrstream& st);
+        const CHAR*    getMsgNameById(int id){ return MSGDATADEF_UNINET_H_IDName::n(id, "TMsgAddress");};
+        int            getFieldValue(const char** p, int& type, CStr& value);
+        int            setFieldValue(const char** p, int& type, CStr& value);
 };
 
 
@@ -60,11 +60,11 @@ class TMsgAddress:public TMsgPara
 /////////////////////////////////////////////////////////
 inline TMsgAddress::TMsgAddress()
 {
-	logAddr                   = 0;
-	phyAddr                   = 0;
-	taskInstID                = 0;
+    logAddr                   = 0;
+    phyAddr                   = 0;
+    taskInstID                = 0;
 }
 
 
 #endif
- 
+

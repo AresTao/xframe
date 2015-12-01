@@ -5,29 +5,29 @@
 #include "threadlockable.h"
 
 class Condition;
-	
-/**
-   @brief Wraps the recursive mutex implementation on your platform (if there is 
-   one).
 
-   @note A recursive mutex is a mutex that can be locked more than once by a 
-   given thread without causing a deadlock.
-*/
+/**
+  @brief Wraps the recursive mutex implementation on your platform (if there is 
+  one).
+
+  @note A recursive mutex is a mutex that can be locked more than once by a 
+  given thread without causing a deadlock.
+  */
 class RecursiveMutex : public Lockable
 {
-   public:
-      RecursiveMutex();
-      virtual ~RecursiveMutex();
-      virtual void lock();
-      virtual void unlock();
+    public:
+        RecursiveMutex();
+        virtual ~RecursiveMutex();
+        virtual void lock();
+        virtual void unlock();
 
-   private:
+    private:
 #ifdef WIN32   
-	  CRITICAL_SECTION mId;
+        CRITICAL_SECTION mId;
 #else
-      pthread_mutexattr_t mMutexAttr;
-      mutable  pthread_mutex_t mId;
-      pthread_mutex_t* getId() const;
+        pthread_mutexattr_t mMutexAttr;
+        mutable  pthread_mutex_t mId;
+        pthread_mutex_t* getId() const;
 #endif
 };
 

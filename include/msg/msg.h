@@ -22,43 +22,43 @@ _CLASSDEF(TEventMsg);
 
 class TMsg
 {
-	public:
-		STuple 			sender;
+    public:
+        STuple 			sender;
 
-		inline         TMsg();
-		virtual	~TMsg() {};
+        inline         TMsg();
+        virtual	~TMsg() {};
 
-		virtual CHAR*   getMsgName() {return "TMsg";};
-		virtual PTMsg   clone();
-		virtual BOOL    operator == (TMsg&);
+        virtual CHAR*   getMsgName() {return "TMsg";};
+        virtual PTMsg   clone();
+        virtual BOOL    operator == (TMsg&);
         virtual TMsg& operator=(const TMsg &r);
-		virtual INT     size();
+        virtual INT     size();
 
-		virtual void    print(ostrstream& st);
+        virtual void    print(ostrstream& st);
 };
 
 
 
 class TTimeOutMsg:public TMsg
 {
-	public:
-		TTimeMark      timerMark;
-		TTimerKey      timerKey;
-		TTime          timerDelay;
-		void*		   timerPara;
+    public:
+        TTimeMark      timerMark;
+        TTimerKey      timerKey;
+        TTime          timerDelay;
+        void*		   timerPara;
 
-		inline         TTimeOutMsg();
-		inline	   	   TTimeOutMsg(TTimeMark _timerMark, TTimerKey _timerKey, TTime _timerDelay, void* timerPara=NULL);
-		virtual inline		   ~TTimeOutMsg();
+        inline         TTimeOutMsg();
+        inline	   	   TTimeOutMsg(TTimeMark _timerMark, TTimerKey _timerKey, TTime _timerDelay, void* timerPara=NULL);
+        virtual inline		   ~TTimeOutMsg();
 
-		CHAR*          getMsgName(){ return "TTimeOutMsg";};
-		TTimeOutMsg    &operator=(const TTimeOutMsg &r);
-		PTMsg      	   clone();
-		BOOL           operator == (TTimeOutMsg&);
+        CHAR*          getMsgName(){ return "TTimeOutMsg";};
+        TTimeOutMsg    &operator=(const TTimeOutMsg &r);
+        PTMsg      	   clone();
+        BOOL           operator == (TTimeOutMsg&);
 
-		INT            size();
+        INT            size();
 
-		void           print(ostrstream& st);
+        void           print(ostrstream& st);
 
 };
 
@@ -66,24 +66,24 @@ class TTimeOutMsg:public TMsg
 
 class TEventMsg:public TMsg
 {
-	public:
-		UINT           eventID;		//事件ID
-		UINT		   transID;		//事务ID
-		INT			   status;		//事件状态，一般在返回中提供
-		UINT             taskID;    //dest task id
+    public:
+        UINT           eventID;		//事件ID
+        UINT		   transID;		//事务ID
+        INT			   status;		//事件状态，一般在返回中提供
+        UINT             taskID;    //dest task id
         UINT             instID;    //dest inst id
         CStr		   eventInfo;	//事件信息
-		inline         TEventMsg();
-		virtual 	~TEventMsg() {};
+        inline         TEventMsg();
+        virtual 	~TEventMsg() {};
 
-		CHAR*          getMsgName(){ return "TEventMsg";};
-		TEventMsg     &operator=(const TEventMsg&r);
-		PTMsg			clone();
-		BOOL           operator == (TEventMsg&);
+        CHAR*          getMsgName(){ return "TEventMsg";};
+        TEventMsg     &operator=(const TEventMsg&r);
+        PTMsg			clone();
+        BOOL           operator == (TEventMsg&);
 
-		INT            size();
+        INT            size();
 
-		void           print(ostrstream& st);
+        void           print(ostrstream& st);
 };
 
 
@@ -92,39 +92,39 @@ class TEventMsg:public TMsg
 /////////////////////////////////////////////////////////
 inline TMsg::TMsg()
 {
-	sender.taskType= objtype_Invalid;
-	sender.taskID  = 0;
-	sender.instID  = 0;
+    sender.taskType= objtype_Invalid;
+    sender.taskID  = 0;
+    sender.instID  = 0;
 }
 
 
 inline TTimeOutMsg::TTimeOutMsg()
 {
-	timerMark                 = 0;
-	timerDelay                = 0;
-	timerKey                  = 0;
-	timerPara				  = NULL;
+    timerMark                 = 0;
+    timerDelay                = 0;
+    timerKey                  = 0;
+    timerPara				  = NULL;
 
 }
 
-inline TTimeOutMsg::TTimeOutMsg(TTimeMark _timerMark, TTimerKey _timerKey, TTime _timerDelay, void* _timerPara)
-	:timerMark(_timerMark),timerDelay(_timerDelay),timerKey(_timerKey),timerPara(_timerPara)
+    inline TTimeOutMsg::TTimeOutMsg(TTimeMark _timerMark, TTimerKey _timerKey, TTime _timerDelay, void* _timerPara)
+:timerMark(_timerMark),timerDelay(_timerDelay),timerKey(_timerKey),timerPara(_timerPara)
 {
 
 }
 
 inline TTimeOutMsg::~TTimeOutMsg()
 {
-	if(timerPara!=NULL) delete timerPara;
+    if(timerPara!=NULL) delete timerPara;
 }
 
 inline TEventMsg::TEventMsg()
 {
-	eventID                   = 0;
-	transID					  = 0;
+    eventID                   = 0;
+    transID					  = 0;
     taskID                    = 0;
     instID                    = 0;
-	status					  = 0;
+    status					  = 0;
 }
 
 

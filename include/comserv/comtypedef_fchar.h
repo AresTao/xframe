@@ -16,42 +16,42 @@ _CLASSDEF(CVarChar)
 
 class CFixedChar
 {
-private:
-	INT  m_length; //´Ë×Ö·û´®µÄÊµ¼Ê³¤¶È£¬ÒÔ'\0'½áÎ²ÅÐ¶Ï
-	INT  m_size;   //´Ë×Ö·ûÊý×éµÄ¹Ì¶¨×î´ó³¤¶È
+    private:
+        INT  m_length; //´Ë×Ö·û´®µÄÊµ¼Ê³¤¶È£¬ÒÔ'\0'½áÎ²ÅÐ¶Ï
+        INT  m_size;   //´Ë×Ö·ûÊý×éµÄ¹Ì¶¨×î´ó³¤¶È
 
-	CHAR *m_content;
+        CHAR *m_content;
 
-public:
+    public:
 
-	CFixedChar();
-	CFixedChar(INT size);
-	~CFixedChar(); 
-	CFixedChar(const CFixedChar &r);
-	CFixedChar &operator=(const CFixedChar &r);
-	CFixedChar &operator=(const CHAR* r);
-	CFixedChar &operator=(const CVarChar8 &r);
-	CFixedChar &operator=(const CVarChar16 &r);
-	CFixedChar &operator=(const CVarChar32 &r);
-	CFixedChar &operator=(const CVarChar64 &r);
-	CFixedChar &operator=(const CVarChar128 &r);
-	CFixedChar &operator=(const CVarChar256 &r);
-	CFixedChar &operator=(const CVarChar &r);
+        CFixedChar();
+        CFixedChar(INT size);
+        ~CFixedChar(); 
+        CFixedChar(const CFixedChar &r);
+        CFixedChar &operator=(const CFixedChar &r);
+        CFixedChar &operator=(const CHAR* r);
+        CFixedChar &operator=(const CVarChar8 &r);
+        CFixedChar &operator=(const CVarChar16 &r);
+        CFixedChar &operator=(const CVarChar32 &r);
+        CFixedChar &operator=(const CVarChar64 &r);
+        CFixedChar &operator=(const CVarChar128 &r);
+        CFixedChar &operator=(const CVarChar256 &r);
+        CFixedChar &operator=(const CVarChar &r);
 
-	BOOL operator == (const CFixedChar&);
+        BOOL operator == (const CFixedChar&);
 
-	BOOL setSize(INT size);//ÖØÐÂ·ÖÅä¿Õ¼ä
-	INT size() const ;	//´Ë×Ö·ûÊý×éµÄ¹Ì¶¨×î´ó³¤¶È£¬±à½âÂëÓÃ
-	INT length() const ;	//´Ë×Ö·ûÊý×éµÄÊµ¼Ê³¤¶È£¬ÒÔ'\0'½áÎ²ÅÐ¶Ï
+        BOOL setSize(INT size);//ÖØÐÂ·ÖÅä¿Õ¼ä
+        INT size() const ;	//´Ë×Ö·ûÊý×éµÄ¹Ì¶¨×î´ó³¤¶È£¬±à½âÂëÓÃ
+        INT length() const ;	//´Ë×Ö·ûÊý×éµÄÊµ¼Ê³¤¶È£¬ÒÔ'\0'½áÎ²ÅÐ¶Ï
 
-	CHAR* c_str() const; 
-	void set(const CHAR*,INT);
-	void set(const CHAR*);
+        CHAR* c_str() const; 
+        void set(const CHAR*,INT);
+        void set(const CHAR*);
 
-	INT encode( CHAR* &buff ) const;
-	INT decode( CHAR* &buff );
+        INT encode( CHAR* &buff ) const;
+        INT decode( CHAR* &buff );
 
-	void print(ostrstream &st);
+        void print(ostrstream &st);
 
 };
 

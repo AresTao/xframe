@@ -4,12 +4,12 @@
 
 #include "defs.h"  // _CLASSDEF() etc.
 #ifdef WIN32
-   #include <time.h>
-   #include <sys/timeb.h>
-   #include <windef.h>  // type definitions on windows,such as BOOL
-   #include <winsock2.h> // struct timeval
+#include <time.h>
+#include <sys/timeb.h>
+#include <windef.h>  // type definitions on windows,such as BOOL
+#include <winsock2.h> // struct timeval
 #else
-   #include <sys/time.h>
+#include <sys/time.h>
 
 #endif
 
@@ -29,11 +29,11 @@ typedef short int I16;
 typedef int I32;
 
 #ifdef WIN32
-   typedef long I64;
-   typedef unsigned long UI64;
+typedef long I64;
+typedef unsigned long UI64;
 #else
-   typedef long long I64;
-   typedef unsigned long long UI64;
+typedef long long I64;
+typedef unsigned long long UI64;
 #endif
 
 typedef unsigned char UI8;
@@ -93,10 +93,10 @@ typedef I8   TDateAndTime[LengthOfDateAndTime];
 
 struct TTimeFormatted
 {
-   I32 hour;
-   I32 minute;
-   I32 second;
-   I32 usec; //微秒
+    I32 hour;
+    I32 minute;
+    I32 second;
+    I32 usec; //微秒
 };
 
 #ifdef WIN32
@@ -120,36 +120,36 @@ typedef I32 TInteger4;
 #define code_emergency    1
 class CCode
 {
-public:
-   CCode()
-   {
-      flag = code_normal;
-      content=NULL;
-      length=0;
-   }
-   ~CCode()
-   {
-      //released by user. maybe the content is pointed to static variable.
-      //if(content)
-      //   delete content;
-      //content=NULL;
-   }
+    public:
+        CCode()
+        {
+            flag = code_normal;
+            content=NULL;
+            length=0;
+        }
+        ~CCode()
+        {
+            //released by user. maybe the content is pointed to static variable.
+            //if(content)
+            //   delete content;
+            //content=NULL;
+        }
 
-   void clear()
-   {
-      length=0;
-      if(content==NULL) return;
-      content[0]=0;
-   }
-   INT length;
-   CHAR* content;
-   UINT flag; //added by lxm. 2008.10.21
+        void clear()
+        {
+            length=0;
+            if(content==NULL) return;
+            content[0]=0;
+        }
+        INT length;
+        CHAR* content;
+        UINT flag; //added by lxm. 2008.10.21
 };
 
 typedef enum SCommState /*socket状态*/
 {
-   CLOSE   =0,
-   OPEN   =1
+    CLOSE   =0,
+    OPEN   =1
 } TCommState;
 
 //#ifndef _HP_aCC_NonAA
@@ -191,58 +191,58 @@ typedef UINT32 TTimeDelay;
 struct TTimeMarkExt
 {
 #define MAX_TIMER_NAME 32
-   TTimeMark  timerId;
-   CHAR       timerName[MAX_TIMER_NAME];
-   TTimeDelay timerDelay;
-   INT        resendNum;  //可以使用-1表示不停重发;
+    TTimeMark  timerId;
+    CHAR       timerName[MAX_TIMER_NAME];
+    TTimeDelay timerDelay;
+    INT        resendNum;  //可以使用-1表示不停重发;
 };
 
 
 struct TElapseTimeMark
 {
-   TElapseTimeMark()
-   {
-      dayMark=0;
-      hourMark=0;
-      hourTick=0;
-      oneMinuteMark=0;
-      oneMinuteTick=0;
-      doTimeStepTick=0;
-      doTimeStepMark=0;
-   }
-   I32 dayMark;
-   I32 hourMark;
-   I32 hourTick;
-   I32 oneMinuteMark;
-   I32 oneMinuteTick;
-   I32 doTimeStepTick;
-   I32 doTimeStepMark;
+    TElapseTimeMark()
+    {
+        dayMark=0;
+        hourMark=0;
+        hourTick=0;
+        oneMinuteMark=0;
+        oneMinuteTick=0;
+        doTimeStepTick=0;
+        doTimeStepMark=0;
+    }
+    I32 dayMark;
+    I32 hourMark;
+    I32 hourTick;
+    I32 oneMinuteMark;
+    I32 oneMinuteTick;
+    I32 doTimeStepTick;
+    I32 doTimeStepMark;
 };
 
 enum TUniProcessRole
 {
-   role_mp,
-   role_mrd,
-   role_mrdmp,
-   role_sc0,
-   role_scdaemon
+    role_mp,
+    role_mrd,
+    role_mrdmp,
+    role_sc0,
+    role_scdaemon
 };
 
 enum TProcessState
 {
-   process_init,
-   process_active,
-   process_noanswer,
-   process_down,
-   process_failed //多次重启仍然失败
+    process_init,
+    process_active,
+    process_noanswer,
+    process_down,
+    process_failed //多次重启仍然失败
 
 };
 
 enum TAlertType
 {
-   alert_msg,
-   alert_warning,
-   alert_error
+    alert_msg,
+    alert_warning,
+    alert_error
 };
 
 //最大网络适配器个数
@@ -253,31 +253,31 @@ enum TAlertType
 //网络适配器地址信息定义。通过调用getLocalHostAddress()返回（func.h)
 class TIfCfg
 {
-   public:
-   enum IFSTATUS {UNKOWN,PROMISC,UP,RUNNING,DOWN};
-   struct Sifcfg
-      {
-      CHAR name[16];
-      CHAR address[16];
-      IFSTATUS status;
-   };
-   Sifcfg interfaces[MAX_NET_INTERFACES];
-   INT size;
+    public:
+        enum IFSTATUS {UNKOWN,PROMISC,UP,RUNNING,DOWN};
+        struct Sifcfg
+        {
+            CHAR name[16];
+            CHAR address[16];
+            IFSTATUS status;
+        };
+        Sifcfg interfaces[MAX_NET_INTERFACES];
+        INT size;
 
-   TIfCfg()
-   {
-      size=0;
-   }
+        TIfCfg()
+        {
+            size=0;
+        }
 };
 
 #define memcpy_safe(DST, SRC, N) \
-   if (DST==0) DST = new char[N];\
-   else if (SRC==0) return *this; \
-   memcpy(DST, SRC, N);
+    if (DST==0) DST = new char[N];\
+else if (SRC==0) return *this; \
+memcpy(DST, SRC, N);
 
 #define memcpy_safec(DST, SRC, N) \
-   if (DST==0) DST = new char[N];\
-   else if (SRC!=0) memcpy(DST, SRC, N);
+    if (DST==0) DST = new char[N];\
+else if (SRC!=0) memcpy(DST, SRC, N);
 
 
 typedef UINT         TModuleType;       //模块类型的数据类型定义
@@ -314,15 +314,15 @@ typedef UINT         TIndexID;          //各种ID标识的数据类型定义
 
 class STuple
 {
-	public:
-		UINT     taskType;
-		UINT 	 taskID;
-		UINT 	 instID;
+    public:
+        UINT     taskType;
+        UINT 	 taskID;
+        UINT 	 instID;
 
-		INT size() { return sizeof(INT)+sizeof(INT)+sizeof(INT);}
-		BOOL  operator==(STuple&);
-		STuple    &operator=(const STuple &r);
-		void      print(ostrstream& st);
+        INT size() { return sizeof(INT)+sizeof(INT)+sizeof(INT);}
+        BOOL  operator==(STuple&);
+        STuple    &operator=(const STuple &r);
+        void      print(ostrstream& st);
 
 };
 
@@ -332,53 +332,53 @@ _CLASSDEF(TMsgPara);
 //消息参数基类，所有的消息参数都应该从这里派生
 class TMsgPara
 {
-   public:
-      TMsgPara(){};
-      virtual ~TMsgPara(){};
+    public:
+        TMsgPara(){};
+        virtual ~TMsgPara(){};
 
-      //子类必须实现之
-      virtual   INT size() { return 0;}
-      virtual   INT encode(CHAR* &buf) { return 0;}
-      virtual   INT decode(CHAR* &buf) { return 0;}
-      virtual   CHAR* getMsgNameStr() { return getMsgName(); }
-      virtual   CHAR* getMsgName(){ return "msgPara";}
-      virtual   void  print(ostrstream&)=0;
-      virtual   BOOL  operator==(TMsgPara&)=0; //将isEqual换成==操作符，By Long Xiangming. 2006.3.24
-      virtual   PTMsgPara cloneMsg(){ return NULL;}    //只在其直接子类如TUniNetMsg中实现，其他子类不须实现
-      virtual   PTMsgPara cloneCtrlMsg(){ return NULL;} //只在TUniNetMsg中实现，其他子类不须实现
-      int getIndent() {return 0;}//新加的函数，输出的时候用到了。
-      void incIndent(){}//新加的函数，输出的时候用到了。
-	  void decIndent(){}//新加的函数，输出的时候用到了。
+        //子类必须实现之
+        virtual   INT size() { return 0;}
+        virtual   INT encode(CHAR* &buf) { return 0;}
+        virtual   INT decode(CHAR* &buf) { return 0;}
+        virtual   CHAR* getMsgNameStr() { return getMsgName(); }
+        virtual   CHAR* getMsgName(){ return "msgPara";}
+        virtual   void  print(ostrstream&)=0;
+        virtual   BOOL  operator==(TMsgPara&)=0; //将isEqual换成==操作符，By Long Xiangming. 2006.3.24
+        virtual   PTMsgPara cloneMsg(){ return NULL;}    //只在其直接子类如TUniNetMsg中实现，其他子类不须实现
+        virtual   PTMsgPara cloneCtrlMsg(){ return NULL;} //只在TUniNetMsg中实现，其他子类不须实现
+        int getIndent() {return 0;}//新加的函数，输出的时候用到了。
+        void incIndent(){}//新加的函数，输出的时候用到了。
+        void decIndent(){}//新加的函数，输出的时候用到了。
 };
 
 
 
 inline BOOL  STuple::operator==(STuple& r)
 {
-	if(taskType==r.taskType && taskID==r.taskID && instID==r.instID) return TRUE;
-	else return FALSE;
+    if(taskType==r.taskType && taskID==r.taskID && instID==r.instID) return TRUE;
+    else return FALSE;
 
 
 }
 
 inline STuple  &STuple::operator=(const STuple &r)
 {
-	taskType = r.taskType;
-	taskID   = r.taskID;
-	instID   = r.instID;
-	return *this;
+    taskType = r.taskType;
+    taskID   = r.taskID;
+    instID   = r.instID;
+    return *this;
 
 }
 
 
 inline void	  STuple::print(ostrstream& st)
 {
-	st << "    $taskType  = ";
-	st << taskType << endl;
-	st << "    $taskID = ";
-	st << taskID << endl;
-	st << "    $instID   = ";
-	st << instID << endl;
+    st << "    $taskType  = ";
+    st << taskType << endl;
+    st << "    $taskID = ";
+    st << taskID << endl;
+    st << "    $instID   = ";
+    st << instID << endl;
 
 }
 

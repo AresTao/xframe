@@ -6,14 +6,14 @@ using namespace std;
 //数据编码类型
 enum TEncodingType
 {
-	data_encoding_default=0,
-	data_encoding_ascii=1,
-	data_encoding_ucs2=8,	//相当于unicode16
-	data_encoding_utf8=9,	//自定义（只在中间消息中存在。到SMPP时会被转换成gbk或ucs2）
-	data_encoding_gb18030=15,	//GBK=GB18030, 18030等同于GBK（到二级网关时不作转换，但编码类型填15）
-	data_encoding_gb2312=13,	//自定义，GBK的子集（到二级网关时不作转换，但编码类型填15）
-	data_encoding_gb13000=14,	//自定义，GBK的子集（到二级网关时不作转换，但编码类型填15）
-	data_encoding_big5=17,
+    data_encoding_default=0,
+    data_encoding_ascii=1,
+    data_encoding_ucs2=8,	//相当于unicode16
+    data_encoding_utf8=9,	//自定义（只在中间消息中存在。到SMPP时会被转换成gbk或ucs2）
+    data_encoding_gb18030=15,	//GBK=GB18030, 18030等同于GBK（到二级网关时不作转换，但编码类型填15）
+    data_encoding_gb2312=13,	//自定义，GBK的子集（到二级网关时不作转换，但编码类型填15）
+    data_encoding_gb13000=14,	//自定义，GBK的子集（到二级网关时不作转换，但编码类型填15）
+    data_encoding_big5=17,
 };
 
 char* itoa_character_set(TEncodingType type_uint);

@@ -2,5 +2,5 @@
 
 void getMsgFieldName(const char** p, CStr& fieldName, int& arrayIndex)
 {
-   fieldName.getFieldName(p, arrayIndex);
+    fieldName.getFieldName(p, arrayIndex);
 }

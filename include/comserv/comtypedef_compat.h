@@ -2,10 +2,10 @@
 #define XFRAME_COMPAT_H 
 
 /**
-   @file
-   This file is used to handle compatibility fixes/tweaks so reSIProcate can 
-   function on multiple platforms.
-*/
+  @file
+  This file is used to handle compatibility fixes/tweaks so reSIProcate can 
+  function on multiple platforms.
+  */
 
 #if defined(__INTEL_COMPILER ) && defined( __OPTIMIZE__ )
 #  undef __OPTIMIZE__ // wierd intel bug with ntohs and htons macros
@@ -48,12 +48,12 @@
 
 #if defined(__APPLE__) 
 #  if !defined(MAC_OS_X_VERSION_MIN_REQUIRED) || MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_2
-      // you don't include the SDK or you're running 10.3 or above
-      // note: this will fail on 10.2 if you don't include the SDK
+// you don't include the SDK or you're running 10.3 or above
+// note: this will fail on 10.2 if you don't include the SDK
 #     include <arpa/nameser_compat.h>
 #  else
-      // you include the SDK and you're running Mac OS 10.2 or below
-      typedef int socklen_t;
+// you include the SDK and you're running Mac OS 10.2 or below
+typedef int socklen_t;
 #  endif
 #  ifdef __MWERKS__ /* this is a <limits.h> bug filed with Apple, Radar# 3657629. */
 #    ifndef __SCHAR_MAX__ 
@@ -64,7 +64,7 @@
 
 #if defined(__SUNPRO_CC)
 #  if defined(_TIME_T)
-    using std::time_t;
+using std::time_t;
 #  endif
 #  include <time.h>
 #  include <memory.h>
@@ -97,7 +97,7 @@
 #endif
 
 #if defined(__QNX__) || defined(__sun) || defined(WIN32)
-  typedef unsigned int u_int32_t;
+typedef unsigned int u_int32_t;
 #endif
 
 // Mac OS X: UInt32 definition conflicts with the Mac OS SDK.
@@ -109,9 +109,9 @@ typedef unsigned int   UInt32;
 #endif
 
 #if defined( WIN32 )
-  typedef unsigned __int64 UInt64;
+typedef unsigned __int64 UInt64;
 #else
-  typedef unsigned long long UInt64;
+typedef unsigned long long UInt64;
 #endif
 //typedef struct { unsigned char octet[16]; }  UInt128;
 

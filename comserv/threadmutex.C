@@ -1,9 +1,9 @@
 /*
-namespace std
-{
-typedef wchar_t wint_t;
-typedef unsigned int size_t;
-}
+   namespace std
+   {
+   typedef wchar_t wint_t;
+   typedef unsigned int size_t;
+   }
 
 */
 #include <cassert>
@@ -23,11 +23,11 @@ Mutex::Mutex()
     int  rc = pthread_mutex_init(&mId,0);
     assert( rc == 0 );
 #else
-	// Note:  Windows Critical sections are recursive in nature and perhaps
-	//        this implementation calls for a non-recursive implementation
-	//        (since there also exists a RecursiveMutex class).  The effort
-	//        to make this non-recursive just doesn't make sense though. (SLG)
-	InitializeCriticalSection(&mId);
+    // Note:  Windows Critical sections are recursive in nature and perhaps
+    //        this implementation calls for a non-recursive implementation
+    //        (since there also exists a RecursiveMutex class).  The effort
+    //        to make this non-recursive just doesn't make sense though. (SLG)
+    InitializeCriticalSection(&mId);
 #endif
 }
 
@@ -39,12 +39,12 @@ Mutex::~Mutex ()
     assert( rc != EBUSY );  // currently locked 
     assert( rc == 0 );
 #else
-	DeleteCriticalSection(&mId);
+    DeleteCriticalSection(&mId);
 #endif
 }
 
 
-void
+    void
 Mutex::lock()
 {
 #ifndef WIN32
@@ -53,11 +53,11 @@ Mutex::lock()
     assert( rc != EDEADLK );
     assert( rc == 0 );
 #else
-	EnterCriticalSection(&mId);
+    EnterCriticalSection(&mId);
 #endif
 }
 
-void
+    void
 Mutex::unlock()
 {
 #ifndef WIN32
@@ -66,7 +66,7 @@ Mutex::unlock()
     assert( rc != EPERM );
     assert( rc == 0 );
 #else
-	LeaveCriticalSection(&mId);
+    LeaveCriticalSection(&mId);
 #endif
 }
 

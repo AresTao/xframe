@@ -7,15 +7,15 @@
 
 class TTaskThread: public TGeneralThread
 {
-public:
-	TTaskThread(TAbstractTask& task, const char* tname, int tLogType = File, int tLogLevel = Info, UINT inst = 0);
-	~TTaskThread();
-	
-	virtual void onstart();
-    	void process();
+    public:
+        TTaskThread(TAbstractTask& task, const char* tname, int tLogType = File, int tLogLevel = Info, UINT inst = 0);
+        ~TTaskThread();
 
-protected:
-	TAbstractTask&  mTask;
+        virtual void onstart();
+        void process();
+
+    protected:
+        TAbstractTask&  mTask;
 
 };
 

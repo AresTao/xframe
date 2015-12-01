@@ -112,12 +112,12 @@ int		_core_dump(int signo);
 //sig_action()函数将设置捕捉TSignalTable中catchEnabled为1的信号
 struct  TSignalTable
 {
-	int  catchEnabled; //通过此值设置系统将捕捉的信号：1-捕捉，0-不捕捉
-	int  sigaction;    //捕捉后的动作：1: 捕捉且执行指定函数（退出程序) 0: 捕捉但忽略(SIG_IGN) 2：捕捉且按系统缺省处理(SIG_DFL)
-	int  sigid;        //11
-	int  signo;        //SIGSEGV
-	char signame[64];  //SIGSEGV: Segmentation fault
-	int  canCoreDump;  //此值表示此信号是否会引起core dump,是此信号的一个属性，不可改变
+    int  catchEnabled; //通过此值设置系统将捕捉的信号：1-捕捉，0-不捕捉
+    int  sigaction;    //捕捉后的动作：1: 捕捉且执行指定函数（退出程序) 0: 捕捉但忽略(SIG_IGN) 2：捕捉且按系统缺省处理(SIG_DFL)
+    int  sigid;        //11
+    int  signo;        //SIGSEGV
+    char signame[64];  //SIGSEGV: Segmentation fault
+    int  canCoreDump;  //此值表示此信号是否会引起core dump,是此信号的一个属性，不可改变
 };  
 
 ///////////////////////////////////////

@@ -5,9 +5,9 @@
 
 enum LockType
 {
-   VOCAL_LOCK = 0,
-   VOCAL_READLOCK,
-   VOCAL_WRITELOCK
+    VOCAL_LOCK = 0,
+    VOCAL_READLOCK,
+    VOCAL_WRITELOCK
 };
 
 /**
@@ -15,31 +15,31 @@ enum LockType
   creation, and unlock on destruction. (ie, a scoped Lock)
 
   @see Mutex
-*/
+  */
 class Lock
 {
-   public:
-     /**
-	  @param	Lockable&	The object to Lock
-	  @param	LockType	one of VOCAL_LOCK, VOCAL_READLOCK, VOCAL_WRITELOCK
-	*/
-      Lock(Lockable &, LockType = VOCAL_LOCK);
-      virtual ~Lock();
+    public:
+        /**
+          @param	Lockable&	The object to Lock
+          @param	LockType	one of VOCAL_LOCK, VOCAL_READLOCK, VOCAL_WRITELOCK
+          */
+        Lock(Lockable &, LockType = VOCAL_LOCK);
+        virtual ~Lock();
 
-   private:
-      Lockable&   myLockable;
+    private:
+        Lockable&   myLockable;
 };
 
 class ReadLock : public Lock
 {
-   public:
-      ReadLock(Lockable &);
+    public:
+        ReadLock(Lockable &);
 };
 
 class WriteLock : public Lock
 {
-   public:
-      WriteLock(Lockable &);
+    public:
+        WriteLock(Lockable &);
 };
 
 

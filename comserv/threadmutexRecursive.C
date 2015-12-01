@@ -13,43 +13,43 @@
 #if defined(__INTEL_COMPILER)
 // !rk! hack, I'm not sure off hand why the Intel compiler can't find this
 extern int pthread_mutexattr_settype (pthread_mutexattr_t *__attr, int __kind)
-   __THROW;
+    __THROW;
 #endif
 
-// !abr! I can't find evidence that the Intel C++ Compiler has any issues
-// with the use of recursive mutexes. The need for this exception should
-// be re-verified and documented here.
+    // !abr! I can't find evidence that the Intel C++ Compiler has any issues
+    // with the use of recursive mutexes. The need for this exception should
+    // be re-verified and documented here.
 
-// .abr. OS X 10.2 is OS_MAJOR_VER 6. Prior to this, OS X did not support
-// recursive mutexes.
+    // .abr. OS X 10.2 is OS_MAJOR_VER 6. Prior to this, OS X did not support
+    // recursive mutexes.
 
 #if (defined( __APPLE__ ) && OS_MAJOR_VER < 6) || defined (__INTEL_COMPILER)
-// !cj! need to write apple/intel mutex stuff 
+    // !cj! need to write apple/intel mutex stuff 
 
 #warning "RecursiveMutex is not available on this platform yet."
 
 RecursiveMutex::RecursiveMutex()
 {
-   assert(0); 
+    assert(0); 
 }
 
 
 RecursiveMutex::~RecursiveMutex ()
 {
-   assert(0);
+    assert(0);
 }
 
 
-void
+    void
 RecursiveMutex::lock()
 {
-   assert(0); 
+    assert(0); 
 }
 
-void
+    void
 RecursiveMutex::unlock()
 {
-   assert(0); 
+    assert(0); 
 }
 
 #else
@@ -58,17 +58,17 @@ RecursiveMutex::unlock()
 RecursiveMutex::RecursiveMutex()
 {
 #ifndef WIN32
-   int rc = pthread_mutexattr_init(&mMutexAttr);
- #if defined(__linux__)
-   pthread_mutexattr_settype(&mMutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
- #else
-   pthread_mutexattr_settype(&mMutexAttr, PTHREAD_MUTEX_RECURSIVE);
- #endif
-
-   rc = pthread_mutex_init(&mId, &mMutexAttr);
-   assert( rc == 0 );
+    int rc = pthread_mutexattr_init(&mMutexAttr);
+#if defined(__linux__)
+    pthread_mutexattr_settype(&mMutexAttr, PTHREAD_MUTEX_RECURSIVE_NP);
 #else
-	InitializeCriticalSection(&mId);
+    pthread_mutexattr_settype(&mMutexAttr, PTHREAD_MUTEX_RECURSIVE);
+#endif
+
+    rc = pthread_mutex_init(&mId, &mMutexAttr);
+    assert( rc == 0 );
+#else
+    InitializeCriticalSection(&mId);
 #endif
 }
 
@@ -81,12 +81,12 @@ RecursiveMutex::~RecursiveMutex ()
     assert( rc == 0 );
     rc = pthread_mutexattr_destroy(&mMutexAttr);
 #else
-	DeleteCriticalSection(&mId);
+    DeleteCriticalSection(&mId);
 #endif
 }
 
 
-void
+    void
 RecursiveMutex::lock()
 {
 #ifndef WIN32
@@ -95,11 +95,11 @@ RecursiveMutex::lock()
     assert( rc != EDEADLK );
     assert( rc == 0 );
 #else
-	EnterCriticalSection(&mId);
+    EnterCriticalSection(&mId);
 #endif
 }
 
-void
+    void
 RecursiveMutex::unlock()
 {
 #ifndef WIN32
@@ -108,7 +108,7 @@ RecursiveMutex::unlock()
     assert( rc != EPERM );
     assert( rc == 0 );
 #else
-	LeaveCriticalSection(&mId);
+    LeaveCriticalSection(&mId);
 #endif
 }
 

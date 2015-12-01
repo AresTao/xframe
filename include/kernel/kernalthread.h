@@ -6,15 +6,15 @@
 _CLASSDEF(TFRAMEControl);
 class TKernalThread: public TGeneralThread
 {
-public:
-	TKernalThread(TFRAMEControl& kn);
-	~TKernalThread();
+    public:
+        TKernalThread(TFRAMEControl& kn);
+        ~TKernalThread();
 
         void process();
-	void onstart();
+        void onstart();
 
-protected:
-	TFRAMEControl& mKn;
+    protected:
+        TFRAMEControl& mKn;
 };
 
 #endif

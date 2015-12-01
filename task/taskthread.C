@@ -1,8 +1,8 @@
 #include "info.h"
 #include "taskthread.h"
 
-TTaskThread::TTaskThread(TAbstractTask& task, const char* tname,int tLogType, int tLogLevel, UINT inst)
-	:mTask(task),TGeneralThread(tname, tLogType, tLogLevel, inst)
+    TTaskThread::TTaskThread(TAbstractTask& task, const char* tname,int tLogType, int tLogLevel, UINT inst)
+:mTask(task),TGeneralThread(tname, tLogType, tLogLevel, inst)
 {
 }
 
@@ -11,34 +11,34 @@ TTaskThread::~TTaskThread()
 
 }
 
-void
+    void
 TTaskThread::onstart()
 {
-	//if(env.logLevel!=mTask.logLevel) env.logLevel=mTask.logLevel;
-	//if(env.logType!=mTask.logType) env.logType=mTask.logType;
+    //if(env.logLevel!=mTask.logLevel) env.logLevel=mTask.logLevel;
+    //if(env.logType!=mTask.logType) env.logType=mTask.logType;
 }
 
-void
+    void
 TTaskThread::process()
 {
-	int i;
-	try
-	{
-		i=10;
-		while(i)
-		{
+    int i;
+    try
+    {
+        i=10;
+        while(i)
+        {
             //UniDEBUG("task %d Thread Loops", mTask.getTaskId());
-			mTask.process();
-			i--;
+            mTask.process();
+            i--;
             //		tosleep(10); //to sleep 1 microseconds
-		}
-		//UniDEBUG("task %d Thread Loops 1000 times.", mTask.getTaskId());
-		tosleep(1);
-	}
+        }
+        //UniDEBUG("task %d Thread Loops 1000 times.", mTask.getTaskId());
+        tosleep(1);
+    }
 
-	catch (exception& e)
-	{
-		UniERROR("Unhandled exception: %s" ,e.what());
-	}
+    catch (exception& e)
+    {
+        UniERROR("Unhandled exception: %s" ,e.what());
+    }
 }
 
