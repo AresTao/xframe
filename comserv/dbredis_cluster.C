@@ -30,12 +30,12 @@ static inline std::string to_upper(const std::string& in) {
 
 CDBRedisCluster::CDBRedisCluster():CDB(), load_slots_asap_(false), errno_(E_OK)
 {
-	mDBAddr="localhost";
-	mDBPort=6379; //use the default port of redis.
+    mDBAddr="localhost";
+    mDBPort=6379; //use the default port of redis.
 
-	mTimeout={ 1, 500000 }; // 1.5 seconds
-	
-	alreadyInit = FALSE;
+    mTimeout={ 1, 500000 }; // 1.5 seconds
+
+    alreadyInit = FALSE;
 }
 
 CDBRedisCluster::~CDBRedisCluster()
@@ -43,15 +43,15 @@ CDBRedisCluster::~CDBRedisCluster()
 }
 INT  CDBRedisCluster::connDB(const CHAR* uid,const CHAR* pwd,const CHAR* dbsv)
 {
-        if (alreadyInit) { disConnDB(); }
+    if (alreadyInit) { disConnDB(); }
 
-        alreadyInit=FALSE;
-        return 0;
+    alreadyInit=FALSE;
+    return 0;
 }
 
 void CDBRedisCluster::disConnDB()
 {
-	alreadyInit=FALSE;
+    alreadyInit=FALSE;
 }
 /////////////////////////////////////////////////////////
 // Function	connDB
@@ -61,28 +61,28 @@ void CDBRedisCluster::disConnDB()
 ////////////////////////////////////////////////////////////
 INT CDBRedisCluster::connDB(const CHAR* uid,const CHAR* pwd,const CHAR* dbsv, const CHAR* host, INT port)
 {
-	if ( host == "") mDBAddr="localhost";
-	else mDBAddr=host;
-	
-	if( port<=0)  mDBPort=6379;
-	else mDBPort=port;
-      
-        //host string is insist of multiple ip address. Like 127.0.0.1:6379,127.0.0.1:6380 ...
-        int res = parse_startup(host);
+    if ( host == "") mDBAddr="localhost";
+    else mDBAddr=host;
 
-        UniINFO("Redis cluster nodes size is %d", res);
-	if( res < 0 ) {
-                UniERROR("redis init error. 'dbhost' in etc/CallServer_config.xml maybe wrong.");
-		return -1;
-	}
-	slots_.resize( HASH_SLOTS );
+    if( port<=0)  mDBPort=6379;
+    else mDBPort=port;
 
-        if (load_slots_asap_)
-        {
-            load_slots_cache();
-        }
+    //host string is insist of multiple ip address. Like 127.0.0.1:6379,127.0.0.1:6380 ...
+    int res = parse_startup(host);
 
-        return 1;
+    UniINFO("Redis cluster nodes size is %d", res);
+    if( res < 0 ) {
+        UniERROR("redis init error. 'dbhost' in etc/CallServer_config.xml maybe wrong.");
+        return -1;
+    }
+    slots_.resize( HASH_SLOTS );
+
+    if (load_slots_asap_)
+    {
+        load_slots_cache();
+    }
+
+    return 1;
 }
 
 std::ostringstream& CDBRedisCluster::set_error(ErrorE e) {
@@ -131,9 +131,9 @@ int CDBRedisCluster::parse_startup(const char *startup) {
         else
             break;
     }while(1);
-    
+
     free( tmp );
-    
+
     return startup_nodes_.size();
 }
 
@@ -143,7 +143,7 @@ int CDBRedisCluster::load_slots_cache() {
     int count = 0;
     redisReply *reply, *subr, *innr;
     NodePoolType newnodes;
-    
+
     NodePoolIter citer = startup_nodes_.begin();
     for(; citer!=startup_nodes_.end(); citer++) {
 
@@ -168,9 +168,9 @@ int CDBRedisCluster::load_slots_cache() {
 
             subr = reply->element[i];
             if( subr->elements<3
-                || subr->element[0]->type!=REDIS_REPLY_INTEGER
-                || subr->element[1]->type!=REDIS_REPLY_INTEGER 
-                || subr->element[2]->type!=REDIS_REPLY_ARRAY )
+                    || subr->element[0]->type!=REDIS_REPLY_INTEGER
+                    || subr->element[1]->type!=REDIS_REPLY_INTEGER 
+                    || subr->element[2]->type!=REDIS_REPLY_ARRAY )
                 continue;
 
             start = subr->element[0]->integer;
@@ -178,8 +178,8 @@ int CDBRedisCluster::load_slots_cache() {
             innr = subr->element[2];
 
             if( innr->elements<2 
-                || innr->element[0]->type!=REDIS_REPLY_STRING 
-                || innr->element[1]->type!=REDIS_REPLY_INTEGER )
+                    || innr->element[0]->type!=REDIS_REPLY_STRING 
+                    || innr->element[1]->type!=REDIS_REPLY_INTEGER )
                 continue;
 
             NodeInfoType node ;
@@ -318,7 +318,7 @@ INT CDBRedisCluster::execSQL2(const char* format, va_list ap)
             }
 
         }
-	if( !c ) {
+        if( !c ) {
 
             ConnectionsCIter citer = connections_.find( node );
             if( citer==connections_.end() ) { 
@@ -347,30 +347,30 @@ INT CDBRedisCluster::execSQL2(const char* format, va_list ap)
     if( !reply ) 
     {//next ttl
 
-	    redisFree( c );
-	    connections_.erase( node );
-	    try_random_node = true;//try random next ttl
+        redisFree( c );
+        connections_.erase( node );
+        try_random_node = true;//try random next ttl
 
     } else if( reply->type==REDIS_REPLY_ERROR 
-		    &&(!strncmp(reply->str,"MOVED",5) || !strcmp(reply->str,"ASK")) ) { //next ttl
+            &&(!strncmp(reply->str,"MOVED",5) || !strcmp(reply->str,"ASK")) ) { //next ttl
 
-	    char *p = reply->str, *s; 
-	    s = strchr(p,' ');      /* MOVED[S]3999 127.0.0.1:6381 */
-	    p = strchr(s+1,' ');    /* MOVED[S]3999[P]127.0.0.1:6381 */
-	    *p = '\0';
-	    slot = atoi(s+1);
-	    s = strchr(p+1,':');    /* MOVED 3999[P]127.0.0.1[S]6381 */
-	    *s = '\0';
-	    slots_[slot].host = p+1;
-	    slots_[slot].port = atoi(s+1);
+        char *p = reply->str, *s; 
+        s = strchr(p,' ');      /* MOVED[S]3999 127.0.0.1:6381 */
+        p = strchr(s+1,' ');    /* MOVED[S]3999[P]127.0.0.1:6381 */
+        *p = '\0';
+        slot = atoi(s+1);
+        s = strchr(p+1,':');    /* MOVED 3999[P]127.0.0.1[S]6381 */
+        *s = '\0';
+        slots_[slot].host = p+1;
+        slots_[slot].port = atoi(s+1);
 
-	    load_slots_asap_ = true;//cluster nodes must have being changed, load slots cache as soon as possible.
-	    re = 0;
+        load_slots_asap_ = true;//cluster nodes must have being changed, load slots cache as soon as possible.
+        re = 0;
     } else {
 
-	    freeResult();   
-	    re=analystsResult(reply);
-	    freeReplyObject(reply);
+        freeResult();   
+        re=analystsResult(reply);
+        freeReplyObject(reply);
 
     }
 
@@ -385,7 +385,7 @@ INT CDBRedisCluster::execSQL1(const char* pcSQLStmt)
     redisContext *c = NULL;
     redisReply *reply = NULL;
     bool try_random_node = true;
- 
+
     set_error(E_OK); 
 
     if( load_slots_asap_ ) {
@@ -399,11 +399,11 @@ INT CDBRedisCluster::execSQL1(const char* pcSQLStmt)
     if (strlen(pcSQLStmt) >= MAX_STMT_LEN)
     {
         strcpy(m_pcErrMsg , (CHAR*)"Too Long Statement(beyond 1024 bytes)");
-	re = 0;
+        re = 0;
     }
 
     while( ttl>0 ) {
-	ttl--;
+        ttl--;
         c = NULL;
 
         if( try_random_node ) {
@@ -433,7 +433,7 @@ INT CDBRedisCluster::execSQL1(const char* pcSQLStmt)
             }
 
         }
-        
+
         if( !c ) {
 
             ConnectionsCIter citer = connections_.find( node );
@@ -457,182 +457,182 @@ INT CDBRedisCluster::execSQL1(const char* pcSQLStmt)
         } else {
             break;
         }
-   }    
+    }    
 
-   reply = (redisReply *)redisCommand(c, pcSQLStmt);
-   if( !reply ) 
-   {//next ttl
+    reply = (redisReply *)redisCommand(c, pcSQLStmt);
+    if( !reply ) 
+    {//next ttl
 
-	   redisFree( c );
-	   connections_.erase( node );
-	   try_random_node = true;//try random next ttl
+        redisFree( c );
+        connections_.erase( node );
+        try_random_node = true;//try random next ttl
 
-   } else if( reply->type==REDIS_REPLY_ERROR 
-		   &&(!strncmp(reply->str,"MOVED",5) || !strcmp(reply->str,"ASK")) ) { //next ttl
+    } else if( reply->type==REDIS_REPLY_ERROR 
+            &&(!strncmp(reply->str,"MOVED",5) || !strcmp(reply->str,"ASK")) ) { //next ttl
 
-	   char *p = reply->str, *s; 
-	   s = strchr(p,' ');      /* MOVED[S]3999 127.0.0.1:6381 */
-	   p = strchr(s+1,' ');    /* MOVED[S]3999[P]127.0.0.1:6381 */
-	   *p = '\0';
-	   slot = atoi(s+1);
-	   s = strchr(p+1,':');    /* MOVED 3999[P]127.0.0.1[S]6381 */
-	   *s = '\0';
-	   slots_[slot].host = p+1;
-	   slots_[slot].port = atoi(s+1);
+        char *p = reply->str, *s; 
+        s = strchr(p,' ');      /* MOVED[S]3999 127.0.0.1:6381 */
+        p = strchr(s+1,' ');    /* MOVED[S]3999[P]127.0.0.1:6381 */
+        *p = '\0';
+        slot = atoi(s+1);
+        s = strchr(p+1,':');    /* MOVED 3999[P]127.0.0.1[S]6381 */
+        *s = '\0';
+        slots_[slot].host = p+1;
+        slots_[slot].port = atoi(s+1);
 
-	   load_slots_asap_ = true;//cluster nodes must have being changed, load slots cache as soon as possible.
-	   re = 0;
-   } else {
-	   freeResult();   
-	   re=analystsResult(reply);
-	   freeReplyObject(reply);
-   }
+        load_slots_asap_ = true;//cluster nodes must have being changed, load slots cache as soon as possible.
+        re = 0;
+    } else {
+        freeResult();   
+        re=analystsResult(reply);
+        freeReplyObject(reply);
+    }
 
-   return re;
+    return re;
 }
 
 INT CDBRedisCluster::analystsResult(redisReply *reply)
 {
-	INT re=0;
-	if(reply!=NULL)
-	{
-		if(reply->type == REDIS_REPLY_STATUS)
-		{
-			//调用的是set，返回set状态
-			if(strcasecmp(reply->str,"OK") == 0)
-			{
-				//返回成功
-				m_pSelectResult-> rowNum  = 0;
-				re=1;
-			}
-			else
-			{
-				m_pSelectResult-> rowNum  = 0;
-				strcpy(m_pcErrMsg , (CHAR*)"redisReply.type=REDIS_REPLY_STATUS! rsp!=OK.");
-				re=0;
-			}
-		}
-		else if(reply->type == REDIS_REPLY_STRING)
-		{
-			//返回了一个字符串型值
-			TRow    *pRowTemp = new TRow;
-			TField  fieldTemp;
-			fieldTemp.isNull = FALSE;
-			fieldTemp.type = T_STRING;
-			strncpy(fieldTemp.value.stringValue,reply->str,reply->len+1);
-			pRowTemp->arrayField[0] = fieldTemp;
-			m_pSelectResult->pRows = pRowTemp;
-			pRowTemp->next = NULL;
-			m_pSelectResult-> rowNum  = 1;
-	        m_pSelectResult-> fieldNum = 1;
-			re=1;							
-		}
-		else if(reply->type == REDIS_REPLY_INTEGER)
-		{
-			//返回了一个整形值
-			TRow    *pRowTemp = new TRow;
-			TField  fieldTemp;
-			fieldTemp.isNull = FALSE;
-			fieldTemp.type = T_LONGLONG;
-			fieldTemp.value.longlongValue=reply->integer;
-			pRowTemp->arrayField[0] = fieldTemp;
-			m_pSelectResult->pRows = pRowTemp;
-			pRowTemp->next = NULL;
-			m_pSelectResult-> rowNum  = 1;
-	        m_pSelectResult-> fieldNum = 1;
-			re=1;		
-		}
-		else if(reply->type == REDIS_REPLY_ARRAY)
-		{
-			TRow    *pRowTemp = NULL;
-			TRow	*pRowSwap = NULL;
-			int		countNilElement=0;
-				//返回数组，认为是有多个返回记录
-			for (int i = 0; i < reply->elements; i++) 
-			{
-				pRowTemp = new TRow;
-				if (reply->element[i]->type == REDIS_REPLY_INTEGER )
-				{
-					TField  fieldTemp;
-					fieldTemp.isNull = FALSE;
-					fieldTemp.type = T_LONGLONG;
-					fieldTemp.value.longlongValue=reply->element[i]->integer;
-					pRowTemp->arrayField[0] = fieldTemp;
-				
-				}
-				else if(reply->element[i]->type == REDIS_REPLY_STRING)
-				{
-					TField  fieldTemp;
-					fieldTemp.isNull = FALSE;
-					fieldTemp.type = T_STRING;
-					strncpy(fieldTemp.value.stringValue,reply->element[i]->str,reply->element[i]->len+1);
-					pRowTemp->arrayField[0] = fieldTemp;
-				}
-				else
-				{
-					//返回其他，则认为是空值
-					TField  fieldTemp;
-					fieldTemp.isNull = TRUE;
-					fieldTemp.type = T_STRING;
-					fieldTemp.value.stringValue[0]=0;
-					pRowTemp->arrayField[0] = fieldTemp;
-					countNilElement++; //统计空元素个数 by ZhangZeng
-				}
-				
-				if ( i == 0)
-				{
-					m_pSelectResult->pRows = pRowTemp;
-					pRowSwap = pRowTemp;
-					pRowTemp->next = NULL;
-				}
-				else
-				{
-					pRowSwap ->next = pRowTemp;
-					pRowTemp->next  = NULL;
-					pRowSwap = pRowTemp;
-				}
-			}
-			
-			if(countNilElement<reply->elements)
-			{
-				m_pSelectResult-> rowNum  = reply->elements;
-				m_pSelectResult-> fieldNum = 1;
-			}
-			else //数组元素全部为空则为无效匹配 by ZhangZeng
-			{
-				m_pSelectResult-> rowNum = 0;
-			}
-			re=1;
-		}
-		else if(reply->type == REDIS_REPLY_NIL)
-		{
-			//返回空，语句无匹配结果
-			m_pSelectResult-> rowNum  = 0;
-			re=1;
-		}
-		else if(reply->type == REDIS_REPLY_ERROR)
-		{
-			//返回失败
-			strcpy(m_pcErrMsg , (CHAR*)"redisReply.type=REDIS_REPLY_ERROR!");
-			re=0;
-		}
-		else
-		{
-			strcpy(m_pcErrMsg , (CHAR*)"redisReply.type=UNKNOWEN!");
-			re=0;
-		}
-	}
-	else
-	{
-		re=0;
-	}
+    INT re=0;
+    if(reply!=NULL)
+    {
+        if(reply->type == REDIS_REPLY_STATUS)
+        {
+            //调用的是set，返回set状态
+            if(strcasecmp(reply->str,"OK") == 0)
+            {
+                //返回成功
+                m_pSelectResult-> rowNum  = 0;
+                re=1;
+            }
+            else
+            {
+                m_pSelectResult-> rowNum  = 0;
+                strcpy(m_pcErrMsg , (CHAR*)"redisReply.type=REDIS_REPLY_STATUS! rsp!=OK.");
+                re=0;
+            }
+        }
+        else if(reply->type == REDIS_REPLY_STRING)
+        {
+            //返回了一个字符串型值
+            TRow    *pRowTemp = new TRow;
+            TField  fieldTemp;
+            fieldTemp.isNull = FALSE;
+            fieldTemp.type = T_STRING;
+            strncpy(fieldTemp.value.stringValue,reply->str,reply->len+1);
+            pRowTemp->arrayField[0] = fieldTemp;
+            m_pSelectResult->pRows = pRowTemp;
+            pRowTemp->next = NULL;
+            m_pSelectResult-> rowNum  = 1;
+            m_pSelectResult-> fieldNum = 1;
+            re=1;							
+        }
+        else if(reply->type == REDIS_REPLY_INTEGER)
+        {
+            //返回了一个整形值
+            TRow    *pRowTemp = new TRow;
+            TField  fieldTemp;
+            fieldTemp.isNull = FALSE;
+            fieldTemp.type = T_LONGLONG;
+            fieldTemp.value.longlongValue=reply->integer;
+            pRowTemp->arrayField[0] = fieldTemp;
+            m_pSelectResult->pRows = pRowTemp;
+            pRowTemp->next = NULL;
+            m_pSelectResult-> rowNum  = 1;
+            m_pSelectResult-> fieldNum = 1;
+            re=1;		
+        }
+        else if(reply->type == REDIS_REPLY_ARRAY)
+        {
+            TRow    *pRowTemp = NULL;
+            TRow	*pRowSwap = NULL;
+            int		countNilElement=0;
+            //返回数组，认为是有多个返回记录
+            for (int i = 0; i < reply->elements; i++) 
+            {
+                pRowTemp = new TRow;
+                if (reply->element[i]->type == REDIS_REPLY_INTEGER )
+                {
+                    TField  fieldTemp;
+                    fieldTemp.isNull = FALSE;
+                    fieldTemp.type = T_LONGLONG;
+                    fieldTemp.value.longlongValue=reply->element[i]->integer;
+                    pRowTemp->arrayField[0] = fieldTemp;
 
-	return re;		
+                }
+                else if(reply->element[i]->type == REDIS_REPLY_STRING)
+                {
+                    TField  fieldTemp;
+                    fieldTemp.isNull = FALSE;
+                    fieldTemp.type = T_STRING;
+                    strncpy(fieldTemp.value.stringValue,reply->element[i]->str,reply->element[i]->len+1);
+                    pRowTemp->arrayField[0] = fieldTemp;
+                }
+                else
+                {
+                    //返回其他，则认为是空值
+                    TField  fieldTemp;
+                    fieldTemp.isNull = TRUE;
+                    fieldTemp.type = T_STRING;
+                    fieldTemp.value.stringValue[0]=0;
+                    pRowTemp->arrayField[0] = fieldTemp;
+                    countNilElement++; //统计空元素个数 by ZhangZeng
+                }
+
+                if ( i == 0)
+                {
+                    m_pSelectResult->pRows = pRowTemp;
+                    pRowSwap = pRowTemp;
+                    pRowTemp->next = NULL;
+                }
+                else
+                {
+                    pRowSwap ->next = pRowTemp;
+                    pRowTemp->next  = NULL;
+                    pRowSwap = pRowTemp;
+                }
+            }
+
+            if(countNilElement<reply->elements)
+            {
+                m_pSelectResult-> rowNum  = reply->elements;
+                m_pSelectResult-> fieldNum = 1;
+            }
+            else //数组元素全部为空则为无效匹配 by ZhangZeng
+            {
+                m_pSelectResult-> rowNum = 0;
+            }
+            re=1;
+        }
+        else if(reply->type == REDIS_REPLY_NIL)
+        {
+            //返回空，语句无匹配结果
+            m_pSelectResult-> rowNum  = 0;
+            re=1;
+        }
+        else if(reply->type == REDIS_REPLY_ERROR)
+        {
+            //返回失败
+            strcpy(m_pcErrMsg , (CHAR*)"redisReply.type=REDIS_REPLY_ERROR!");
+            re=0;
+        }
+        else
+        {
+            strcpy(m_pcErrMsg , (CHAR*)"redisReply.type=UNKNOWEN!");
+            re=0;
+        }
+    }
+    else
+    {
+        re=0;
+    }
+
+    return re;		
 }
 
 PTSelectResult CDBRedisCluster::getSelectResult()
 {
-       return m_pSelectResult;
+    return m_pSelectResult;
 }
 
 /////////////////////////////////////////////////////////
@@ -643,16 +643,16 @@ PTSelectResult CDBRedisCluster::getSelectResult()
 //////////////////////////////////////////////////////////
 INT CDBRedisCluster::getRowCount()
 {
-   return m_pSelectResult-> rowNum;
+    return m_pSelectResult-> rowNum;
 }
 
 BOOL CDBRedisCluster::ping()
 {
-	if(alreadyInit)
-	{
-		if(execSQL1("ping"))  return TRUE;
-	}
-	
-	return FALSE;
+    if(alreadyInit)
+    {
+        if(execSQL1("ping"))  return TRUE;
+    }
+
+    return FALSE;
 }
 
