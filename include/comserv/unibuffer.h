@@ -1,4 +1,3 @@
-
 #ifndef __UNIBUFFER_H_
 #define __UNIBUFFER_H_
 
@@ -9,7 +8,6 @@ template <class type> class TBuffer
         TBuffer(int bufferSize);
         typedef int(type::*pfFunc)(void *dst, const void *src, unsigned int length);
 
-        //TBuffer(int bufferSize, int type::popFunction(void *dst, const void *src, unsigned int length), int type::pushFunction(void *dst, const void *src, unsigned int length));
         TBuffer(int bufferSize, type *master, pfFunc popFunction, pfFunc pushFunction);
         ~TBuffer();
 
@@ -35,8 +33,6 @@ template <class type> class TBuffer
         int m_filledLength;
         int m_freeLength;
 
-        //int(type::*popFromBuff)(void *dst, const void *src, unsigned int length);
-        //int(type::*pushIntoBuff)(void *dst, const void *src, unsigned int length);
         pfFunc popFromBuff;
         pfFunc pushIntoBuff;
 
@@ -91,7 +87,6 @@ template <class type> TBuffer<type>::TBuffer(int bufferSize)
 }
 
 template <class type>
-//TBuffer<type>::TBuffer(int bufferSize, int type::popFunction(void *dst, const void *src, unsigned int length), int type::pushFunction(void *dst, const void *src, unsigned int length))
 TBuffer<type>::TBuffer(int bufferSize, type *master, pfFunc popFunction,
         pfFunc pushFunction)
 {
