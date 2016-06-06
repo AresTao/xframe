@@ -16,8 +16,6 @@
 #include "comconst.h"
 #include "env.h"
 
-//========================================
-//告警输出等级，与 syslog 保持一致
 #ifdef WIN32
 #define LOG_DEBUG  	7
 #define LOG_INFO	6
@@ -29,7 +27,6 @@
 #define LOG_EMERG	0
 #endif
 
-//LogLevel向字符串的转化
 const char cLogLevel[][15]={"[LOG_EMERG]","[LOG_ALERT]","[LOG_CRIT]","[LOG_ERR]","[LOG_WARNING]","[LOG_NOTICE]","[LOG_INFO]","[LOG_DEBUG]"};
 
 enum sLogType
@@ -50,31 +47,13 @@ enum sLogLevel
 typedef enum sLogType 	LogType;
 typedef enum sLogLevel	LogLevel;
 
-//初始化日志，并设置输出方式
-//	输出方式：	type
-//				CInfo::LogType::Cout   屏幕
-//				CInfo::LogType::File   文件
-//	日志级别：	level
-//				CInfo::LogLevel::Err   错误日志
-//				CInfo::LogLevel::Info  日常运行信息日志
-//				CInfo::LogLevel::Debug 调试信息日志
-//	日志文件大小：	单位M，默认500M
-//	日志文件前缀：	logFileName（日志文件前缀，默认UNI.INFO，日志名字形式：UNI.INFO.20110210.AppName.log）
-//					如果文件超过预期的大小，则将旧的文件名字修改为 UNI.INFO.20110210.AppName.log.时间
 void InitLogInfo(LogType type, LogLevel level, int logFileLength=0, const char* logFileName = 0);
 
-//设置日志输出级别
-//	日志级别：	level
-//				CInfo::LogLevel::Err   错误日志
-//				CInfo::LogLevel::Info  日常运行信息日志
-//				CInfo::LogLevel::Debug 调试信息日志
 void setLevel(LogLevel level);
 void setType(LogType type);
 void setFileName(char* logFileName);
 void setFileLength(int logFileLength);
 
-
-//全局设置
 #ifndef  _SINGLE_THREAD
 static  Mutex           g_loginfoMutex;
 #endif
@@ -82,17 +61,11 @@ static  LogLevel        g_logLevel;
 static  LogType         g_logType;
 static  char            g_logFileName[256];
 static  int             g_logFileMaxLength;     //10~10000 10M~10G
-//g_logFileName 和 g_logFileMaxLength 只能在启动的时候设置
 
-
-//如果ame有联接，要判断是不是输出到ame，这部分比较复杂，要根据线程id输出指定线程的log
-//以后需修改为按照线程id设置tty输出
 void toAme(const char *s);
 
-//输出到文件
 void toPrint(const char *s, const char* appName);
 
-//输出到屏幕
 void toCout(const char *s);
 
 #define LogPRINT(args_)\
@@ -125,13 +98,6 @@ void toCout(const char *s);
     if(g_logType<=Both) toCout(uniLogStr.str());\
     uniLogStr.freeze(0);\
 }
-
-//	日志输出方法
-//		UniDEBUG 	调试信息输出
-//		UniINFO		运行信息输出
-//		UniERROR	错误信息输出
-//		UniDEBUG( "error info %s, error info2 %d", mTemp1, mTemp2);
-//		LogDEBUG( << "error info" << mTemp1 << "error info2" << mTemp2 <<std::endl);
 
 #define LogDEBUG(args_)\
 {\

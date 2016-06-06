@@ -1,7 +1,7 @@
 #ifndef _ENV_H
 #define _ENV_H
 
-#include <stdlib.h>     //include getenv()
+#include <stdlib.h>     
 #include <stdio.h>
 
 #include <string.h>
@@ -97,26 +97,22 @@ class TEnv
         TiXmlElement* 	root;
         TiXmlElement*	timerrsc;
 
-        TDBEnv 			mDBEnv;
-        int				mLogType;			//Log类型
-        int				mLogLevel;			//Log等级
-        CStr            mThreadName;        //线程名
+        TDBEnv 		mDBEnv;
+        int		mLogType;
+        int		mLogLevel;
+        CStr            mThreadName;
 
-        int				mLogToSyslog;		//输出到syslog开关，默认不输出
-        int				mSyslogTaskID;		//如果打开了syslog开环，需要设置syslog的taskid
+        int		mLogToSyslog;		
+        int		mSyslogTaskID;		
         BOOL  loadCommonEnv(TiXmlElement* root);
 
     public:
 
         TEnv();
         ~TEnv();
-        //加载配置文件
         UINT load();
-        //继承的类需要自行设置如何加载自定义配置
         virtual BOOL onLoad() {return TRUE;}
-        //配置内容列表
         void list(CStr& result);
-        //继承的类需自行设置如何显示配置
         virtual void onList(CStr& result) {return;}
 
         virtual int getLogType() { return mLogType;}
@@ -203,7 +199,6 @@ struct GeneralThreadEnv{
     int logLevel;
 };
 
-//这个参数在系统启动的时候初始化，用于加载系统的配置文件路径，在程序其他任何地方都不能修改，以避免线程冲突
 extern char*	appName;
 
 

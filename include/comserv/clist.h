@@ -5,21 +5,17 @@
 
 typedef void* CListNodeHandle;
 
-///////////////////////////////////////////////////////////////////////
-// 定义 CList< TValue > 类
-///////////////////////////////////////////////////////////////////////
 template <class TValue>
-class CList   // TValue为链表要存储的值
+class CList
 {
     private:
 
-        class _Entry   // 定义链表中的节点类型
+        class _Entry  
         {
             public:
-                TValue      m_value;      // 此节点的内容
-                _Entry*      m_prev;         // 指向前一个节点
-                _Entry*      m_next;         // 指向下一个节点
-                // 节点的构造函数，其中会调用键值设置函数来设置这个节点的键
+                TValue      m_value;      
+                _Entry*      m_prev;      
+                _Entry*      m_next;      
                 _Entry(TValue& value, _Entry* prev, _Entry* next )
                 {
                     m_value=value;
@@ -32,7 +28,6 @@ class CList   // TValue为链表要存储的值
                     m_prev=prev;
                     m_next=next;
                 }
-                // 节点的析构函数，其中调用键值清除函数来清除此节点的键
                 ~_Entry( void )
                 {
 
@@ -59,7 +54,7 @@ class CList   // TValue为链表要存储的值
             public:
 
                 iterator() {}
-                iterator(_Entry* _P){ _Ptr=_P;}   //有初始化的构造，初始化_Entry
+                iterator(_Entry* _P){ _Ptr=_P;}   
 
                 TValue& operator*() const
                 {
@@ -67,8 +62,8 @@ class CList   // TValue为链表要存储的值
                 }
                 iterator& operator++()
                 {
-                    if(_Ptr!=NULL) _Ptr = _Ptr->m_next;   //指向下一个节点地址
-                    return (*this);                //返回本iterator
+                    if(_Ptr!=NULL) _Ptr = _Ptr->m_next;   
+                    return (*this);                
                 }
 
                 iterator operator++(int)
@@ -80,8 +75,8 @@ class CList   // TValue为链表要存储的值
 
                 iterator& operator--()
                 {
-                    if(_Ptr!=NULL) _Ptr = _Ptr->m_prev;   //指向前一个节点地址
-                    return (*this);                //返回本iterator
+                    if(_Ptr!=NULL) _Ptr = _Ptr->m_prev;   
+                    return (*this);                
                 }
 
                 iterator operator--(int)
@@ -107,9 +102,9 @@ class CList   // TValue为链表要存储的值
         };
 
 
-        iterator begin()                     //构造一个指向头节点的iterator
+        iterator begin()                     
         {return (iterator(m_pHead)); }
-        iterator end()                        //构造一个指向尾节点的iterator
+        iterator end()                        
         {return (iterator(m_pTail->m_next)); }
         iterator pos(int index)
         {
@@ -121,27 +116,27 @@ class CList   // TValue为链表要存储的值
             }
             return (iterator(p)); 
         }
-        BOOL front(TValue& value);   //获得头节点，获得后当前节点为头节点 FALSE：没有头节点，空
-        TValue& front_r();   //获得头节点的引用
-        BOOL back(TValue& value);      //获得尾节点，获得后当前节点为尾节点FALSE：没有尾节点，空
-        TValue& back_r();      //获得尾节点的引用
-        BOOL next(TValue& value);   //获得下一个节点，FALSE没有下一个节点了. 
-        BOOL prev(TValue& value);   //获得下一个节点，FALSE没有上一个节点了.
-        BOOL current(TValue& value);   //获得当前节点，FALSE当前节点没有值.
+        BOOL front(TValue& value);   
+        TValue& front_r();   
+        BOOL back(TValue& value);      
+        TValue& back_r();      
+        BOOL next(TValue& value);    
+        BOOL prev(TValue& value);   
+        BOOL current(TValue& value);   
         BOOL get(int pos, TValue& value);
         BOOL set(int pos, TValue& value);
 
-        void reset();      //当前指针指向链表的第一个节点，一般在调用contain之前使用。
-        BOOL front();      //当前指针指向头节点，FALSE：没有头节点，空
-        BOOL back();      //当前指针指向尾节点，FALSE：没有尾节点，空
-        BOOL next();      //当前指针指向下一个节点，FALSE没有下一个节点了. 
-        BOOL prev();      //当前指针指向上一个节点，FALSE没有上一个节点了. 
+        void reset();      
+        BOOL front();      
+        BOOL back();      
+        BOOL next();       
+        BOOL prev();       
 
-        UINT push_front(TValue value);   //添加头节点，返回表长度，0，添加失败，添加后当前节点为头节点 
+        UINT push_front(TValue value);    
         UINT push_front_r(TValue& value);
-        UINT push_back(TValue value); //添加尾节点，返回表长度，0，添加失败，添加后当前节点为尾节点 
+        UINT push_back(TValue value);  
         UINT push_back_r(TValue& value);
-        UINT insert(TValue value);      //在当前位置之后插入节点，返回表长度，0失败，当前节点为插入后的节点
+        UINT insert(TValue value);      
         UINT insert_r(TValue& value);
 
         // insert sortly
@@ -151,27 +146,26 @@ class CList   // TValue为链表要存储的值
 
         void print();
 
-        BOOL contain(TValue& value);    //从当前节点开始查找相同节点，TRUE，找到相同的节点；FALSE，没找到相同的节点，当前节点为匹配的节点
-        int index(TValue& value); // find a node, return the index, -1 for not found
+        BOOL contain(TValue& value);    
+        int index(TValue& value); 
         int index(iterator&);
 
-        UINT pop_front();   //删除头节点，返回表长度，0，删除失败；删除后当前节点为头节点
-        UINT pop_back();   //删除尾节点，返回表长度，0，删除失败；删除后当前节点为尾节点
-        UINT pop_current();   //删除当前节点，返回表长度，0，删除失败；删除之后当前节点转移到下一个（缺省是从头到尾的下一个节点）
-        UINT pop_front(TValue& value);   //删除头节点，返回删除的内容及表长度,0 is empty). 
-        UINT pop_back(TValue& value);   //删除尾节点，返回删除的内容及表长度,0 is empty).  
-        UINT pop_current(TValue& value);   //删除当前节点，返回被删除的节点，当前节点转移到下一个（缺省是从头到尾的下一个节点） add by 李静林 2005-11-18
-        UINT remove(TValue& value); //删除所有匹配的节点，返回删除的数量，0，删除失败（没有匹配项）；
+        UINT pop_front();   
+        UINT pop_back();   
+        UINT pop_current();   
+        UINT pop_front(TValue& value);    
+        UINT pop_back(TValue& value);     
+        UINT pop_current(TValue& value);   
+        UINT remove(TValue& value); 
 
         CListNodeHandle getCurrentHandle();     
         void removeByHandle(CListNodeHandle handle);
 
-        void remove();   //删除所有节点 
-
-        BOOL empty();   //链表是否为空 
-        BOOL ishead();   //当前位置是链表的头
-        BOOL istail();   //当前位置是链表的尾
-        INT count();   //链表长度. 
+        void remove();   
+        BOOL empty();    
+        BOOL ishead();  
+        BOOL istail();  
+        INT count();    
 
         void clear();
         INT  size();
@@ -313,17 +307,17 @@ UINT CList<TValue>::pop_current()
     pPrev=m_pCurrent->m_prev;
     pNext=m_pCurrent->m_next;
 
-    if(pNext==m_pTag)   //当前节点是尾节点
+    if(pNext==m_pTag)   
     {
         return pop_back();
     }
 
-    if (pPrev==m_pTag)   //当前节点是头节点
+    if (pPrev==m_pTag)   
     {
         return pop_front();
     }
 
-    //是中间的节点
+    
     delete m_pCurrent;
     m_pCurrent=pNext;
     m_pCurrent->m_prev=pPrev;

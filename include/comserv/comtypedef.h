@@ -16,7 +16,7 @@
 #include <strstream>
 using namespace std;
 
-/* 暂时注释掉! 因为SP与应用服务器互联有问题。可能是应用服务器没有进行大小尾处理。
+/* 
 #if (defined(WIN32) || defined(LINUX) )
 #ifndef _LITTLE_ENDIAN
 #define _LITTLE_ENDIAN
@@ -96,7 +96,7 @@ struct TTimeFormatted
     I32 hour;
     I32 minute;
     I32 second;
-    I32 usec; //微秒
+    I32 usec; 
 };
 
 #ifdef WIN32
@@ -114,8 +114,6 @@ typedef I8  TOCTET;
 typedef I32 TINTEGER;
 typedef I32 TInteger4;
 
-//modified by lxm. 2008.10.21
-//增加优先级标志。心跳消息可以作为高优先级消息，一般不会丢掉。
 #define code_normal       0
 #define code_emergency    1
 class CCode
@@ -129,10 +127,6 @@ class CCode
         }
         ~CCode()
         {
-            //released by user. maybe the content is pointed to static variable.
-            //if(content)
-            //   delete content;
-            //content=NULL;
         }
 
         void clear()
@@ -146,19 +140,11 @@ class CCode
         UINT flag; //added by lxm. 2008.10.21
 };
 
-typedef enum SCommState /*socket状态*/
+typedef enum SCommState 
 {
     CLOSE   =0,
     OPEN   =1
 } TCommState;
-
-//#ifndef _HP_aCC_NonAA
-//using namespace std;
-//#endif
-
-//typedef string STRING;
-// 定义hash值的类型   如果程序编译成 64位，此值需要改为ULONG
-// 如果程序编译成 32位，此值需要改为UINT
 typedef UINT HASH_CODE;
 
 typedef I32 TObjectType; //used in generalobj.h
@@ -194,7 +180,7 @@ struct TTimeMarkExt
     TTimeMark  timerId;
     CHAR       timerName[MAX_TIMER_NAME];
     TTimeDelay timerDelay;
-    INT        resendNum;  //可以使用-1表示不停重发;
+    INT        resendNum;  
 };
 
 
@@ -234,7 +220,7 @@ enum TProcessState
     process_active,
     process_noanswer,
     process_down,
-    process_failed //多次重启仍然失败
+    process_failed 
 
 };
 
@@ -245,12 +231,8 @@ enum TAlertType
     alert_error
 };
 
-//最大网络适配器个数
 #define MAX_NET_INTERFACES 16
 
-
-//added by XfZhou, 2007.11.12
-//网络适配器地址信息定义。通过调用getLocalHostAddress()返回（func.h)
 class TIfCfg
 {
     public:
@@ -280,18 +262,14 @@ memcpy(DST, SRC, N);
 else if (SRC!=0) memcpy(DST, SRC, N);
 
 
-typedef UINT         TModuleType;       //模块类型的数据类型定义
-typedef UINT         TModuleInst;       //模块实例的数据类型定义
-//added by Long Xiangming. 2007.07.19
-typedef TModuleType  TModuleID;         //模块ID的数据类型定义
-
-typedef TModuleType  TLogicalAddress;   //系统逻辑地址的数据类型
-typedef TModuleInst  TTaskInstanceID;   //任务实例标识的数据类型
-
-typedef UINT         TUniNetMsgType;    //消息类型的数据类型定义
-typedef UINT         TUniNetMsgName;    //消息名的数据类型定义
-
-typedef UINT         TIndexID;          //各种ID标识的数据类型定义
+typedef UINT         TModuleType;      
+typedef UINT         TModuleInst;       
+typedef TModuleType  TModuleID;        
+typedef TModuleType  TLogicalAddress;   
+typedef TModuleInst  TTaskInstanceID;   
+typedef UINT         TUniNetMsgType;    
+typedef UINT         TUniNetMsgName;    
+typedef UINT         TIndexID;          
 
 
 //enum DBType
@@ -326,32 +304,26 @@ class STuple
 
 };
 
-//==========================================================
-// 消息类定义
 _CLASSDEF(TMsgPara);
-//消息参数基类，所有的消息参数都应该从这里派生
 class TMsgPara
 {
     public:
         TMsgPara(){};
         virtual ~TMsgPara(){};
 
-        //子类必须实现之
         virtual   INT size() { return 0;}
         virtual   INT encode(CHAR* &buf) { return 0;}
         virtual   INT decode(CHAR* &buf) { return 0;}
         virtual   CHAR* getMsgNameStr() { return getMsgName(); }
         virtual   CHAR* getMsgName(){ return "msgPara";}
         virtual   void  print(ostrstream&)=0;
-        virtual   BOOL  operator==(TMsgPara&)=0; //将isEqual换成==操作符，By Long Xiangming. 2006.3.24
-        virtual   PTMsgPara cloneMsg(){ return NULL;}    //只在其直接子类如TUniNetMsg中实现，其他子类不须实现
-        virtual   PTMsgPara cloneCtrlMsg(){ return NULL;} //只在TUniNetMsg中实现，其他子类不须实现
-        int getIndent() {return 0;}//新加的函数，输出的时候用到了。
-        void incIndent(){}//新加的函数，输出的时候用到了。
-        void decIndent(){}//新加的函数，输出的时候用到了。
+        virtual   BOOL  operator==(TMsgPara&)=0; 
+        virtual   PTMsgPara cloneMsg(){ return NULL;}    
+        virtual   PTMsgPara cloneCtrlMsg(){ return NULL;} 
+        int getIndent() {return 0;}
+        void incIndent(){}
+        void decIndent(){}
 };
-
-
 
 inline BOOL  STuple::operator==(STuple& r)
 {
@@ -382,7 +354,4 @@ inline void	  STuple::print(ostrstream& st)
 
 }
 
-
 #endif
-
-

@@ -1,7 +1,6 @@
 #ifndef __DEFS_
 #define __DEFS_
 
-//#ifndef __DATATYPEDEF
 #define _DATATYPEDEF(type,name) \
             typedef type name; \
             typedef name* P##name;\
@@ -26,8 +25,6 @@
             typedef name  *  & RP##name;\
             typedef const name  * PC##name;\
             typedef const name  & RC##name;
-
-//#endif   // __DATATYPEDEF
 
 #endif
 
